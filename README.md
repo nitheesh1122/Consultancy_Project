@@ -1,85 +1,99 @@
-# Consultancy Project
+# Textile Consultancy Management System
 
-A comprehensive management system built with a modern tech stack, designed to handle inventory, user management, reporting, and process approvals efficiently.
+A comprehensive ERP solution designed for tracking inventory, managing procurement workflows, and visualizing production analytics in the textile industry.
 
-## 🚀 Tech Stack
+![Dashboard Preview](client/public/dashboard-preview.png)
+*(Note: Screenshot placeholder)*
+
+## 📚 Documentation
+- **[Project Overview & Workflow](PROJECT_EXPLANATION.md)** - Start here to understand the logic.
+- **[Backend Documentation](BACKEND_DOCS.md)** - API references and Database models.
+- **[Frontend Documentation](FRONTEND_DOCS.md)** - UI structure and Component guide.
+
+---
+
+## 🚀 Key Features
+
+### 🏭 Inventory & Production
+*   **Real-time Stock Tracking:** Auto-deducts on issue, auto-adds on inward.
+*   **Batch Tracking:** Monitor material usage per production batch.
+*   **Dead Stock Detection:** Automatically flags materials unused for 60+ days.
+
+### 📦 Procurement
+*   **Digital Workflow:** `Raise PI` → `Approve` → `Inward Entry`.
+*   **Supplier Management:** Track vendor performance and delays.
+*   **Role-Based Access:** Strict separation of duties between Managers and Admins.
+
+### 📊 Analytics & Reporting
+*   **Inventory Health:** Visualize risk and critical stock levels.
+*   **Cost Analysis:** Track monthly material expenditure.
+*   **Efficiency Metrics:** Identify wastage and inefficiency in production.
+*   **Forecasting:** Data-driven reorder suggestions.
+
+---
+
+## 🛠️ Tech Stack
 
 ### Frontend
-- **Framework:** [React](https://reactjs.org/) (powered by [Vite](https://vitejs.dev/))
-- **Language:** TypeScript
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-- **Icons:** [Lucide React](https://lucide.dev/)
-- **Routing:** React Router DOM
-- **HTTP Client:** Axios
-- **State/Notifications:** React Hot Toast
+- **React + Vite** (Fast, modern UI)
+- **Tailwind CSS** (Responsive styling)
+- **Recharts** (Data visualization)
+- **Lucide React** (Icons)
 
 ### Backend
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Language:** TypeScript
-- **Database:** MongoDB (via Mongoose)
-- **Authentication:** JWT (JSON Web Tokens) & Bcrypt
-- **CORS:** Enabled for secure cross-origin requests
+- **Node.js + Express** (Robust API)
+- **MongoDB + Mongoose** (Flexible data storage)
+- **TypeScript** (Type safety across the stack)
+- **JWT Auth** (Secure access)
 
-## ✨ Features
+---
 
-- **Dashboard:** Overview of key metrics and activities.
-- **User Management:** Admin controls for managing users and roles.
-- **Inventory Management:** Track materials, stock levels, and inward entries.
-- **Purchase Indents (PI):** Raise and approve purchase indents with a streamlined workflow.
-- **Reports & Analytics:** Visual insights and downloadable reports for data-driven decisions.
-- **Notifications:** Real-time updates for important actions and alerts.
-- **Authentication:** Secure login and role-based access control.
-
-## 🔮 Future Enhancements
-
-The following features are planned to further elevate the platform:
-
-1.  **Mobile Application:** A dedicated mobile app for on-the-go access to approvals and reports.
-2.  **Advanced Analytics:** AI-driven predictive analytics for inventory forecasting and trend analysis.
-3.  **Third-Party Integrations:** Seamless integration with popular ERP and accounting software (e.g., Tally, SAP).
-4.  **Automated Notifications:** SMS and Email alerts for critical stock levels and pending approvals.
-5.  **Multi-Language Support:** Localization to support a diverse user base.
-6.  **Audit Logs:** Comprehensive activity logging for enhanced security and accountability.
-7.  **Supplier Portal:** A dedicated interface for vendors to track orders and payments.
-
-## 🛠️ Getting Started
+## ⚡ Quick Start
 
 ### Prerequisites
-- Node.js (v18 or higher)
-- MongoDB (Local or Atlas)
+- Node.js (v18+)
+- MongoDB (Running locally or cloud)
 
 ### Installation
 
-1.  **Clone the repository:**
+1.  **Clone & Install**
     ```bash
-    git clone https://github.com/nitheesh1122/Consultancy_Project.git
-    cd Consultancy_Project
-    ```
-
-2.  **Install dependencies:**
-    ```bash
-    # Install server dependencies
+    git clone <repo-url>
+    cd consultancy-project
+    
+    # Server
     cd server
     npm install
-
-    # Install client dependencies
+    
+    # Client
     cd ../client
     npm install
     ```
 
-3.  **Environment Setup:**
-    - Configure `.env` files in both `client` and `server` directories with necessary secrets and API endpoints.
+2.  **Environment Setup**
+    Create `.env` files in both folders.
+    *   **Server:** `PORT`, `MONGO_URI`, `JWT_SECRET`
+    *   **Client:** `VITE_API_URL`
 
-4.  **Run the application:**
+3.  **Run Locally**
     ```bash
-    # Start server (from server directory)
+    # Terminal 1: Server
+    cd server
     npm run dev
-
-    # Start client (from client directory)
+    
+    # Terminal 2: Client
+    cd client
     npm run dev
     ```
 
-## 📄 License
+4.  **Seed Data (Optional)**
+    Populate the DB with 60 days of realistic demo data:
+    ```bash
+    cd server
+    npx ts-node src/seed.ts
+    ```
 
-This project is licensed under the MIT License.
+---
+
+## 📄 License
+MIT License.
