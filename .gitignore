@@ -33,8 +33,20 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
-jspm_packages/
+node_modules
+dist
+build
+.env
+.DS_Store
+coverage
+.vscode
+
+# Documentation & cleanup
+BACKEND_DOCS.md
+FRONTEND_DOCS.md
+PROJECT_EXPLANATION.md
+*.pptx
+WhatsApp Image *.jpegs/
 
 # TypeScript v1 declaration files
 typings/
