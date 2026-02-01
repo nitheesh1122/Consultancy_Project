@@ -12,6 +12,7 @@ const Sidebar = () => {
         { name: 'Request Material', path: '/request-material', icon: FileText, roles: ['SUPERVISOR'] },
         { name: 'Material Requests', path: '/mrs-list', icon: FileText, roles: ['STORE_MANAGER'] },
         { name: 'Inventory', path: '/inventory', icon: Package, roles: ['ADMIN', 'STORE_MANAGER'] },
+        { name: 'Suppliers', path: '/suppliers', icon: Truck, roles: ['ADMIN'] },
         { name: 'Raise PI', path: '/raise-pi', icon: ShoppingCart, roles: ['STORE_MANAGER'] },
         { name: 'Inward Entry', path: '/inward-entry', icon: Truck, roles: ['STORE_MANAGER'] },
         { name: 'PI Approvals', path: '/pi-approvals', icon: ShoppingCart, roles: ['ADMIN'] },
