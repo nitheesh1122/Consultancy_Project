@@ -172,6 +172,51 @@ const InwardEntry = () => {
                         )))}
                 </div>
             )}
+
+            {/* Rating Modal */}
+            {ratingOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-bold text-gray-800">Rate Supplier Performance</h3>
+                            <button onClick={() => setRatingOpen(false)} className="text-gray-400 hover:text-gray-600">
+                                &times;
+                            </button>
+                        </div>
+
+                        <p className="text-gray-600 mb-6">
+                            How would you rate the quality and delivery timeliness for this order?
+                        </p>
+
+                        <div className="flex justify-center space-x-2 mb-8">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button
+                                    key={star}
+                                    onClick={() => setRating(star)}
+                                    className={`text-3xl transition-transform hover:scale-110 ${rating >= star ? 'text-yellow-400' : 'text-gray-300'}`}
+                                >
+                                    ★
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                onClick={() => setRatingOpen(false)}
+                                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleProcessInward}
+                                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-bold shadow-sm"
+                            >
+                                Confirm & Process Inward
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../lib/api';
 import { Bell } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useSocket } from '../context/SocketContext';
 
 const NotificationBell = () => {
