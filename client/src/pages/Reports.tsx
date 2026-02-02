@@ -7,8 +7,7 @@ import { Button } from '../components/ui/Button';
 import {
     LayoutDashboard, Package, Clock, Activity, DollarSign, TrendingUp, AlertTriangle, Layers, Download, CheckCircle, AlertCircle
 } from 'lucide-react';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { generatePDF } from '../lib/pdfGenerator';
 
 const Reports = () => {
     const [activeTab, setActiveTab] = useState('INVENTORY');
@@ -39,26 +38,26 @@ const Reports = () => {
     };
 
     const exportForecast = () => {
-        const doc = new jsPDF();
-        doc.setFont("helvetica", "bold");
-        doc.text("Golden Textile Dyers - Reorder Forecast", 14, 15);
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 22);
+        if (!Array.isArray(stats)) return;
 
-        const tableData = Array.isArray(stats) ? stats.map((item: any) => [
-            item.name, item.currentStock, item.avgDaily, item.suggestedReorder, item.status
-        ]) : [];
-
-        autoTable(doc, {
-            head: [['Material', 'Current Stock', 'Avg Daily', 'Suggested Reorder', 'Status']],
-            body: tableData,
-            startY: 30,
-            theme: 'grid',
-            headStyles: { fillColor: [71, 85, 105] }, // Slate-600
+        generatePDF({
+            title: "REORDER FORECAST",
+            reportType: "Forecast Analysis",
+            generatedBy: "System (Admin)",
+            fileName: "forecast_report.pdf",
+            tableColumns: [
+                { header: "Material", dataKey: "name" },
+                { header: "Current Stock", dataKey: "currentStock" },
+                { header: "Avg Daily", dataKey: "avgDaily" },
+                { header: "Suggested Reorder", dataKey: "suggestedReorder" },
+                { header: "Status", dataKey: "status" }
+            ],
+            tableData: stats,
+            metaData: {
+                "Total Items": stats.length.toString(),
+                "Critical Items": stats.filter((s: any) => s.status === 'REORDER_NOW').length.toString()
+            }
         });
-
-        doc.save("forecast_report.pdf");
     };
 
     const tabs = [
@@ -304,8 +303,8 @@ const Reports = () => {
                                                 <td className="px-6 py-4 text-right font-bold text-indigo-600">{item.suggestedReorder}</td>
                                                 <td className="px-6 py-4 text-center">
                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${item.status === 'REORDER_NOW'
-                                                            ? 'bg-rose-100 text-rose-800'
-                                                            : 'bg-emerald-100 text-emerald-800'
+                                                        ? 'bg-rose-100 text-rose-800'
+                                                        : 'bg-emerald-100 text-emerald-800'
                                                         }`}>
                                                         {item.status === 'REORDER_NOW' ? 'Order Needed' : 'Sufficient'}
                                                     </span>

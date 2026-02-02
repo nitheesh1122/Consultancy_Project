@@ -1,7 +1,6 @@
 import React from 'react';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { Download } from 'lucide-react';
+import { generatePDF, type PDFTableColumn } from '../lib/pdfGenerator';
 
 interface PDFButtonProps {
     type: 'MRS' | 'PI';
@@ -11,59 +10,72 @@ interface PDFButtonProps {
 
 const PDFDownloadButton: React.FC<PDFButtonProps> = ({ type, data, fileName }) => {
     const handleDownload = () => {
-        const doc = new jsPDF();
+        const isMRS = type === 'MRS';
+        const title = isMRS ? 'MATERIAL REQUEST SLIP' : 'PRODUCT INWARD ORDER';
+        const reportType = isMRS ? 'Material Request' : 'Inward Order';
 
-        // Header
-        doc.setFontSize(20);
-        doc.text('Consultancy Inventory System', 14, 22);
+        // Prepare Metadata
+        const metaData: Record<string, string> = {};
+        let generatedBy = 'System';
 
-        doc.setFontSize(14);
-        doc.text(type === 'MRS' ? 'Material Request Slip' : 'Product Inward Order', 14, 32);
-
-        // Meta Data
-        doc.setFontSize(10);
-        if (type === 'MRS') {
-            doc.text(`Batch ID: ${data.batchId}`, 14, 42);
-            doc.text(`Requested By: ${data.supervisorId?.username || 'Supervisor'}`, 14, 48);
-            doc.text(`Date: ${new Date(data.createdAt).toLocaleDateString()}`, 14, 54);
-            doc.text(`Status: ${data.status}`, 14, 60);
+        if (isMRS) {
+            metaData['Batch ID'] = data.batchId || 'N/A';
+            metaData['Status'] = data.status || 'N/A';
+            metaData['Requested Date'] = new Date(data.createdAt).toLocaleDateString();
+            generatedBy = data.supervisorId?.username || 'Supervisor';
         } else {
-            doc.text(`Raised By: ${data.storeManagerId?.username || 'Manager'}`, 14, 42);
-            doc.text(`Date: ${new Date(data.createdAt).toLocaleDateString()}`, 14, 48);
-            doc.text(`Status: ${data.status}`, 14, 54);
-            doc.text(`Reason: ${data.reason || 'N/A'}`, 14, 60);
+            metaData['Order ID'] = data._id ? data._id.slice(-6).toUpperCase() : 'N/A';
+            metaData['Supplier'] = data.supplierId?.name || 'Unknown Supplier';
+            metaData['Status'] = data.status || 'N/A';
+            metaData['Raised Date'] = new Date(data.createdAt).toLocaleDateString();
+            if (data.reason) metaData['Reason'] = data.reason;
+            generatedBy = data.storeManagerId?.username || 'Store Manager';
         }
 
-        // Table
-        const tableColumn = type === 'MRS'
-            ? ["Material", "Requested", "Issued", "Status"]
-            : ["Material", "Quantity", "Unit"];
+        // Prepare Table Columns & Data
+        let columns: PDFTableColumn[] = [];
+        let tableData: any[] = [];
 
-        const tableRows = data.items.map((item: any) => {
-            if (type === 'MRS') {
+        if (isMRS) {
+            columns = [
+                { header: 'Material', dataKey: 'material' },
+                { header: 'Requested', dataKey: 'requested' },
+                { header: 'Issued', dataKey: 'issued' },
+                { header: 'Status', dataKey: 'status' }
+            ];
+
+            tableData = data.items.map((item: any) => {
                 const pending = item.quantityRequested - (item.quantityIssued || 0);
-                return [
-                    item.materialId?.name || 'Unknown',
-                    `${item.quantityRequested} ${item.materialId?.unit}`,
-                    `${item.quantityIssued || 0} ${item.materialId?.unit}`,
-                    pending > 0 ? 'Pending' : 'Fulfilled'
-                ];
-            } else {
-                return [
-                    item.materialId?.name || 'Unknown',
-                    item.quantity,
-                    item.materialId?.unit
-                ];
-            }
-        });
+                return {
+                    material: item.materialId?.name || 'Unknown',
+                    requested: `${item.quantityRequested} ${item.materialId?.unit}`,
+                    issued: `${item.quantityIssued || 0} ${item.materialId?.unit}`,
+                    status: pending > 0 ? 'Pending' : 'Fulfilled'
+                };
+            });
+        } else {
+            columns = [
+                { header: 'Material', dataKey: 'material' },
+                { header: 'Quantity', dataKey: 'quantity' },
+                { header: 'Unit', dataKey: 'unit' }
+            ];
 
-        autoTable(doc, {
-            head: [tableColumn],
-            body: tableRows,
-            startY: 70,
-        });
+            tableData = data.items.map((item: any) => ({
+                material: item.materialId?.name || 'Unknown',
+                quantity: item.quantity,
+                unit: item.materialId?.unit
+            }));
+        }
 
-        doc.save(fileName || `${type}_${data._id}.pdf`);
+        generatePDF({
+            title,
+            reportType,
+            generatedBy,
+            fileName: fileName || `${type}_${data._id}.pdf`,
+            tableColumns: columns,
+            tableData,
+            metaData
+        });
     };
 
     return (

@@ -6,7 +6,7 @@ import { Supplier } from '../models/Supplier';
 
 export const getMaterials = async (req: Request, res: Response) => {
     try {
-        const materials = await Material.find({}).sort({ name: 1 });
+        const materials = await Material.find({}).populate('supplierId', 'name').sort({ name: 1 });
         res.json(materials);
     } catch (error: any) {
         console.error("Error in getMaterials:", error);

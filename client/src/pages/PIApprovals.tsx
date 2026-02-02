@@ -15,6 +15,7 @@ interface PI {
     reason: string;
     items: PIItem[];
     createdAt: string;
+    supplierId?: { name: string };
 }
 
 const PIApprovals = () => {
@@ -61,7 +62,7 @@ const PIApprovals = () => {
                             <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                                 <div>
                                     <h3 className="text-lg font-semibold text-gray-900">
-                                        Raised by {pi.storeManagerId?.username}
+                                        Raised by {pi.storeManagerId?.username} {pi.supplierId ? `for ${pi.supplierId.name}` : ''}
                                     </h3>
                                     <p className="text-sm text-gray-500">
                                         {new Date(pi.createdAt).toLocaleDateString()} - <span className="italic">{pi.reason || 'No specific reason'}</span>

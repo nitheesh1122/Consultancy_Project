@@ -8,6 +8,7 @@ const materialSchema = new mongoose.Schema({
     quantity: { type: Number, default: 0 },
     minStock: { type: Number, default: 10 },
     unitCost: { type: Number, default: 0 },
+    supplierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier' },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
