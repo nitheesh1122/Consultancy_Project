@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../lib/api';
 import { Plus, Trash2, Save, History, ClipboardList, Loader2, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import RequestTimeline from '../components/RequestTimeline';
 
 interface Material {
     _id: string;
@@ -273,16 +274,8 @@ const RequestMaterial = () => {
                                                         Req #{mrs._id.slice(-6).toUpperCase()}
                                                     </h4>
                                                 </div>
-                                                <div className="text-right">
-                                                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide 
-                                                        ${mrs.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                                                            mrs.status === 'ISSUED' ? 'bg-green-100 text-green-800' :
-                                                                mrs.status === 'PARTIALLY_ISSUED' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
-                                                        {mrs.status}
-                                                    </span>
-                                                    <div className="text-xs text-gray-500 mt-1">
-                                                        {new Date(mrs.createdAt).toLocaleDateString()}
-                                                    </div>
+                                                <div className="flex flex-col items-end gap-2">
+                                                    <RequestTimeline status={mrs.status} createdAt={mrs.createdAt} />
                                                 </div>
                                             </div>
 

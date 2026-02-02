@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { LayoutDashboard, Package, FileText, ShoppingCart, LogOut, Truck, Settings, Users } from 'lucide-react';
+import { LayoutDashboard, Package, FileText, ShoppingCart, LogOut, Truck, Settings, Users, RefreshCw } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 
 const Sidebar = () => {
@@ -10,6 +10,7 @@ const Sidebar = () => {
     const navItems = [
         { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['ADMIN', 'SUPERVISOR', 'STORE_MANAGER'] },
         { name: 'Request Material', path: '/request-material', icon: FileText, roles: ['SUPERVISOR'] },
+        { name: 'Return Material', path: '/return-material', icon: RefreshCw, roles: ['SUPERVISOR'] }, // Added this
         { name: 'Material Requests', path: '/mrs-list', icon: FileText, roles: ['STORE_MANAGER'] },
         { name: 'Inventory', path: '/inventory', icon: Package, roles: ['ADMIN', 'STORE_MANAGER'] },
         { name: 'Suppliers', path: '/suppliers', icon: Truck, roles: ['ADMIN'] },
@@ -18,6 +19,7 @@ const Sidebar = () => {
         { name: 'PI Approvals', path: '/pi-approvals', icon: ShoppingCart, roles: ['ADMIN'] },
         { name: 'Reports', path: '/reports', icon: FileText, roles: ['ADMIN', 'STORE_MANAGER'] },
         { name: 'User Management', path: '/users', icon: Users, roles: ['ADMIN'] },
+        { name: 'Audit Logs', path: '/audit-logs', icon: Settings, roles: ['ADMIN'] }, // Added this
     ];
 
     return (

@@ -4,7 +4,7 @@ const transactionSchema = new mongoose.Schema({
     type: {
         type: String,
         required: true,
-        enum: ['ISSUE', 'INWARD', 'ADJUSTMENT']
+        enum: ['ISSUE', 'INWARD', 'ADJUSTMENT', 'RETURN']
     },
     materialId: { type: mongoose.Schema.Types.ObjectId, ref: 'Material', required: true },
     quantity: { type: Number, required: true }, // Negative for issue, Positive for inward

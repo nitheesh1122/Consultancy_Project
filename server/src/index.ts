@@ -10,6 +10,10 @@ import analyticsRoutes from './routes/analyticsRoutes';
 import notificationRoutes from './routes/notificationRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import supplierRoutes from './routes/supplierRoutes';
+import auditRoutes from './routes/auditRoutes';
+
+import { createServer } from 'http';
+import { initSocket } from './socket';
 
 dotenv.config();
 
@@ -32,11 +36,15 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/suppliers', supplierRoutes);
+app.use('/api/audit', auditRoutes);
 
 app.get('/', (req, res) => {
     res.send('Inventory System API is running');
 });
 
-app.listen(PORT, () => {
+const httpServer = createServer(app);
+const io = initSocket(httpServer);
+
+httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

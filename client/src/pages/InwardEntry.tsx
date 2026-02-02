@@ -41,13 +41,26 @@ const InwardEntry = () => {
         }
     };
 
-    const handleProcessInward = async (id: string) => {
-        if (!window.confirm('Confirm receipt of all materials? Stock will be updated.')) return;
+    // Rating State
+    const [ratingOpen, setRatingOpen] = useState(false);
+    const [selectedPiId, setSelectedPiId] = useState<string | null>(null);
+    const [rating, setRating] = useState(5);
+
+    const initiateInward = (id: string) => {
+        setSelectedPiId(id);
+        setRating(5); // Reset to default
+        setRatingOpen(true);
+    };
+
+    const handleProcessInward = async () => {
+        if (!selectedPiId) return;
 
         try {
-            await api.post(`/pi/${id}/inward`, {});
-            alert('Inward Entry Successful! Stock Updated.');
-            fetchPIs(); // Refresh list
+            await api.post(`/pi/${selectedPiId}/inward`, { rating }); // Send rating
+            alert('Inward Entry Successful! Stock Updated & Supplier Rated.');
+            setRatingOpen(false);
+            setSelectedPiId(null);
+            fetchPIs();
         } catch (error: any) {
             alert(error.response?.data?.message || 'Failed to process inward entry');
         }
@@ -126,11 +139,11 @@ const InwardEntry = () => {
 
                                         {activeTab === 'PENDING' && (
                                             <button
-                                                onClick={() => handleProcessInward(pi._id)}
+                                                onClick={() => initiateInward(pi._id)}
                                                 className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm font-bold shadow-sm transition-colors"
                                             >
                                                 <CheckCircle className="w-5 h-5 mr-2" />
-                                                Receive Goods
+                                                Receive & Rate
                                             </button>
                                         )}
                                     </div>

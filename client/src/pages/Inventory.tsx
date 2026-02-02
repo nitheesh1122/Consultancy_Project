@@ -12,6 +12,7 @@ interface Material {
     quantity: number;
     minStock: number;
     unitCost: number;
+    abcCategory?: 'A' | 'B' | 'C' | 'None';
 }
 
 const Inventory = () => {
@@ -77,15 +78,32 @@ const Inventory = () => {
                     <p className="text-slate-500 text-sm mt-1">Manage stock levels, track consumption, and monitor critical items.</p>
                 </div>
 
-                <div className="relative w-full md:w-72">
-                    <input
-                        type="text"
-                        placeholder="Search materials..."
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 shadow-sm transition-all"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                <div className="relative w-full md:w-72 flex gap-2">
+                    <button
+                        onClick={async () => {
+                            try {
+                                setLoading(true);
+                                await api.get('/materials/abc');
+                                await fetchMaterials();
+                            } catch (err) {
+                                console.error(err);
+                            }
+                        }}
+                        className="px-3 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors whitespace-nowrap"
+                        title="Run ABC Analysis"
+                    >
+                        Run ABC
+                    </button>
+                    <div className="relative flex-1">
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 shadow-sm transition-all"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    </div>
                 </div>
             </div>
 
@@ -128,9 +146,19 @@ const Inventory = () => {
                                         <tr key={material._id} className={`group hover:bg-slate-50/80 transition-colors ${isDeadStock ? 'bg-slate-50' : ''}`}>
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col">
-                                                    <span className={`font-semibold text-sm ${isDeadStock ? 'text-slate-400' : 'text-slate-900'}`}>
-                                                        {material.name}
-                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`font-semibold text-sm ${isDeadStock ? 'text-slate-400' : 'text-slate-900'}`}>
+                                                            {material.name}
+                                                        </span>
+                                                        {material.abcCategory && material.abcCategory !== 'None' && (
+                                                            <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded border ${material.abcCategory === 'A' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                                                                material.abcCategory === 'B' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                                                    'bg-gray-50 text-gray-700 border-gray-200'
+                                                                }`}>
+                                                                {material.abcCategory}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <span className="text-xs text-slate-500">Unit Cost: ₹{material.unitCost}</span>
                                                 </div>
                                             </td>
@@ -144,8 +172,8 @@ const Inventory = () => {
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium ${daysLeft < 3 ? 'bg-rose-100 text-rose-800' :
-                                                        daysLeft < 7 ? 'bg-amber-100 text-amber-800' :
-                                                            'bg-slate-100 text-slate-600'
+                                                    daysLeft < 7 ? 'bg-amber-100 text-amber-800' :
+                                                        'bg-slate-100 text-slate-600'
                                                     }`}>
                                                     <Calendar className="h-3 w-3" />
                                                     {daysLeft} Days

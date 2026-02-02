@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import api from '../lib/api';
 import { Bell } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useSocket } from '../context/SocketContext';
 
 const NotificationBell = () => {
     const [unreadCount, setUnreadCount] = useState(0);
+    const { socket } = useSocket();
 
     const fetchNotifications = async () => {
         try {
@@ -17,10 +18,18 @@ const NotificationBell = () => {
 
     useEffect(() => {
         fetchNotifications();
-        // Poll every 30 seconds
-        const interval = setInterval(fetchNotifications, 30000);
-        return () => clearInterval(interval);
-    }, []);
+
+        if (socket) {
+            socket.on('notification', () => {
+                fetchNotifications();
+                // Optional: Show a toast/snackbar here
+            });
+        }
+
+        return () => {
+            if (socket) socket.off('notification');
+        };
+    }, [socket]);
 
     return (
         <Link to="/notifications" className="relative p-2 text-gray-400 hover:text-white transition-colors">

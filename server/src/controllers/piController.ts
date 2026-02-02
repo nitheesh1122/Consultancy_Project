@@ -8,6 +8,8 @@ interface AuthRequest extends Request {
 
 import { Material } from '../models/Material';
 import { Transaction } from '../models/Transaction';
+import { Supplier } from '../models/Supplier';
+import { getIO } from '../socket';
 
 // 1. Raise PI (Store Manager)
 export const createPI = async (req: AuthRequest, res: Response) => {
@@ -59,6 +61,14 @@ export const createPI = async (req: AuthRequest, res: Response) => {
             createdPIs.push(pi);
         }
 
+        // Notify Admins
+        const io = getIO();
+        io.to('ADMIN').emit('notification', {
+            title: 'New Purchase Indent',
+            message: `${req.user.username} raised a new PI.`,
+            type: 'info'
+        });
+
         res.status(201).json(createdPIs);
     } catch (error: any) {
         res.status(500).json({ message: error.message });
@@ -106,6 +116,18 @@ export const updatePIStatus = async (req: AuthRequest, res: Response) => {
         if (reason) pi.reason = reason; // Optional rejection reason or note
 
         await pi.save();
+
+        // Notify Store Manager
+        const io = getIO();
+        // Assuming we join rooms by userId too? Or just generic role room?
+        // Ideally: io.to(pi.storeManagerId.toString()).emit... 
+        // For now, simpler:
+        io.to('STORE_MANAGER').emit('notification', {
+            title: `PI ${status}`,
+            message: `Purchase Indent ${pi._id.toString().slice(-6)} was ${status}.`,
+            type: status === 'APPROVED' ? 'success' : 'error'
+        });
+
         res.json(pi);
     } catch (error: any) {
         res.status(500).json({ message: error.message });
@@ -115,6 +137,7 @@ export const updatePIStatus = async (req: AuthRequest, res: Response) => {
 // 4. Inward Entry (Store Manager) - Converts Approved PI to Actual Stock
 export const processInward = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
+    const { rating } = req.body;
 
     try {
         const pi = await ProductInward.findById(id).populate('items.materialId');
@@ -143,6 +166,20 @@ export const processInward = async (req: AuthRequest, res: Response) => {
                 performedBy: req.user.id,
                 timestamp: new Date()
             });
+        }
+
+        // Update Supplier Rating
+        if (rating && pi.supplierId) {
+            const supplier = await Supplier.findById(pi.supplierId);
+            if (supplier) {
+                const currentTotal = (supplier.rating || 0) * (supplier.ratingCount || 0);
+                const newCount = (supplier.ratingCount || 0) + 1;
+                const newRating = (currentTotal + rating) / newCount;
+
+                supplier.rating = parseFloat(newRating.toFixed(2));
+                supplier.ratingCount = newCount;
+                await supplier.save();
+            }
         }
 
         pi.status = 'COMPLETED';

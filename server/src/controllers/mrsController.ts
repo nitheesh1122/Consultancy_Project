@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { MRS } from '../models/MRS';
 import { Material } from '../models/Material';
+import { getIO } from '../socket';
 
 interface AuthRequest extends Request {
     user?: any;
@@ -37,6 +38,14 @@ export const createMRS = async (req: AuthRequest, res: Response) => {
             supervisorId: req.user.id,
             items,
             status: 'PENDING'
+        });
+
+        // Notify Store Managers
+        const io = getIO();
+        io.to('STORE_MANAGER').emit('notification', {
+            title: 'New Material Request',
+            message: `Batch ${batchId}: New request received.`,
+            type: 'info'
         });
 
         res.status(201).json(mrs);
@@ -138,6 +147,39 @@ export const issueMRS = async (req: AuthRequest, res: Response) => {
         await mrs.save();
 
         res.json(mrs);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const returnMaterial = async (req: AuthRequest, res: Response) => {
+    const { materialId, quantity, reason } = req.body;
+
+    try {
+        const material = await Material.findById(materialId);
+        if (!material) {
+            return res.status(404).json({ message: 'Material not found' });
+        }
+
+        if (quantity <= 0) {
+            return res.status(400).json({ message: 'Return quantity must be greater than 0' });
+        }
+
+        material.quantity += parseFloat(quantity);
+        await material.save();
+
+        await mongoose.connection.collection('transactions').insertOne({
+            id: new mongoose.Types.ObjectId().toString(),
+            type: 'RETURN',
+            materialId: new mongoose.Types.ObjectId(materialId),
+            quantity: parseFloat(quantity),
+            relatedId: new mongoose.Types.ObjectId(req.user.id),
+            performedBy: new mongoose.Types.ObjectId(req.user.id),
+            details: { reason },
+            timestamp: new Date()
+        });
+
+        res.json({ message: 'Material returned successfully', newStock: material.quantity });
     } catch (error: any) {
         res.status(500).json({ message: error.message });
     }

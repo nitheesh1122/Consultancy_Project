@@ -33,12 +33,36 @@ export const getDashboardStats = async (req: AuthRequest, res: Response) => {
         ]);
         const totalValue = inventoryValue.length > 0 ? inventoryValue[0].total : 0;
 
+        // Quick Cost Trend (Last 6 months)
+        const costTrend = await Transaction.aggregate([
+            { $match: { type: 'INWARD' } },
+            {
+                $lookup: { from: 'materials', localField: 'materialId', foreignField: '_id', as: 'material' }
+            },
+            { $unwind: '$material' },
+            {
+                $group: {
+                    _id: {
+                        month: { $month: "$timestamp" },
+                        year: { $year: "$timestamp" }
+                    },
+                    totalCost: { $sum: { $multiply: ["$quantity", "$material.unitCost"] } }
+                }
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1 } },
+            { $limit: 6 }
+        ]);
+
         res.json({
             lowStockCount,
             lowStockItems,
             pendingPIs,
             pendingMRS,
-            totalInventoryValue: totalValue
+            totalInventoryValue: totalValue,
+            costTrend: costTrend.map(d => ({
+                month: `${d._id.month}/${d._id.year}`,
+                cost: d.totalCost
+            }))
         });
     } catch (error: any) {
         res.status(500).json({ message: error.message });

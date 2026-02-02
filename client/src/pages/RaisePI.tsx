@@ -11,7 +11,7 @@ interface Material {
     unit: string;
     quantity: number;
     minStock: number;
-    supplierId?: { name: string };
+    supplierId?: { name: string; rating?: number };
 }
 
 interface RequestItem {
@@ -152,8 +152,8 @@ const RaisePI = () => {
                     <button
                         onClick={() => setActiveTab('NEW')}
                         className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'NEW'
-                                ? 'bg-white text-indigo-600 shadow-sm'
-                                : 'text-slate-500 hover:text-slate-700'
+                            ? 'bg-white text-indigo-600 shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700'
                             }`}
                     >
                         <Plus className="h-4 w-4 inline mr-1" /> New Request
@@ -161,8 +161,8 @@ const RaisePI = () => {
                     <button
                         onClick={() => setActiveTab('HISTORY')}
                         className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'HISTORY'
-                                ? 'bg-white text-indigo-600 shadow-sm'
-                                : 'text-slate-500 hover:text-slate-700'
+                            ? 'bg-white text-indigo-600 shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700'
                             }`}
                     >
                         <History className="h-4 w-4 inline mr-1" /> Request History
@@ -224,7 +224,7 @@ const RaisePI = () => {
                                                     <option value="">Select Material...</option>
                                                     {materials.map((m) => (
                                                         <option key={m._id} value={m._id}>
-                                                            {m.name} (Supplier: {m.supplierId?.name || 'Unknown'}) (Cur: {m.quantity} {m.unit})
+                                                            {m.name} (Sup: {m.supplierId?.name || 'Unknown'}{m.supplierId?.rating ? ` ★${m.supplierId.rating.toFixed(1)}` : ''}) (Qty: {m.quantity})
                                                         </option>
                                                     ))}
                                                 </select>

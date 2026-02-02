@@ -5,6 +5,7 @@ import { AlertTriangle, TrendingUp, ShoppingCart, FileText, Package, DollarSign,
 import { Link } from 'react-router-dom';
 import MetricCard from '../components/ui/MetricCard';
 import DecisionExplanation from '../components/ui/DecisionExplanation';
+import { SimpleLineChart } from '../components/Charts';
 
 const Home = () => {
     const { user } = useAuth();
@@ -99,8 +100,8 @@ const Home = () => {
                                             </div>
                                         </div>
                                         <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${mrs.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                                                mrs.status === 'ISSUED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                                                    'bg-slate-50 text-slate-600 border-slate-200'
+                                            mrs.status === 'ISSUED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                                'bg-slate-50 text-slate-600 border-slate-200'
                                             }`}>
                                             {mrs.status}
                                         </span>
@@ -217,6 +218,21 @@ const Home = () => {
 
                         {/* Actions & Links */}
                         <div className="space-y-6">
+                            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                                <h3 className="font-bold text-lg font-heading mb-4 text-slate-800">Monthly Cost Trend</h3>
+                                {stats.costTrend && stats.costTrend.length > 0 ? (
+                                    <div className="h-48">
+                                        <SimpleLineChart
+                                            data={stats.costTrend}
+                                            xKey="month"
+                                            lines={[{ key: 'cost', name: 'Cost', color: '#6366f1' }]}
+                                        />
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-slate-500 text-center py-8">Not enough data for cost analysis.</p>
+                                )}
+                            </div>
+
                             <div className="bg-slate-900 text-white p-6 rounded-xl shadow-lg relative overflow-hidden">
                                 <div className="relative z-10">
                                     <h3 className="font-bold text-lg font-heading mb-2">Deep Analytics</h3>

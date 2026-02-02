@@ -77,3 +77,51 @@ export const getProcurementContext = async (req: Request, res: Response) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const calculateABC = async (req: Request, res: Response) => {
+    try {
+        const materials = await Material.find({});
+        if (materials.length === 0) return res.status(200).json({ message: 'No materials to analyze' });
+
+        // Calculate value for each material
+        const materialValues = materials.map(m => ({
+            id: m._id,
+            value: (m.quantity || 0) * (m.unitCost || 0)
+        }));
+
+        // Sort by value descending
+        materialValues.sort((a, b) => b.value - a.value);
+
+        const totalValue = materialValues.reduce((sum, m) => sum + m.value, 0);
+
+        // If total value is 0 (e.g. no costs set), assign all to C or None
+        if (totalValue === 0) {
+            return res.status(200).json({ message: 'Total inventory value is 0. Update costs.' });
+        }
+
+        let cumulativeValue = 0;
+        const updates = [];
+
+        for (const item of materialValues) {
+            cumulativeValue += item.value;
+            const percentage = (cumulativeValue / totalValue) * 100;
+
+            let category: 'A' | 'B' | 'C' = 'C';
+            if (percentage <= 70) category = 'A';
+            else if (percentage <= 90) category = 'B';
+
+            updates.push({
+                updateOne: {
+                    filter: { _id: item.id },
+                    update: { $set: { abcCategory: category } }
+                }
+            });
+        }
+
+        await Material.bulkWrite(updates);
+        res.json({ message: 'ABC Analysis completed', totalValue, count: materials.length });
+
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
