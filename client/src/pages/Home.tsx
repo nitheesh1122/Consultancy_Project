@@ -1,21 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import api from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
-import { AlertTriangle, TrendingUp, ShoppingCart, FileText, Package, DollarSign, Activity } from 'lucide-react';
+import { AlertTriangle, TrendingUp, ShoppingCart, FileText, Package, DollarSign, Activity, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-const StatCard = ({ title, value, icon: Icon, color, subtitle }: any) => (
-    <div className="bg-white rounded-lg shadow p-6 flex items-start justify-between border-l-4" style={{ borderColor: color }}>
-        <div>
-            <p className="text-sm font-medium text-gray-500 mb-1">{title}</p>
-            <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
-            {subtitle && <p className="text-xs text-gray-400 mt-2">{subtitle}</p>}
-        </div>
-        <div className={`p-3 rounded-full bg-opacity-20`} style={{ backgroundColor: `${color}33` }}>
-            <Icon className="h-6 w-6" style={{ color: color }} />
-        </div>
-    </div>
-);
+import MetricCard from '../components/ui/MetricCard';
+import DecisionExplanation from '../components/ui/DecisionExplanation';
 
 const Home = () => {
     const { user } = useAuth();
@@ -47,56 +36,71 @@ const Home = () => {
         }
     };
 
-    if (loading) return <div className="p-8 text-center text-gray-500">Loading Dashboard...</div>;
+    if (loading) return null; // Let global loader handle initial state or show a skeleton here
 
     return (
-        <div className="space-y-8">
-            <div className="flex justify-between items-center">
+        <div className="space-y-8 animate-fade-in">
+            <div className="flex justify-between items-end border-b border-slate-200 pb-5">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Hello, {user?.username}</h1>
-                    <p className="text-gray-500">Here is what's happening today.</p>
+                    <h1 className="text-2xl font-bold font-heading text-slate-900 tracking-tight">Dashboard Overview</h1>
+                    <p className="text-slate-500 mt-1 text-sm">
+                        Welcome back, <span className="font-semibold text-slate-700">{user?.username}</span>. Here is the operational status.
+                    </p>
                 </div>
-                <span className="px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-bold uppercase tracking-wider">
-                    {user?.role?.replace('_', ' ')}
-                </span>
+                <div className="hidden md:block">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-slate-100 text-slate-600 border border-slate-200">
+                        {user?.role?.replace('_', ' ')} View
+                    </span>
+                </div>
             </div>
 
             {/* --- SUPERVISOR VIEW --- */}
             {user?.role === 'SUPERVISOR' && (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Link to="/request-material" className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-lg p-6 text-white hover:opacity-90 transition-opacity">
-                            <div className="flex items-center">
-                                <FileText className="h-8 w-8 mr-4" />
+                        <Link to="/request-material" className="group relative overflow-hidden rounded-xl bg-slate-900 p-8 shadow-md transition-all hover:shadow-xl hover:-translate-y-1">
+                            <div className="absolute top-0 right-0 -mt-4 -mr-4 h-32 w-32 rounded-full bg-slate-800 opacity-50 blur-2xl group-hover:bg-indigo-900 transition-colors"></div>
+                            <div className="relative z-10 flex items-center">
+                                <div className="bg-slate-800 p-3 rounded-lg mr-4 group-hover:bg-slate-700 transition-colors shadow-inner">
+                                    <FileText className="h-8 w-8 text-indigo-400" />
+                                </div>
                                 <div>
-                                    <h3 className="text-xl font-bold">New Material Request</h3>
-                                    <p className="opacity-80 text-sm">Create a new batch request for dyes/chemicals</p>
+                                    <h3 className="text-xl font-bold text-white font-heading">New Material Request</h3>
+                                    <p className="text-slate-400 text-sm mt-1 group-hover:text-slate-300">Create a new dye/chemical batch request</p>
                                 </div>
                             </div>
                         </Link>
-                        <StatCard
+                        <MetricCard
                             title="My Recent Requests"
                             value={recentMRS.length}
                             icon={Activity}
-                            color="#10B981"
-                            subtitle="Last 5 shown below"
+                            status="default"
+                            trend={{ value: 0, isPositive: true, label: "All time" }}
                         />
                     </div>
 
-                    <div className="bg-white rounded-lg shadow overflow-hidden">
-                        <div className="px-6 py-4 border-b border-gray-100 font-bold text-gray-700">Recent Requests</div>
-                        <div className="divide-y divide-gray-100">
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Recent Request History</h3>
+                        </div>
+                        <div className="divide-y divide-slate-100">
                             {recentMRS.length === 0 ? (
-                                <p className="p-6 text-center text-gray-500">No requests made yet.</p>
+                                <p className="p-8 text-center text-slate-500 text-sm italic">No requests generated yet.</p>
                             ) : (
                                 recentMRS.map((mrs) => (
-                                    <div key={mrs._id} className="p-4 flex justify-between items-center hover:bg-gray-50">
-                                        <div>
-                                            <p className="font-medium text-gray-900">{mrs.batchId}</p>
-                                            <p className="text-sm text-gray-500">{new Date(mrs.createdAt).toLocaleDateString()}</p>
+                                    <div key={mrs._id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-slate-100 p-2 rounded text-slate-500">
+                                                <Package className="h-4 w-4" />
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-slate-900 text-sm">{mrs.batchId}</p>
+                                                <p className="text-xs text-slate-500">{new Date(mrs.createdAt).toLocaleDateString()}</p>
+                                            </div>
                                         </div>
-                                        <span className={`px-2 py-1 rounded text-xs font-bold ${mrs.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                                            mrs.status === 'ISSUED' ? 'bg-green-100 text-green-800' : 'bg-gray-100'
+                                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${mrs.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                                mrs.status === 'ISSUED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                                    'bg-slate-50 text-slate-600 border-slate-200'
                                             }`}>
                                             {mrs.status}
                                         </span>
@@ -111,79 +115,117 @@ const Home = () => {
             {/* --- STORE MANAGER / ADMIN VIEW --- */}
             {user?.role !== 'SUPERVISOR' && stats && (
                 <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <StatCard
+                    {/* 1. Critical Decision Block (Conditional) */}
+                    {stats.lowStockCount > 0 && (
+                        <DecisionExplanation
+                            status="critical"
+                            title="Operational Risk Detected: Low Inventory"
+                            reasons={[
+                                `${stats.lowStockCount} items are below safety stock levels.`,
+                                "Production delay risk within 48 hours."
+                            ]}
+                            action="Review Low Stock table below and raise Purchase Indents immediately."
+                            impact="Potential stoppage of dyeing line #3 due to chemical shortage."
+                        />
+                    )}
+
+                    {/* 2. Key Metrics Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <MetricCard
                             title="Low Stock Items"
                             value={stats.lowStockCount}
                             icon={AlertTriangle}
-                            color="#EF4444"
-                            subtitle="Action Required"
+                            status={stats.lowStockCount > 0 ? "critical" : "good"}
+                            trend={{ value: 12, isPositive: stats.lowStockCount === 0, label: "vs last week" }}
                         />
-                        <StatCard
-                            title="Pending MRS"
+                        <MetricCard
+                            title="Pending Requests"
                             value={stats.pendingMRS}
                             icon={FileText}
-                            color="#F59E0B"
-                            subtitle="Requests waiting for Issue"
+                            status={stats.pendingMRS > 5 ? "warning" : "default"}
+                            trend={{ value: 5, isPositive: false }}
                         />
-                        <StatCard
-                            title="Pending PIs"
+                        <MetricCard
+                            title="Pending Orders (PI)"
                             value={stats.pendingPIs}
                             icon={ShoppingCart}
-                            color="#3B82F6"
-                            subtitle="Waiting for Approval"
+                            status="default"
+                            trend={{ value: 0, isPositive: true }}
                         />
-                        <StatCard
+                        <MetricCard
                             title="Inventory Value"
-                            value={`₹${stats.totalInventoryValue.toLocaleString()}`}
+                            value={`₹${(stats.totalInventoryValue / 100000).toFixed(2)}L`}
                             icon={DollarSign}
-                            color="#8B5CF6"
-                            subtitle="Estimated Total Value"
+                            status="default"
+                            trend={{ value: 2.5, isPositive: true }}
                         />
                     </div>
 
-                    {/* Quick Analytics - Imported from Reports logic */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                        {/* Low Stock Widget */}
-                        <div className="bg-white rounded-lg shadow border border-red-200 h-full">
-                            <div className="px-6 py-4 border-b border-red-100 bg-red-50 flex items-center text-red-800 font-bold">
-                                <AlertTriangle className="h-5 w-5 mr-2" />
-                                Critical Low Stock
+                    {/* 3. Detailed Data View */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Low Stock Table - Spans 2 cols */}
+                        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <div className="p-1.5 bg-rose-100 rounded text-rose-600">
+                                        <AlertTriangle className="h-4 w-4" />
+                                    </div>
+                                    <h3 className="font-bold text-slate-800 text-sm">Critical Low Stock</h3>
+                                </div>
+                                <Link to="/inventory" className="text-xs font-medium text-indigo-600 hover:text-indigo-800 hover:underline">
+                                    View Full Inventory
+                                </Link>
                             </div>
-                            <div className="overflow-x-auto max-h-64 overflow-y-auto">
+
+                            <div className="overflow-x-auto flex-1">
                                 {stats.lowStockItems.length > 0 ? (
-                                    <table className="w-full text-left">
-                                        <thead className="text-xs text-gray-500 bg-gray-50 uppercase sticky top-0">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="text-xs text-slate-500 bg-slate-50 uppercase tracking-wider">
                                             <tr>
-                                                <th className="px-6 py-3">Item Name</th>
-                                                <th className="px-6 py-3 text-right">Current Stock</th>
-                                                <th className="px-6 py-3 text-right">Min</th>
+                                                <th className="px-6 py-3 font-semibold">Item Name</th>
+                                                <th className="px-6 py-3 text-right font-semibold">Ready Stock</th>
+                                                <th className="px-6 py-3 text-right font-semibold">Min Level</th>
+                                                <th className="px-6 py-3 text-center font-semibold">Status</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-gray-100">
-                                            {stats.lowStockItems.map((item: any) => (
-                                                <tr key={item._id} className="hover:bg-red-50 transition-colors">
-                                                    <td className="px-6 py-4 font-medium text-gray-900">{item.name}</td>
-                                                    <td className="px-6 py-4 text-right text-red-600 font-bold">{item.quantity} {item.unit}</td>
-                                                    <td className="px-6 py-4 text-right text-gray-500">{item.minStock} {item.unit}</td>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {stats.lowStockItems.slice(0, 5).map((item: any) => (
+                                                <tr key={item._id} className="hover:bg-rose-50/10 transition-colors">
+                                                    <td className="px-6 py-3 font-medium text-slate-900">{item.name}</td>
+                                                    <td className="px-6 py-3 text-right font-bold text-rose-600">{item.quantity} {item.unit}</td>
+                                                    <td className="px-6 py-3 text-right text-slate-500">{item.minStock} {item.unit}</td>
+                                                    <td className="px-6 py-3 text-center">
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-rose-100 text-rose-800">
+                                                            Critical
+                                                        </span>
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
                                 ) : (
-                                    <p className="p-6 text-center text-green-600">All materials are well stocked!</p>
+                                    <div className="p-12 text-center">
+                                        <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-emerald-100 text-emerald-600 mb-3">
+                                            <TrendingUp className="h-6 w-6" />
+                                        </div>
+                                        <p className="text-slate-900 font-medium">Healthy Inventory Levels</p>
+                                        <p className="text-slate-500 text-sm mt-1">No critical items detected below minimum thresholds.</p>
+                                    </div>
                                 )}
                             </div>
                         </div>
 
-                        {/* Recent Consumption Widget (Simplified) */}
-                        <div className="bg-white rounded-lg shadow border border-gray-200 p-6 flex items-center justify-center text-gray-500 flex-col">
-                            <TrendingUp className="h-12 w-12 mb-2 text-indigo-300" />
-                            <h3 className="font-bold text-gray-700">Analytics Overview</h3>
-                            <p className="text-sm text-center mb-4">View detailed consumption charts and batch costing analysis.</p>
-                            <Link to="/reports" className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-                                Go to Full Reports
-                            </Link>
+                        {/* Actions & Links */}
+                        <div className="space-y-6">
+                            <div className="bg-slate-900 text-white p-6 rounded-xl shadow-lg relative overflow-hidden">
+                                <div className="relative z-10">
+                                    <h3 className="font-bold text-lg font-heading mb-2">Deep Analytics</h3>
+                                    <p className="text-slate-400 text-sm mb-4">Analyze batch costs, supplier performance, and consumption trends.</p>
+                                    <Link to="/reports" className="inline-flex items-center justify-center px-4 py-2 bg-white text-slate-900 text-sm font-bold rounded-lg hover:bg-slate-200 transition-colors w-full">
+                                        Open Reports
+                                    </Link>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </>

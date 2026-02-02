@@ -4,6 +4,8 @@ import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './hooks/useAuth';
 import Login from './pages/Login';
 import DashboardLayout from './layouts/DashboardLayout';
+import Suppliers from './pages/Suppliers';
+import SupplierDetails from './pages/SupplierDetails';
 
 const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
   const { isAuthenticated } = useAuth();
@@ -33,6 +35,8 @@ const AppRoutes = () => {
         <Route path="pi-approvals" element={<PIApprovals />} />
         <Route path="inward-entry" element={<InwardEntry />} />
         <Route path="reports" element={<Reports />} />
+        <Route path="suppliers" element={<Suppliers />} />
+        <Route path="suppliers/:id" element={<SupplierDetails />} />
         <Route path="users" element={<UserManagement />} />
         <Route path="inventory/:id" element={<MaterialDetails />} />
         <Route path="notifications" element={<Notifications />} />

@@ -5,7 +5,7 @@ import { Users, UserPlus, Save } from 'lucide-react';
 const UserManagement = () => {
     const [users, setUsers] = useState<any[]>([]); // Need an API for this, will stub or create
     const [newUser, setNewUser] = useState({ username: '', password: '', role: 'SUPERVISOR' });
-    const [loading, setLoading] = useState(false); // List loading
+    const [loading] = useState(false); // List loading
     const [creating, setCreating] = useState(false);
 
     // Note: We haven't created a 'getUsers' API yet. 

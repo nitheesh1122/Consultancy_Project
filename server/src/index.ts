@@ -9,6 +9,7 @@ import piRoutes from './routes/piRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import notificationRoutes from './routes/notificationRoutes';
 import transactionRoutes from './routes/transactionRoutes';
+import supplierRoutes from './routes/supplierRoutes';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use('/api/pi', piRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/suppliers', supplierRoutes);
 
 app.get('/', (req, res) => {
     res.send('Inventory System API is running');
