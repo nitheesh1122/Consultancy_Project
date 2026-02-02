@@ -3,6 +3,7 @@ import api from '../lib/api';
 import { Package, Search, AlertCircle, Calendar } from 'lucide-react';
 import StatusBadge from '../components/ui/StatusBadge';
 import { Button } from '../components/ui/Button';
+import ProcurementContextModal from '../components/modals/ProcurementContextModal';
 
 interface Material {
     _id: string;
@@ -18,6 +19,10 @@ const Inventory = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Modal State
+    const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(null);
+    const [isContextModalOpen, setIsContextModalOpen] = useState(false);
+
     useEffect(() => {
         fetchMaterials();
     }, []);
@@ -31,6 +36,16 @@ const Inventory = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleOpenContext = (id: string) => {
+        setSelectedMaterialId(id);
+        setIsContextModalOpen(true);
+    };
+
+    const handleCloseContext = () => {
+        setIsContextModalOpen(false);
+        setSelectedMaterialId(null);
     };
 
     const filteredMaterials = materials.filter(m =>
@@ -146,7 +161,12 @@ const Inventory = () => {
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <Button size="sm" variant="outline" className="h-8 text-xs">
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="h-8 text-xs font-medium border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900 hover:border-slate-400"
+                                                    onClick={() => handleOpenContext(material._id)}
+                                                >
                                                     Details
                                                 </Button>
                                             </td>
@@ -159,7 +179,6 @@ const Inventory = () => {
                 </div>
             </div>
 
-            {/* Legend / Info */}
             <div className="flex gap-4 text-xs text-slate-500 mt-4 px-2">
                 <div className="flex items-center gap-2">
                     <span className="w-2 h-2 bg-rose-500 rounded-full"></span>
@@ -170,6 +189,13 @@ const Inventory = () => {
                     <span className="font-medium">Dead Stock (0 Qty)</span>
                 </div>
             </div>
+
+            {/* Context Modal */}
+            <ProcurementContextModal
+                isOpen={isContextModalOpen}
+                onClose={handleCloseContext}
+                materialId={selectedMaterialId}
+            />
         </div>
     );
 };

@@ -28,7 +28,19 @@ A comprehensive ERP solution designed for tracking inventory, managing procureme
 *   **Inventory Health:** Visualize risk and critical stock levels.
 *   **Cost Analysis:** Track monthly material expenditure.
 *   **Efficiency Metrics:** Identify wastage and inefficiency in production.
+*   **Inventory Health:** Visualize risk and critical stock levels.
+*   **Cost Analysis:** Track monthly material expenditure.
+*   **Efficiency Metrics:** Identify wastage and inefficiency in production.
 *   **Forecasting:** Data-driven reorder suggestions.
+
+### 👥 User Management & Admin
+*   **User Control:** Admin-only user creation and deletion.
+*   **Role-Based UI:** Distinct views for Supervisors, Store Managers, and Admins.
+
+### 🎨 Design System
+*   **Industrial Aesthetics:** Slate/Zinc color palette tailored for factory environments.
+*   **Procurement Context:** Instant lookup of last supplier and purchase history.
+*   **Smart Recommendations:** Auto-fill purchase requests based on stock levels.
 
 ---
 
