@@ -56,7 +56,8 @@ const Reports = () => {
             metaData: {
                 "Total Items": stats.length.toString(),
                 "Critical Items": stats.filter((s: any) => s.status === 'REORDER_NOW').length.toString()
-            }
+            },
+            summary: "This report provides a forecast of material requirements based on recent consumption trends. Items marked 'Order Needed' have coverage below the safety threshold."
         });
     };
 
@@ -275,6 +276,9 @@ const Reports = () => {
                                 <div>
                                     <h3 className="text-xl font-bold font-heading text-slate-900">Reorder Forecast</h3>
                                     <p className="text-sm text-slate-500">AI-driven suggestions based on consumption rates.</p>
+                                    <p className="text-xs text-slate-400 mt-1 italic">
+                                        * Forecast based on last 30 days average consumption. Includes 15-day safety buffer.
+                                    </p>
                                 </div>
                                 <Button onClick={exportForecast} variant="primary" className="gap-2">
                                     <Download className="w-4 h-4" /> Export Report

@@ -43,6 +43,16 @@ const MaterialDetails = () => {
                             {material.name}
                         </h1>
                         <p className="text-gray-500 mt-1">Unit: {material.unit}</p>
+                        {(() => {
+                            const lastInward = transactions.find(t => t.type === 'INWARD');
+                            return (
+                                <p className="text-xs text-slate-400 mt-1">
+                                    {lastInward
+                                        ? `Last purchased: ${Math.floor((new Date().getTime() - new Date(lastInward.timestamp).getTime()) / (1000 * 3600 * 24))} days ago`
+                                        : 'This material has never been procured.'}
+                                </p>
+                            );
+                        })()}
                     </div>
                 </div>
             </div>
@@ -69,7 +79,7 @@ const MaterialDetails = () => {
                                 </td>
                                 <td className="px-6 py-4">
                                     <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${tx.type === 'INWARD' ? 'bg-green-100 text-green-800' :
-                                            tx.type === 'ISSUE' ? 'bg-red-100 text-red-800' : 'bg-gray-100'
+                                        tx.type === 'ISSUE' ? 'bg-red-100 text-red-800' : 'bg-gray-100'
                                         }`}>
                                         {tx.type}
                                     </span>

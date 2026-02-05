@@ -210,11 +210,11 @@ const Inventory = () => {
             <div className="flex gap-4 text-xs text-slate-500 mt-4 px-2">
                 <div className="flex items-center gap-2">
                     <span className="w-2 h-2 bg-rose-500 rounded-full"></span>
-                    <span className="font-medium">Critical (&lt; 3 Days)</span>
+                    <span className="font-medium">Critical (&lt; 3 Days) - <span className="font-normal text-slate-400">Restock immediately</span></span>
                 </div>
                 <div className="flex items-center gap-2">
                     <span className="w-2 h-2 bg-slate-300 rounded-full"></span>
-                    <span className="font-medium">Dead Stock (0 Qty)</span>
+                    <span className="font-medium">Dead Stock (0 Qty) - <span className="font-normal text-slate-400">No issue transactions in 60 days</span></span>
                 </div>
             </div>
 

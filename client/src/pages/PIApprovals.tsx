@@ -37,11 +37,16 @@ const PIApprovals = () => {
         }
     };
 
+    const [approvalRemarks, setApprovalRemarks] = useState<Record<string, string>>({});
+
     const handleStatusUpdate = async (id: string, status: 'APPROVED' | 'REJECTED') => {
         if (!window.confirm(`Are you sure you want to ${status} this request?`)) return;
 
         try {
-            await api.put(`/pi/${id}/status`, { status });
+            await api.put(`/pi/${id}/status`, {
+                status,
+                approvalRemarks: approvalRemarks[id] || ''
+            });
             fetchPIs(); // Refresh list
         } catch (error: any) {
             alert(error.response?.data?.message || 'Failed to update status');
@@ -93,20 +98,42 @@ const PIApprovals = () => {
                                     </tbody>
                                 </table>
 
+
                                 {pi.status === 'RAISED' && (
-                                    <div className="flex justify-end gap-3 mt-4 border-t pt-4">
-                                        <button
-                                            onClick={() => handleStatusUpdate(pi._id, 'REJECTED')}
-                                            className="flex items-center px-4 py-2 border border-red-300 text-red-700 rounded hover:bg-red-50 text-sm font-medium"
-                                        >
-                                            <XCircle className="w-4 h-4 mr-2" /> Reject
-                                        </button>
-                                        <button
-                                            onClick={() => handleStatusUpdate(pi._id, 'APPROVED')}
-                                            className="flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm font-medium"
-                                        >
-                                            <CheckCircle className="w-4 h-4 mr-2" /> Approve
-                                        </button>
+                                    <div className="mt-4 border-t pt-4">
+                                        <div className="mb-3">
+                                            <label htmlFor={`remarks-${pi._id}`} className="block text-xs font-medium text-gray-500 mb-1">
+                                                Approval Remarks (Optional)
+                                            </label>
+                                            <input
+                                                id={`remarks-${pi._id}`}
+                                                type="text"
+                                                placeholder="Add remarks for store manager..."
+                                                className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                value={approvalRemarks[pi._id] || ''}
+                                                onChange={(e) => setApprovalRemarks(prev => ({ ...prev, [pi._id]: e.target.value }))}
+                                            />
+                                        </div>
+                                        <div className="flex justify-end gap-3">
+                                            <button
+                                                onClick={() => handleStatusUpdate(pi._id, 'REJECTED')}
+                                                className="flex items-center px-4 py-2 border border-red-300 text-red-700 rounded hover:bg-red-50 text-sm font-medium"
+                                            >
+                                                <XCircle className="w-4 h-4 mr-2" /> Reject
+                                            </button>
+                                            <button
+                                                onClick={() => handleStatusUpdate(pi._id, 'APPROVED')}
+                                                className="flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm font-medium"
+                                            >
+                                                <CheckCircle className="w-4 h-4 mr-2" /> Approve
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                                {pi.status !== 'RAISED' && (pi as any).approvalRemarks && (
+                                    <div className="mt-4 pt-4 border-t border-gray-100">
+                                        <p className="text-xs text-gray-500 font-medium uppercase">Approval Remarks</p>
+                                        <p className="text-sm text-gray-700 mt-1">{(pi as any).approvalRemarks}</p>
                                     </div>
                                 )}
                             </div>

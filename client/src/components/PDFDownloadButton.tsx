@@ -32,6 +32,11 @@ const PDFDownloadButton: React.FC<PDFButtonProps> = ({ type, data, fileName }) =
             generatedBy = data.storeManagerId?.username || 'Store Manager';
         }
 
+        // Generate Summary
+        const summary = isMRS
+            ? `Request for ${data.items.length} material(s) for production batch ${data.batchId || 'N/A'}.`
+            : `Procurement order for ${data.items.length} item(s) from ${data.supplierId?.name || 'supplier'}.`;
+
         // Prepare Table Columns & Data
         let columns: PDFTableColumn[] = [];
         let tableData: any[] = [];
@@ -74,7 +79,7 @@ const PDFDownloadButton: React.FC<PDFButtonProps> = ({ type, data, fileName }) =
             fileName: fileName || `${type}_${data._id}.pdf`,
             tableColumns: columns,
             tableData,
-            metaData
+            metaData,
         });
     };
 

@@ -19,6 +19,7 @@ const piSchema = new mongoose.Schema({
     reason: { type: String },
     createdAt: { type: Date, default: Date.now },
     approvedAt: { type: Date }, // Added for approval delay analytics
+    approvalRemarks: { type: String }, // Admin approval remarks
     completedAt: { type: Date }
 });
 

@@ -18,6 +18,7 @@ export interface PDFGenerationOptions {
     fileName: string;
     // Metadata key-value pairs to display below header (e.g., "Batch ID": "123")
     metaData?: Record<string, string>;
+    summary?: string;
 }
 
 export const generatePDF = (options: PDFGenerationOptions) => {
@@ -94,6 +95,9 @@ export const generatePDF = (options: PDFGenerationOptions) => {
     // ==============================
     // SPECIFIC METADATA (Optional)
     // ==============================
+    // ==============================
+    // SPECIFIC METADATA (Optional)
+    // ==============================
     currentY += 10;
     if (metaData) {
         doc.setFontSize(10);
@@ -103,6 +107,24 @@ export const generatePDF = (options: PDFGenerationOptions) => {
             currentY += 5;
         });
         currentY += 2; // Extra spacer
+    }
+
+    // ==============================
+    // SUMMARY SECTION (Optional)
+    // ==============================
+    if (options.summary) {
+        currentY += 5;
+        doc.setFont("helvetica", "italic");
+        doc.setTextColor(80); // Dark Gray
+        doc.setFontSize(10);
+
+        // Split text to fit width
+        const splitSummary = doc.splitTextToSize(options.summary, pageWidth - (leftMargin + rightMargin));
+        doc.text(splitSummary, leftMargin, currentY);
+
+        currentY += (splitSummary.length * 5) + 5; // Adjust Y based on lines
+        doc.setTextColor(0); // Reset color
+        doc.setFont("helvetica", "normal");
     }
 
     // ==============================
@@ -154,7 +176,7 @@ export const generatePDF = (options: PDFGenerationOptions) => {
             doc.text(str, pageWidth / 2, pageHeight - 10, { align: 'center' });
 
             // Page Numbers
-            const pageCount = doc.internal.getNumberOfPages();
+            const pageCount = doc.getNumberOfPages();
             doc.text(`Page ${pageCount}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
         }
     });
