@@ -1,5 +1,0 @@
-Total materials found: 51
-No exact name duplicates found.
-
---- 'ACETIC' Matches ---
-Name: "ACETIC ACID 30%", Qty: -9960, ID: 697cefc6af0d8fe4b838f038
