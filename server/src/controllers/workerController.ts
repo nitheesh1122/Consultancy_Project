@@ -20,7 +20,7 @@ export const getWorkers = async (req: Request, res: Response) => {
 // @access  Private (Store Manager)
 export const createWorker = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { workerId, name, role, skills, phone, joiningDate } = req.body;
+        const { workerId, name, role, phone, status, personal, employment, skills, performance } = req.body;
 
         if (!workerId || !name || !role) {
             res.status(400).json({ message: 'Please provide required fields (workerId, name, role)' });
@@ -38,10 +38,12 @@ export const createWorker = async (req: Request, res: Response): Promise<void> =
             workerId,
             name,
             role,
-            skills: skills || [],
             phone,
-            joiningDate: joiningDate || new Date(),
-            status: 'ACTIVE'
+            personal,
+            employment,
+            skills,
+            performance,
+            status: status || 'ACTIVE'
         });
 
         const savedWorker = await newWorker.save();
@@ -57,7 +59,7 @@ export const createWorker = async (req: Request, res: Response): Promise<void> =
 // @access  Private (Store Manager)
 export const updateWorker = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { name, role, skills, phone, status } = req.body;
+        const { name, role, phone, status, personal, employment, skills, performance } = req.body;
 
         const worker = await Worker.findById(req.params.id);
 
@@ -68,9 +70,12 @@ export const updateWorker = async (req: Request, res: Response): Promise<void> =
 
         if (name) worker.name = name;
         if (role) worker.role = role;
-        if (skills) worker.skills = skills;
         if (phone) worker.phone = phone;
         if (status) worker.status = status;
+        if (personal) worker.personal = personal;
+        if (employment) worker.employment = employment;
+        if (skills) worker.skills = skills;
+        if (performance) worker.performance = performance;
 
         const updatedWorker = await worker.save();
         res.json(updatedWorker);
