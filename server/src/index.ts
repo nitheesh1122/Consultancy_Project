@@ -11,9 +11,15 @@ import notificationRoutes from './routes/notificationRoutes';
 import transactionRoutes from './routes/transactionRoutes';
 import supplierRoutes from './routes/supplierRoutes';
 import auditRoutes from './routes/auditRoutes';
+import machineRoutes from './routes/machineRoutes';
+import workerRoutes from './routes/workerRoutes';
+import settingsRoutes from './routes/settingsRoutes';
+import productionBatchRoutes from './routes/productionBatchRoutes';
+import productionAnalyticsRoutes from './routes/productionAnalyticsRoutes';
 
 import { createServer } from 'http';
 import { initSocket } from './socket';
+import { initCronJobs } from './utils/cronJobs';
 
 dotenv.config();
 
@@ -37,10 +43,20 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/suppliers', supplierRoutes);
 app.use('/api/audit', auditRoutes);
+app.use('/api/machines', machineRoutes);
+app.use('/api/workers', workerRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/production-batches', productionBatchRoutes);
+app.use('/api/production-analytics', productionAnalyticsRoutes);
 
 app.get('/', (req, res) => {
     res.send('Inventory System API is running');
 });
+
+// Initialize automated scheduled jobs
+if (process.env.NODE_ENV !== 'test') {
+    initCronJobs();
+}
 
 const httpServer = createServer(app);
 const io = initSocket(httpServer);
