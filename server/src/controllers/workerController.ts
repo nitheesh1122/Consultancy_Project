@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Worker from '../models/Worker';
+import ProductionBatch from '../models/ProductionBatch';
 
 // @desc    Get all workers
 // @route   GET /api/workers
@@ -98,5 +99,34 @@ export const deleteWorker = async (req: Request, res: Response): Promise<void> =
     } catch (err: any) {
         console.error('Error deactivating worker:', err);
         res.status(500).json({ message: 'Server error deactivating worker' });
+    }
+};
+
+// @desc    Get available workers (not in an IN_PROGRESS batch)
+// @route   GET /api/workers/available
+// @access  Private (Store Manager, Admin, Supervisor)
+export const getAvailableWorkers = async (req: Request, res: Response): Promise<void> => {
+    try {
+        // 1. Find all active batches to get currently busy workers
+        const activeBatches = await ProductionBatch.find({ status: 'IN_PROGRESS' }, 'assignedWorkers');
+
+        // Flatten all assigned workers from active batches
+        const busyWorkerIds = activeBatches.reduce((acc: any[], batch) => {
+            if (batch.assignedWorkers && Array.isArray(batch.assignedWorkers)) {
+                acc.push(...batch.assignedWorkers);
+            }
+            return acc;
+        }, []);
+
+        // 2. Find workers who are ACTIVE and NOT in the busy list
+        const availableWorkers = await Worker.find({
+            status: 'ACTIVE',
+            _id: { $nin: busyWorkerIds }
+        }).sort({ name: 1 });
+
+        res.json(availableWorkers);
+    } catch (err: any) {
+        console.error('Error fetching available workers:', err);
+        res.status(500).json({ message: 'Server error fetching available workers' });
     }
 };

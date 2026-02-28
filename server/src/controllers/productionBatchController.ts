@@ -4,6 +4,7 @@ import Machine from '../models/Machine';
 import Worker from '../models/Worker';
 import Settings from '../models/Settings';
 import mongoose from 'mongoose';
+import { getIO } from '../socket';
 
 interface AuthRequest extends Request {
     user?: { _id: string; role: string;[key: string]: any; }
@@ -130,6 +131,14 @@ export const startBatch = async (req: AuthRequest, res: Response): Promise<void>
         batch.assignedWorkers = objectIdWorkers;
 
         const startedBatch = await batch.save();
+
+        // Emit socket event for real-time Monitor View update
+        try {
+            getIO().emit('batchStatusUpdate', { batchId: startedBatch._id, status: startedBatch.status, type: 'start' });
+        } catch (e) {
+            console.error('Socket emission failed:', e);
+        }
+
         res.json(startedBatch);
 
     } catch (err: any) {
@@ -206,6 +215,14 @@ export const completeBatch = async (req: AuthRequest, res: Response): Promise<vo
         batch.status = 'COMPLETED';
 
         const completedBatch = await batch.save();
+
+        // Emit socket event for real-time Monitor View update
+        try {
+            getIO().emit('batchStatusUpdate', { batchId: completedBatch._id, status: completedBatch.status, type: 'complete' });
+        } catch (e) {
+            console.error('Socket emission failed:', e);
+        }
+
         res.json(completedBatch);
 
     } catch (err: any) {
@@ -214,13 +231,26 @@ export const completeBatch = async (req: AuthRequest, res: Response): Promise<vo
     }
 };
 
-// @desc    Get all batches / history (Filterable by status)
+// @desc    Get all batches / history (Filterable by status and dates)
 // @route   GET /api/production-batches
 // @access  Private (All Roles)
 export const getBatches = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const statusFilter = req.query.status ? { status: req.query.status } : {};
-        const batches = await ProductionBatch.find(statusFilter)
+        const filter: any = {};
+        if (req.query.status) filter.status = req.query.status;
+
+        if (req.query.startDate && req.query.endDate) {
+            filter.scheduledDate = {
+                $gte: new Date(req.query.startDate as string),
+                $lte: new Date(req.query.endDate as string)
+            };
+        } else if (req.query.startDate) {
+            filter.scheduledDate = { $gte: new Date(req.query.startDate as string) };
+        } else if (req.query.endDate) {
+            filter.scheduledDate = { $lte: new Date(req.query.endDate as string) };
+        }
+
+        const batches = await ProductionBatch.find(filter)
             .populate('machineId', 'name type machineId')
             .populate('supervisorId', 'username')
             .populate('assignedWorkers', 'name workerId role')
@@ -228,7 +258,7 @@ export const getBatches = async (req: AuthRequest, res: Response): Promise<void>
 
         res.json(batches);
     } catch (e) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error fetching batches' });
     }
 };
 

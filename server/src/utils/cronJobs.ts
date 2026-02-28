@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import ProductionBatch from '../models/ProductionBatch';
 import Settings from '../models/Settings';
+import { AuditLog } from '../models/AuditLog'; // Added AuditLog for tracking
 
 // Email Transporter Config
 // In a real scenario, this uses ENV variables. Mocking for demonstration if empty.
@@ -115,9 +116,21 @@ export const initCronJobs = () => {
             await transporter.sendMail(mailOptions);
             console.log(`Report sent successfully to ${recipients}`);
 
+            // Log Success
+            await AuditLog.create({
+                action: 'DAILY_REPORT_SENT',
+                details: { status: 'SUCCESS', batchesProcessed: completedToday.length, recipients }
+            });
+
             // Optional: Cleanup old files if necessary, or keep as archive
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error generating/sending daily report:', error);
+
+            // Log Failure for Admins to trace
+            await AuditLog.create({
+                action: 'DAILY_REPORT_SENT',
+                details: { status: 'FAILED', error: error.message || 'Unknown error during PDF generation or email sending' }
+            });
         }
     });
 
