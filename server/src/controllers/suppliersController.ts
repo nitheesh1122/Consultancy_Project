@@ -11,6 +11,7 @@ interface AuthRequest extends Request {
 export const getSuppliers = async (req: AuthRequest, res: Response) => {
     try {
         const suppliers = await Supplier.find();
+        console.log(`Debug: Found ${suppliers.length} suppliers in DB`);
 
         // Enrich with basic stats if needed, or keeping it simple for list view
         // For heavy analytics, we might want to do this in a separate aggregation or on-demand

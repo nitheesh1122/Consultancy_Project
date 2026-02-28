@@ -194,6 +194,7 @@ These are intentionally planned as a roadmap to ensure system stability and scal
 * **Project Overview & Workflow** – `PROJECT_EXPLANATION.md`
 * **Backend Documentation** – `BACKEND_DOCS.md`
 * **Frontend Documentation** – `FRONTEND_DOCS.md`
+* **Future Improvements Plan** – `FUTURE_IMPROVEMENTS.md`
 
 ---
 

@@ -11,4 +11,4 @@ const supplierSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-export const Supplier = mongoose.model('Supplier', supplierSchema);
+export const Supplier = mongoose.model('Supplier', supplierSchema, 'suppliers');
