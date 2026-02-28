@@ -10,11 +10,16 @@ interface AuthRequest extends Request {
     user?: { _id: string; role: string;[key: string]: any; }
 }
 
-// Helper to generate next batch number (e.g. BATCH-202603-001)
+// Helper to generate next batch number (e.g. GTD-260301-001)
 const generateBatchNumber = async (): Promise<string> => {
-    const dateStr = new Date().toISOString().slice(0, 7).replace('-', ''); // YYYYMM
-    const prefix = `BATCH-${dateStr}-`;
+    const today = new Date();
+    const yy = today.getFullYear().toString().slice(-2);
+    const mm = (today.getMonth() + 1).toString().padStart(2, '0');
+    const dd = today.getDate().toString().padStart(2, '0');
 
+    const prefix = `GTD-${yy}${mm}${dd}-`;
+
+    // Only search today's batches to reset sequence daily
     const lastBatch = await ProductionBatch.findOne({ batchNumber: new RegExp(`^${prefix}`) })
         .sort({ batchNumber: -1 });
 
@@ -110,31 +115,60 @@ export const startBatch = async (req: AuthRequest, res: Response): Promise<void>
             res.status(400).json({ message: 'Machine is currently running another batch' }); return;
         }
 
-        // Validate workers are active and not currently busy
+        // Validate workers are active and not currently busy using ATOMIC LOCKING
+        // We attempt to find the workers in ACTIVE state and immediately set them to BUSY.
+        // If the number of modified workers doesn't match the requested length, a race condition or mismatch occurred.
         const objectIdWorkers = assignedWorkers.map(id => new mongoose.Types.ObjectId(id));
-        const activeWorkersCount = await Worker.countDocuments({ _id: { $in: objectIdWorkers }, status: 'ACTIVE' });
-        if (activeWorkersCount !== assignedWorkers.length) {
-            res.status(400).json({ message: 'One or more workers are inactive or do not exist' }); return;
+
+        // This query atomically locks all available workers for this specific batch.
+        // It requires the workers to currently be exactly 'ACTIVE'.
+        const lockResult = await Worker.updateMany(
+            { _id: { $in: objectIdWorkers }, status: 'ACTIVE' },
+            { $set: { status: 'BUSY' } } // We'll revert this if batch save fails, or release on completion
+        );
+
+        if (lockResult.modifiedCount !== assignedWorkers.length) {
+            // Rollback any partial locks we might have acquired because the full transaction failed
+            if (lockResult.modifiedCount > 0) {
+                await Worker.updateMany(
+                    { _id: { $in: objectIdWorkers }, status: 'BUSY' }, // Only target ones we technically might have just flipped
+                    { $set: { status: 'ACTIVE' } }
+                );
+            }
+            res.status(400).json({ message: 'One or more workers are currently busy or do not exist (Race Condition Avoided)' });
+            return;
         }
 
-        const busyWorkers = await ProductionBatch.findOne({
-            status: 'IN_PROGRESS',
-            assignedWorkers: { $in: objectIdWorkers }
-        });
-
-        if (busyWorkers) {
-            res.status(400).json({ message: 'One or more workers are already assigned to an active batch' }); return;
-        }
+        // --- Workers are now atomically locked as BUSY for this operation ---
 
         batch.status = 'IN_PROGRESS';
         batch.startTime = new Date();
         batch.assignedWorkers = objectIdWorkers;
 
-        const startedBatch = await batch.save();
+        let startedBatch;
+        try {
+            startedBatch = await batch.save();
+        } catch (saveErr) {
+            // Hard Rollback: Free the workers if the batch failed to save
+            await Worker.updateMany(
+                { _id: { $in: objectIdWorkers }, status: 'BUSY' },
+                { $set: { status: 'ACTIVE' } }
+            );
+            throw saveErr; // bubble up
+        }
+        const populatedBatch = await startedBatch.populate(['machineId', 'supervisorId']);
 
         // Emit socket event for real-time Monitor View update
         try {
-            getIO().emit('batchStatusUpdate', { batchId: startedBatch._id, status: startedBatch.status, type: 'start' });
+            getIO().emit('batchStatusUpdate', {
+                batchId: populatedBatch._id,
+                status: populatedBatch.status,
+                machineId: (populatedBatch.machineId as any)?._id,
+                machineName: (populatedBatch.machineId as any)?.name,
+                supervisorName: (populatedBatch.supervisorId as any)?.username,
+                startTime: populatedBatch.startTime,
+                type: 'start'
+            });
         } catch (e) {
             console.error('Socket emission failed:', e);
         }
@@ -180,8 +214,14 @@ export const completeBatch = async (req: AuthRequest, res: Response): Promise<vo
         }
 
         // Calculate Yield and Wastage
-        const yieldPercentage = ((outputFirstGradeKg + outputSecondGradeKg) / batch.inputKg) * 100;
-        const wastagePercentage = (rejectionKg / batch.inputKg) * 100;
+        // Overall Yield = Total Physical Output / Input (includes rejection since it's recovered material)
+        const yieldPercentage = ((outputFirstGradeKg + outputSecondGradeKg + rejectionKg) / batch.inputKg) * 100;
+
+        // Quality Yield (Bonus Metric) = First + Second Grade / Input
+        const qualityYieldPercentage = ((outputFirstGradeKg + outputSecondGradeKg) / batch.inputKg) * 100;
+
+        // Wastage % (Unrecoverable Loss) = (Input - Total Physical Output) / Input
+        const wastagePercentage = ((batch.inputKg - (outputFirstGradeKg + outputSecondGradeKg + rejectionKg)) / batch.inputKg) * 100;
 
         // Calculate Costs based on latest Settings
         let calculatedUtilityCost = 0;
@@ -202,6 +242,7 @@ export const completeBatch = async (req: AuthRequest, res: Response): Promise<vo
         batch.wastage = wastage;
         batch.utilities = utilities;
         batch.yieldPercentage = Number(yieldPercentage.toFixed(2));
+        batch.qualityYieldPercentage = Number(qualityYieldPercentage.toFixed(2));
         batch.wastagePercentage = Number(wastagePercentage.toFixed(2));
 
         // Cost snapshot (Material cost would be fetched from transaction ledger optionally, setting to 0 for now as placeholder or could be updated asynchronously)
@@ -216,9 +257,25 @@ export const completeBatch = async (req: AuthRequest, res: Response): Promise<vo
 
         const completedBatch = await batch.save();
 
+        // Transaction Success: Free up the workers atomically back to ACTIVE
+        if (completedBatch.assignedWorkers && completedBatch.assignedWorkers.length > 0) {
+            await Worker.updateMany(
+                { _id: { $in: completedBatch.assignedWorkers }, status: 'BUSY' },
+                { $set: { status: 'ACTIVE' } }
+            );
+        }
+
+        const populatedBatch = await completedBatch.populate(['machineId']);
+
         // Emit socket event for real-time Monitor View update
         try {
-            getIO().emit('batchStatusUpdate', { batchId: completedBatch._id, status: completedBatch.status, type: 'complete' });
+            getIO().emit('batchStatusUpdate', {
+                batchId: populatedBatch._id,
+                status: populatedBatch.status,
+                machineName: (populatedBatch.machineId as any)?.name,
+                yieldPercentage: populatedBatch.yieldPercentage,
+                type: 'complete'
+            });
         } catch (e) {
             console.error('Socket emission failed:', e);
         }
@@ -228,6 +285,27 @@ export const completeBatch = async (req: AuthRequest, res: Response): Promise<vo
     } catch (err: any) {
         console.error('Error completing batch:', err);
         res.status(500).json({ message: 'Server error completing batch' });
+    }
+};
+
+// @desc    Get a single batch by ID (fully populated)
+// @route   GET /api/production-batches/:id
+// @access  Private (All Roles)
+export const getBatchById = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const batch = await ProductionBatch.findById(req.params.id)
+            .populate('machineId', 'name type machineId capacityKg')
+            .populate('supervisorId', 'username email')
+            .populate('assignedWorkers', 'name workerId role phone skills'); // skills requested by frontend
+
+        if (!batch) {
+            res.status(404).json({ message: 'Batch not found' });
+            return;
+        }
+
+        res.json(batch);
+    } catch (e) {
+        res.status(500).json({ message: 'Server error fetching batch details' });
     }
 };
 

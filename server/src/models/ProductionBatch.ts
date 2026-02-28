@@ -28,6 +28,7 @@ export interface IProductionBatch extends Document {
     rejectionKg?: number;
 
     yieldPercentage?: number;
+    qualityYieldPercentage?: number; // Added field
     wastagePercentage?: number;
 
     quality?: {

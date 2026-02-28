@@ -1,5 +1,5 @@
 import express from 'express';
-import { createBatch, startBatch, completeBatch, getBatches, getMonitorView } from '../controllers/productionBatchController';
+import { createBatch, startBatch, completeBatch, getBatches, getMonitorView, getBatchById } from '../controllers/productionBatchController';
 import { protect, authorize } from '../middleware/authMiddleware';
 
 const router = express.Router();
@@ -12,6 +12,7 @@ router.get('/monitor', protect, authorize('STORE_MANAGER', 'ADMIN'), getMonitorV
 
 // Core workflow limited to Supervisors
 router.post('/', protect, authorize('SUPERVISOR'), createBatch);
+router.get('/:id', protect, getBatchById);
 router.put('/:id/start', protect, authorize('SUPERVISOR'), startBatch);
 router.put('/:id/complete', protect, authorize('SUPERVISOR'), completeBatch);
 
