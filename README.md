@@ -173,13 +173,28 @@ The analytics layer is **decision-oriented**, not just visual:
 * **Supplier Scoring:** Performance rating system.
 
 
+---
 
+## 🗺️ Phase 4 – Roadmap (Future Enhancements)
+
+The following enhancements are proposed as **future scope**, based on longer operational data cycles and real-world validation:
+
+* Production output and yield correlation
+* Wastage and quality incident analytics
+* Rule-based alerts and configurable thresholds
+* Executive-level summary dashboards
+* Data governance and audit hardening
+
+These are intentionally planned as a roadmap to ensure system stability and scalability.
+
+---
 
 ## 📚 Documentation
 
 * **Project Overview & Workflow** – `PROJECT_EXPLANATION.md`
 * **Backend Documentation** – `BACKEND_DOCS.md`
 * **Frontend Documentation** – `FRONTEND_DOCS.md`
+* **Future Improvements Plan** – `FUTURE_IMPROVEMENTS.md`
 
 ---
 
