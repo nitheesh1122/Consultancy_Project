@@ -19,7 +19,7 @@ export const getMachines = async (req: Request, res: Response) => {
 // @access  Private (Store Manager)
 export const createMachine = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { machineId, name, type, capacityKg, location } = req.body;
+        const { machineId, name, type, capacityKg, specifications, operation, financial, infrastructure, status } = req.body;
 
         if (!machineId || !name || !type || !capacityKg) {
             res.status(400).json({ message: 'Please provide all required fields' });
@@ -38,8 +38,11 @@ export const createMachine = async (req: Request, res: Response): Promise<void> 
             name,
             type,
             capacityKg,
-            location,
-            status: 'ACTIVE'
+            specifications,
+            operation,
+            financial,
+            infrastructure,
+            status: status || 'ACTIVE'
         });
 
         const savedMachine = await newMachine.save();
@@ -55,7 +58,7 @@ export const createMachine = async (req: Request, res: Response): Promise<void> 
 // @access  Private (Store Manager)
 export const updateMachine = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { name, type, capacityKg, location, status, lastMaintenanceDate } = req.body;
+        const { name, type, capacityKg, specifications, operation, financial, infrastructure, status, lastMaintenanceDate, nextMaintenanceDue } = req.body;
 
         const machine = await Machine.findById(req.params.id);
 
@@ -67,9 +70,13 @@ export const updateMachine = async (req: Request, res: Response): Promise<void> 
         if (name) machine.name = name;
         if (type) machine.type = type;
         if (capacityKg) machine.capacityKg = capacityKg;
-        if (location) machine.location = location;
+        if (specifications) machine.specifications = specifications;
+        if (operation) machine.operation = operation;
+        if (financial) machine.financial = financial;
+        if (infrastructure) machine.infrastructure = infrastructure;
         if (status) machine.status = status;
         if (lastMaintenanceDate) machine.lastMaintenanceDate = lastMaintenanceDate;
+        if (nextMaintenanceDue) machine.nextMaintenanceDue = nextMaintenanceDue;
 
         const updatedMachine = await machine.save();
         res.json(updatedMachine);
