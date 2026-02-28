@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import ProductionBatch from '../models/ProductionBatch';
 import Settings from '../models/Settings';
+import Worker from '../models/Worker';
 import { AuditLog } from '../models/AuditLog'; // Added AuditLog for tracking
 
 // Email Transporter Config
@@ -131,6 +132,45 @@ export const initCronJobs = () => {
                 action: 'DAILY_REPORT_SENT',
                 details: { status: 'FAILED', error: error.message || 'Unknown error during PDF generation or email sending' }
             });
+        }
+    });
+
+    // Orphaned Lock Cleanup Job (Runs every 15 minutes)
+    // "*/15 * * * *"
+    cron.schedule('*/15 * * * *', async () => {
+        try {
+            // Find all active batches (Scheduled or In Progress)
+            const activeBatches = await ProductionBatch.find({
+                status: { $in: ['SCHEDULED', 'IN_PROGRESS'] },
+                assignedWorkers: { $exists: true, $not: { $size: 0 } }
+            }).select('assignedWorkers').lean();
+
+            // Extract all currently legitimate assigned worker IDs
+            const legitimatelyBusyWorkerIds = activeBatches.reduce((acc: any[], batch) => {
+                if (batch.assignedWorkers) {
+                    acc.push(...batch.assignedWorkers);
+                }
+                return acc;
+            }, []);
+
+            // Unlock any worker who is BUSY but NOT in the legitimate list
+            const result = await Worker.updateMany(
+                {
+                    status: 'BUSY',
+                    _id: { $nin: legitimatelyBusyWorkerIds }
+                },
+                { $set: { status: 'ACTIVE' } }
+            );
+
+            if (result.modifiedCount > 0) {
+                console.log(`[Cron] Orphaned Lock Cleanup: Unlocked ${result.modifiedCount} stuck workers.`);
+                await AuditLog.create({
+                    action: 'ORPHAN_LOCK_CLEANUP',
+                    details: { status: 'SUCCESS', unlockedCount: result.modifiedCount }
+                });
+            }
+        } catch (error: any) {
+            console.error('[Cron Error] Failed to cleanup orphaned worker locks:', error);
         }
     });
 

@@ -95,12 +95,18 @@ The system evolves inventory management from simple tracking to **decision-orien
 * Comprehensive Audit Logs for all critical actions
 * Secure Real-time Notifications
 
-### 6. Material Procurement Context
+### 7. Material Procurement Context
 
 * Accessible from the inventory overview
 * Shows whether a material was previously ordered
 * Displays last purchase date, supplier, and inward details
 * Helps store managers make quicker procurement decisions
+
+### 8. Production Tracking Module
+
+* Comprehensive Machine Master tracking Erode-specific setups (Hard/Soft flow configurations, Water recycling, Generator mapping)
+* Detailed Worker Management encompassing HR compliance (ESI/PF, Migrant status, complex skill matrices)
+* Real-time Batch tracking and Yield Analytics capturing 1st Grade, 2nd Grade, and recoverable rejection metrics.
 
 ---
 

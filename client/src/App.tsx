@@ -15,7 +15,32 @@ const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
 };
 
 import Home from './pages/Home';
-import { RequestMaterial, MRSList, Inventory, RaisePI, PIApprovals, InwardEntry, Reports, MaterialDetails, UserManagement, Notifications } from './pages/Placeholders';
+import { RequestMaterial, MRSList, Inventory, RaisePI, PIApprovals, InwardEntry, MaterialDetails, UserManagement, Notifications } from './pages/Placeholders';
+
+// Production Module
+import MachineMaster from './pages/production/MachineMaster';
+import FabricLotList from './pages/production/FabricLotList';
+import ScheduleBatch from './pages/production/ScheduleBatch';
+import MyBatches from './pages/production/MyBatches';
+import BatchExecution from './pages/production/BatchExecution';
+import LiveMonitor from './pages/production/LiveMonitor';
+import ReportConfig from './pages/production/ReportConfig';
+
+// Analytics Module
+import AnalyticsLayout from './pages/analytics/AnalyticsLayout';
+import AnalyticsInventory from './pages/analytics/AnalyticsInventory';
+import AnalyticsProduction from './pages/analytics/AnalyticsProduction';
+import AnalyticsWorkers from './pages/analytics/AnalyticsWorkers';
+import AnalyticsSuppliers from './pages/analytics/AnalyticsSuppliers';
+
+// Settings Module
+import SettingsLayout from './pages/settings/SettingsLayout';
+
+// HR Module
+import HrLayout from './pages/hr/HrLayout';
+import HRWorkerList from './pages/hr/HRWorkerList';
+import AttendanceTracker from './pages/hr/AttendanceTracker';
+import HRPerformance from './pages/hr/HRPerformance';
 
 const AppRoutes = () => {
   return (
@@ -37,13 +62,41 @@ const AppRoutes = () => {
         <Route path="pi-approvals" element={<PIApprovals />} />
         <Route path="inward-entry" element={<InwardEntry />} />
         <Route path="return-material" element={<ReturnMaterial />} />
-        <Route path="reports" element={<Reports />} />
         <Route path="suppliers" element={<Suppliers />} />
         <Route path="suppliers/:id" element={<SupplierDetails />} />
-        <Route path="users" element={<UserManagement />} />
         <Route path="inventory/:id" element={<MaterialDetails />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="audit-logs" element={<AdminAudit />} />
+
+        {/* System Settings */}
+        <Route path="settings" element={<SettingsLayout />}>
+          <Route path="users" element={<UserManagement />} />
+          <Route path="reports" element={<ReportConfig />} />
+        </Route>
+
+        {/* HR Module */}
+        <Route path="hr" element={<HrLayout />}>
+          <Route path="workers" element={<HRWorkerList />} />
+          <Route path="attendance" element={<AttendanceTracker />} />
+          <Route path="performance" element={<HRPerformance />} />
+        </Route>
+
+        {/* Production Module Routes */}
+        <Route path="production/machines" element={<MachineMaster />} />
+        <Route path="production/lots" element={<FabricLotList />} />
+        <Route path="production/schedule" element={<ScheduleBatch />} />
+        <Route path="production/my-batches" element={<MyBatches />} />
+        <Route path="production/batch/:id/execute" element={<BatchExecution />} />
+        <Route path="production/monitor" element={<LiveMonitor />} />
+        <Route path="production/settings" element={<ReportConfig />} />
+
+        {/* Enterprise Analytics */}
+        <Route path="analytics" element={<AnalyticsLayout />}>
+          <Route path="inventory" element={<AnalyticsInventory />} />
+          <Route path="production" element={<AnalyticsProduction />} />
+          <Route path="workers" element={<AnalyticsWorkers />} />
+          <Route path="suppliers" element={<AnalyticsSuppliers />} />
+        </Route>
       </Route>
     </Routes>
   );

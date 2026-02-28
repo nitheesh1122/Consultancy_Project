@@ -1,4 +1,5 @@
-import React, { createContext, useEffect, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useEffect, useState, useContext } from 'react';
+import type { ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from '../hooks/useAuth';
 
@@ -45,7 +46,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             socket.emit('join_role', user.role);
 
             // Also join user specific room if needed
-            socket.emit('join_role', user.id);
+            socket.emit('join_role', (user as any)._id || (user as any).id);
         }
     }, [socket, user]);
 

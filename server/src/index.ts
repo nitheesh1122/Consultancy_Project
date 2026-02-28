@@ -16,6 +16,7 @@ import workerRoutes from './routes/workerRoutes';
 import settingsRoutes from './routes/settingsRoutes';
 import productionBatchRoutes from './routes/productionBatchRoutes';
 import productionAnalyticsRoutes from './routes/productionAnalyticsRoutes';
+import fabricLotRoutes from './routes/fabricLotRoutes';
 
 import { createServer } from 'http';
 import { initSocket } from './socket';
@@ -48,6 +49,7 @@ app.use('/api/workers', workerRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/production-batches', productionBatchRoutes);
 app.use('/api/production-analytics', productionAnalyticsRoutes);
+app.use('/api/fabric-lots', fabricLotRoutes);
 
 app.get('/', (req, res) => {
     res.send('Inventory System API is running');

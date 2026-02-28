@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { LayoutDashboard, Package, FileText, ShoppingCart, LogOut, Truck, Settings, Users, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, Package, FileText, ShoppingCart, LogOut, Truck, Settings, Users, RefreshCw, Factory, CalendarClock, Activity, TrendingUp } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 
 const Sidebar = () => {
@@ -17,9 +17,18 @@ const Sidebar = () => {
         { name: 'Raise PI', path: '/raise-pi', icon: ShoppingCart, roles: ['STORE_MANAGER'] },
         { name: 'Inward Entry', path: '/inward-entry', icon: Truck, roles: ['STORE_MANAGER'] },
         { name: 'PI Approvals', path: '/pi-approvals', icon: ShoppingCart, roles: ['ADMIN'] },
-        { name: 'Reports', path: '/reports', icon: FileText, roles: ['ADMIN', 'STORE_MANAGER'] },
-        { name: 'User Management', path: '/users', icon: Users, roles: ['ADMIN'] },
+        { name: 'System Settings', path: '/settings', icon: Settings, roles: ['ADMIN'] },
         { name: 'Audit Logs', path: '/audit-logs', icon: Settings, roles: ['ADMIN'] }, // Added this
+        { name: 'Human Resources', path: '/hr', icon: Users, roles: ['ADMIN', 'STORE_MANAGER'] },
+
+        // --- Production Module ---
+        { name: 'Machine Master', path: '/production/machines', icon: Factory, roles: ['STORE_MANAGER'] },
+        { name: 'Incoming Lots', path: '/production/lots', icon: Package, roles: ['ADMIN', 'SUPERVISOR', 'STORE_MANAGER'] },
+        { name: 'Schedule Batch', path: '/production/schedule', icon: CalendarClock, roles: ['SUPERVISOR'] },
+        { name: 'My Batches', path: '/production/my-batches', icon: Activity, roles: ['SUPERVISOR'] },
+        { name: 'Live Monitor', path: '/production/monitor', icon: Activity, roles: ['STORE_MANAGER'] },
+        { name: 'Production Overview', path: '/production/monitor', icon: Activity, roles: ['ADMIN'] },
+        { name: 'Analytics & Reports', path: '/analytics', icon: TrendingUp, roles: ['ADMIN', 'STORE_MANAGER'] },
     ];
 
     return (

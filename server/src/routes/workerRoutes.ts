@@ -1,6 +1,6 @@
 import express from 'express';
 import { getWorkers, createWorker, updateWorker, deleteWorker, getAvailableWorkers } from '../controllers/workerController';
-import { protect, authorize } from '../middleware/authMiddleware';
+import { protect, authorize, requireManager } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
@@ -11,8 +11,8 @@ router.get('/', protect, getWorkers);
 router.get('/available', protect, getAvailableWorkers);
 
 // Modifying workers is restricted
-router.post('/', protect, authorize('STORE_MANAGER', 'ADMIN'), createWorker);
-router.put('/:id', protect, authorize('STORE_MANAGER', 'ADMIN'), updateWorker);
-router.delete('/:id', protect, authorize('STORE_MANAGER', 'ADMIN'), deleteWorker);
+router.post('/', protect, authorize('STORE_MANAGER', 'ADMIN'), requireManager, createWorker);
+router.put('/:id', protect, authorize('STORE_MANAGER', 'ADMIN'), requireManager, updateWorker);
+router.delete('/:id', protect, authorize('STORE_MANAGER', 'ADMIN'), requireManager, deleteWorker);
 
 export default router;

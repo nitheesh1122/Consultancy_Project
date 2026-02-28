@@ -1,15 +1,15 @@
 import express from 'express';
 import { getMachines, createMachine, updateMachine, deleteMachine } from '../controllers/machineController';
-import { protect, authorize } from '../middleware/authMiddleware';
+import { protect, authorize, requireManager } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
 // GET all machines is accessible to any logged-in user (Supervisors need it for assigning batches)
 router.get('/', protect, getMachines);
 
-// Only STORE_MANAGER and ADMIN can modify machines
-router.post('/', protect, authorize('STORE_MANAGER', 'ADMIN'), createMachine);
-router.put('/:id', protect, authorize('STORE_MANAGER', 'ADMIN'), updateMachine);
-router.delete('/:id', protect, authorize('STORE_MANAGER', 'ADMIN'), deleteMachine);
+// Only STORE_MANAGER can modify machines (ADMIN is restricted to read-only)
+router.post('/', protect, authorize('STORE_MANAGER', 'ADMIN'), requireManager, createMachine);
+router.put('/:id', protect, authorize('STORE_MANAGER', 'ADMIN'), requireManager, updateMachine);
+router.delete('/:id', protect, authorize('STORE_MANAGER', 'ADMIN'), requireManager, deleteMachine);
 
 export default router;

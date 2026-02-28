@@ -8,6 +8,7 @@ interface Material {
     _id: string;
     name: string;
     unit: string;
+    quantity: number;
 }
 
 interface RequestItem {

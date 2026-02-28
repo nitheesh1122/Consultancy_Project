@@ -62,7 +62,7 @@ export const updateUtilityRates = async (req: AuthRequest, res: Response): Promi
 
         settings.utilityRates = utilityRates;
         if (req.user) {
-            settings.updatedBy = req.user._id as any;
+            settings.updatedBy = req.user.id as any;
         }
 
         const updatedSettings = await settings.save();

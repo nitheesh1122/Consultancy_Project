@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 import { getIO } from '../socket';
 
 interface AuthRequest extends Request {
-    user?: { _id: string; role: string;[key: string]: any; }
+    user?: { id: string; role: string;[key: string]: any; }
 }
 
 // Helper to generate next batch number (e.g. GTD-260301-001)
@@ -59,7 +59,7 @@ export const createBatch = async (req: AuthRequest, res: Response): Promise<void
 
         const newBatch = new ProductionBatch({
             batchNumber,
-            supervisorId: req.user?._id,
+            supervisorId: req.user?.id,
             machineId,
             scheduledDate,
             shift,

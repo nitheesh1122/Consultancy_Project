@@ -381,3 +381,105 @@ export const getForecast = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// ----------------------------------------------------
+// 6. WORKER & SUPPLIER ANALYTICS (Phase 1.5)
+// ----------------------------------------------------
+export const getWorkerPerformance = async (req: AuthRequest, res: Response) => {
+    try {
+        const stats = await mongoose.model('ProductionBatch').aggregate([
+            { $match: { status: 'COMPLETED' } },
+            {
+                $group: {
+                    _id: "$supervisorId",
+                    totalBatches: { $sum: 1 },
+                    avgYield: { $avg: "$qualityYieldPercentage" },
+                    avgWastage: { $avg: "$wastagePercentage" }
+                }
+            },
+            {
+                $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'supervisor' }
+            },
+            { $unwind: '$supervisor' },
+            {
+                $project: {
+                    supervisorName: "$supervisor.name",
+                    totalBatches: 1,
+                    avgYield: { $round: ["$avgYield", 2] },
+                    avgWastage: { $round: ["$avgWastage", 2] }
+                }
+            }
+        ]);
+        res.json(stats);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const getWorkerEfficiency = async (req: AuthRequest, res: Response) => {
+    try {
+        const stats = await mongoose.model('ProductionBatch').aggregate([
+            { $match: { status: 'COMPLETED' } },
+            { $unwind: "$assignedWorkers" },
+            {
+                $group: {
+                    _id: "$assignedWorkers",
+                    totalBatches: { $sum: 1 },
+                    totalYield: { $avg: "$qualityYieldPercentage" }
+                }
+            },
+            {
+                $lookup: { from: 'workers', localField: '_id', foreignField: '_id', as: 'worker' }
+            },
+            { $unwind: '$worker' },
+            {
+                $project: {
+                    workerName: "$worker.name",
+                    workerRole: "$worker.role",
+                    totalBatches: 1,
+                    avgYield: { $round: ["$totalYield", 2] }
+                }
+            }
+        ]);
+        res.json(stats);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const getSupplierQuality = async (req: AuthRequest, res: Response) => {
+    try {
+        const stats = await mongoose.model('ProductionBatch').aggregate([
+            { $match: { status: 'COMPLETED' } },
+            {
+                $group: {
+                    _id: "$supplierParty",
+                    totalBatches: { $sum: 1 },
+                    totalInputKg: { $sum: "$inputKg" },
+                    totalRejectionKg: { $sum: "$rejectionKg" },
+                    avgYield: { $avg: "$qualityYieldPercentage" }
+                }
+            },
+            {
+                $project: {
+                    supplierName: "$_id",
+                    totalBatches: 1,
+                    totalInputKg: 1,
+                    totalRejectionKg: 1,
+                    rejectionRate: {
+                        $cond: [
+                            { $gt: ["$totalInputKg", 0] },
+                            { $round: [{ $multiply: [{ $divide: ["$totalRejectionKg", "$totalInputKg"] }, 100] }, 2] },
+                            0
+                        ]
+                    },
+                    avgYield: { $round: ["$avgYield", 2] }
+                }
+            },
+            { $sort: { rejectionRate: -1 } }
+        ]);
+        res.json(stats);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
