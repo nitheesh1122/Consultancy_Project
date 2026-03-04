@@ -20,22 +20,22 @@ const AnalyticsLayout = () => {
     return (
         <div className="space-y-6 animate-fade-in">
             <div>
-                <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                    <TrendingUp className="h-8 w-8 text-indigo-600" />
+                <h2 className="text-3xl font-bold text-primary font-heading flex items-center gap-3">
+                    <TrendingUp className="h-8 w-8 text-brand-gold" />
                     Enterprise Analytics
                 </h2>
-                <p className="text-gray-500 mt-1">Cross-departmental performance metrics and insights</p>
+                <p className="text-secondary mt-1">Cross-departmental performance metrics and insights</p>
             </div>
 
-            <div className="bg-white p-1.5 rounded-xl shadow-sm border border-gray-200 inline-flex overflow-x-auto w-full sm:w-auto">
+            <div className="bg-elevated p-1.5 rounded-xl shadow-md border border-subtle inline-flex overflow-x-auto w-full sm:w-auto">
                 {tabs.map(tab => (
                     <NavLink
                         key={tab.path}
                         to={tab.path}
                         className={({ isActive }) =>
-                            `flex items-center gap-2 px-6 py-2.5 text-sm font-semibold rounded-lg transition-all whitespace-nowrap ${isActive
-                                ? 'bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100'
-                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-transparent'
+                            `flex items-center gap-2 px-6 py-2.5 text-sm font-bold tracking-wide rounded-lg transition-all whitespace-nowrap ${isActive
+                                ? 'bg-brand-gold/10 text-brand-gold shadow-sm border border-brand-gold/30'
+                                : 'text-secondary hover:text-brand-gold/80 hover:bg-void/50 border border-transparent'
                             }`
                         }
                     >

@@ -42,7 +42,7 @@ const AnalyticsProduction = () => {
     });
 
     if (isBatchesLoading || isEfficiencyLoading || isCostLoading) {
-        return <div className="flex justify-center p-12"><Loader2 className="animate-spin h-8 w-8 text-indigo-500" /></div>;
+        return <div className="flex justify-center p-12"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
     }
 
     // Compute Metrics
@@ -65,95 +65,97 @@ const AnalyticsProduction = () => {
             {/* Header / Filter */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold font-heading text-slate-900 flex items-center gap-2 border-b pb-2">
+                    <h2 className="text-2xl font-bold font-heading text-primary flex items-center gap-2 border-b border-subtle pb-2">
                         Yield & Operational Efficiency
                     </h2>
                 </div>
 
-                <div className="flex bg-white rounded-lg shadow-sm border border-slate-200 p-2 gap-2 items-center">
-                    <Calendar className="h-5 w-5 text-slate-400 ml-2" />
+                <div className="flex bg-elevated rounded-lg shadow-md border border-subtle p-2 gap-2 items-center">
+                    <Calendar className="h-5 w-5 text-brand-primary ml-2" />
                     <input
                         type="date"
                         value={dateRange.startDate}
                         onChange={e => setDateRange({ ...dateRange, startDate: e.target.value })}
-                        className="border-none bg-transparent text-sm font-medium focus:ring-0 outline-none text-slate-700"
+                        className="border-none bg-transparent text-sm font-bold tracking-wide focus:ring-0 outline-none text-primary"
                     />
-                    <span className="text-slate-300">to</span>
+                    <span className="text-muted font-bold">to</span>
                     <input
                         type="date"
                         value={dateRange.endDate}
                         onChange={e => setDateRange({ ...dateRange, endDate: e.target.value })}
-                        className="border-none bg-transparent text-sm font-medium focus:ring-0 outline-none text-slate-700 pr-2"
+                        className="border-none bg-transparent text-sm font-bold tracking-wide focus:ring-0 outline-none text-primary pr-2"
                     />
                 </div>
             </div>
 
             {totalBatches === 0 ? (
-                <div className="p-12 text-center bg-white rounded-xl shadow-sm border border-slate-200">
-                    <p className="text-slate-500 text-lg">No completed batches found for the selected date range.</p>
+                <div className="p-12 text-center bg-canvas rounded-xl shadow-sm border border-subtle border-dashed">
+                    <p className="text-secondary text-lg font-mono">No completed batches found for the selected date range.</p>
                 </div>
             ) : (
                 <>
                     {/* KPI Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                        <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                            <div className="text-sm font-medium text-slate-500 mb-1">Total Processed</div>
-                            <div className="text-2xl font-bold text-slate-900">{totalInput.toFixed(0)} <span className="text-sm text-slate-500 font-normal">kg</span></div>
-                            <div className="text-xs text-slate-400 mt-2">{totalBatches} completed batches</div>
+                        <div className="bg-card p-5 rounded-xl shadow-md border border-subtle">
+                            <div className="text-xs uppercase tracking-wider font-bold text-secondary mb-1">Total Processed</div>
+                            <div className="text-2xl font-bold text-primary font-mono tabular-nums">{totalInput.toFixed(0)} <span className="text-xs text-secondary font-normal ml-0.5">kg</span></div>
+                            <div className="text-[10px] uppercase font-bold text-brand-primary mt-2 tracking-wider">{totalBatches} completed batches</div>
                         </div>
 
-                        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-5 rounded-xl border border-emerald-200 shadow-sm">
-                            <div className="text-sm font-bold text-emerald-800 mb-1 flex items-center gap-1 uppercase tracking-wider"><Percent className="h-4 w-4" /> Avg Quality Yield</div>
-                            <div className="text-3xl font-black text-emerald-700">{avgYield}%</div>
-                            <div className="text-xs text-emerald-600 mt-2 font-medium">Target: 90.0%</div>
+                        <div className="bg-elevated p-5 rounded-xl border border-status-success/30 shadow-lg relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-status-success/10 rounded-full blur-2xl -mr-6 -mt-6"></div>
+                            <div className="text-xs font-bold text-status-success mb-1 flex items-center gap-1.5 uppercase tracking-wider relative z-10"><Percent className="h-4 w-4" /> Avg Quality Yield</div>
+                            <div className="text-3xl font-black text-status-success tabular-nums font-mono relative z-10">{avgYield}%</div>
+                            <div className="text-[10px] text-primary/80 uppercase tracking-widest mt-2 font-bold relative z-10">Target: 90.0%</div>
                         </div>
 
-                        <div className="bg-gradient-to-br from-rose-50 to-rose-100 p-5 rounded-xl border border-rose-200 shadow-sm">
-                            <div className="text-sm font-bold text-rose-800 mb-1 flex items-center gap-1 uppercase tracking-wider"><ArrowDownRight className="h-4 w-4" /> Avg Wastage</div>
-                            <div className="text-3xl font-black text-rose-700">{avgWastage}%</div>
-                            <div className="text-xs text-rose-600 mt-2 font-medium">{((totalInput - (totalQualityOutput + totalRejection)) || 0).toFixed(0)} kg lost completely</div>
+                        <div className="bg-elevated p-5 rounded-xl border border-status-danger/30 shadow-lg relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-status-danger/10 rounded-full blur-2xl -mr-6 -mt-6"></div>
+                            <div className="text-xs font-bold text-status-danger mb-1 flex items-center gap-1.5 uppercase tracking-wider relative z-10"><ArrowDownRight className="h-4 w-4" /> Avg Wastage</div>
+                            <div className="text-3xl font-black text-status-danger tabular-nums font-mono relative z-10">{avgWastage}%</div>
+                            <div className="text-[10px] text-status-danger mt-2 font-bold uppercase tracking-wider relative z-10">{((totalInput - (totalQualityOutput + totalRejection)) || 0).toFixed(0)} kg lost completely</div>
                         </div>
 
-                        <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                            <div className="text-sm font-medium text-indigo-800 mb-1">Recoverable Rejection</div>
-                            <div className="text-2xl font-bold text-indigo-900">{totalRejection.toFixed(0)} <span className="text-sm font-normal">kg</span></div>
-                            <div className="text-xs text-indigo-500 mt-2">{(totalInput > 0 ? (totalRejection / totalInput) * 100 : 0).toFixed(1)}% of total input</div>
+                        <div className="bg-card p-5 rounded-xl shadow-md border border-subtle">
+                            <div className="text-xs uppercase tracking-wider font-bold text-secondary mb-1">Recoverable Rejection</div>
+                            <div className="text-2xl font-bold text-primary font-mono tabular-nums">{totalRejection.toFixed(0)} <span className="text-xs text-secondary font-normal ml-0.5">kg</span></div>
+                            <div className="text-[10px] text-status-warning uppercase font-bold tracking-wider mt-2">{(totalInput > 0 ? (totalRejection / totalInput) * 100 : 0).toFixed(1)}% of total input</div>
                         </div>
 
-                        <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                            <div className="text-sm font-medium text-orange-800 mb-1 flex items-center gap-1"><Flame className="h-4 w-4" /> Estimated Util Cost</div>
-                            <div className="text-2xl font-bold text-slate-900">₹{totalUtilityCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
-                            <div className="text-xs text-slate-500 mt-2">Based on standard rates</div>
+                        <div className="bg-card p-5 rounded-xl shadow-md border border-subtle">
+                            <div className="text-xs uppercase tracking-wider font-bold text-secondary mb-1 flex items-center gap-1.5"><Flame className="h-4 w-4 text-brand-primary" /> Estimated Util Cost</div>
+                            <div className="text-2xl font-bold text-primary font-mono tracking-tight text-status-info">₹{totalUtilityCost.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+                            <div className="text-[10px] uppercase font-bold text-muted tracking-wider mt-2">Based on standard rates</div>
                         </div>
                     </div>
 
                     {/* Batch Performance Tables */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Top Performers */}
-                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-64 flex flex-col">
-                            <div className="px-5 py-4 border-b border-slate-100 bg-emerald-50/50">
-                                <h3 className="font-bold text-emerald-800 flex items-center gap-2">
-                                    <ArrowUpRight className="h-5 w-5 text-emerald-600" /> Top Yielding Batches
+                        <div className="bg-card rounded-xl shadow-lg border border-subtle overflow-hidden h-64 flex flex-col">
+                            <div className="px-6 py-4 border-b border-subtle bg-status-success/5 backdrop-blur-sm">
+                                <h3 className="font-bold text-status-success flex items-center gap-2 font-heading uppercase tracking-wider text-sm">
+                                    <ArrowUpRight className="h-5 w-5 text-status-success" /> Top Yielding Batches
                                 </h3>
                             </div>
                             <div className="flex-1 overflow-auto">
-                                <table className="w-full text-sm divide-y divide-slate-100">
-                                    <thead className="bg-white sticky top-0">
+                                <table className="w-full text-sm divide-y divide-subtle text-left border-collapse">
+                                    <thead className="bg-elevated sticky top-0 border-b border-subtle">
                                         <tr>
-                                            <th className="px-5 py-3 text-left text-xs font-bold text-slate-500 uppercase">Batch</th>
-                                            <th className="px-5 py-3 text-left text-xs font-bold text-slate-500 uppercase">Input</th>
-                                            <th className="px-5 py-3 text-right text-xs font-bold text-slate-500 uppercase">Yield</th>
+                                            <th className="px-6 py-3.5 text-xs font-bold text-secondary uppercase tracking-wider">Batch</th>
+                                            <th className="px-6 py-3.5 text-xs font-bold text-secondary uppercase tracking-wider">Input</th>
+                                            <th className="px-6 py-3.5 text-right text-xs font-bold text-secondary uppercase tracking-wider">Yield</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-50">
+                                    <tbody className="divide-y divide-subtle">
                                         {topBatches.map((batch: any) => (
-                                            <tr key={batch._id}>
-                                                <td className="px-5 py-3 whitespace-nowrap">
-                                                    <div className="font-mono text-sm font-medium text-slate-900">{batch.batchNumber}</div>
-                                                    <div className="text-xs text-slate-500">{batch.fabricType}</div>
+                                            <tr key={batch._id} className="hover:bg-canvas/50 transition-colors">
+                                                <td className="px-6 py-3.5 whitespace-nowrap">
+                                                    <div className="font-mono text-sm font-bold text-primary">{batch.batchNumber}</div>
+                                                    <div className="text-xs text-secondary uppercase font-semibold mt-1 tracking-wider">{batch.fabricType}</div>
                                                 </td>
-                                                <td className="px-5 py-3 whitespace-nowrap text-sm text-slate-600">{batch.inputKg} kg</td>
-                                                <td className="px-5 py-3 whitespace-nowrap text-right font-bold text-emerald-600">
+                                                <td className="px-6 py-3.5 whitespace-nowrap text-sm text-secondary font-mono">{batch.inputKg} <span className="text-[10px]">kg</span></td>
+                                                <td className="px-6 py-3.5 whitespace-nowrap text-right font-bold text-status-success font-mono">
                                                     {batch.qualityYieldPercentage}%
                                                 </td>
                                             </tr>
@@ -165,9 +167,9 @@ const AnalyticsProduction = () => {
 
                         {/* Cost Trends */}
                         {cost?.monthlyTrend && (
-                            <div className="industrial-card p-6 h-64 bg-white rounded-xl shadow-sm border border-slate-200">
-                                <h3 className="text-base font-bold text-slate-800 mb-4 font-heading flex items-center gap-2">
-                                    <DollarSign className="h-5 w-5 text-indigo-600" /> Material Cost Trends
+                            <div className="industrial-card p-6 h-64 bg-card rounded-xl shadow-lg border border-subtle">
+                                <h3 className="text-base font-bold text-primary mb-4 font-heading flex items-center gap-2 uppercase tracking-wide">
+                                    <DollarSign className="h-5 w-5 text-brand-primary" /> Material Cost Trends
                                 </h3>
                                 <div className="h-40">
                                     <SimpleLineChart
@@ -176,7 +178,7 @@ const AnalyticsProduction = () => {
                                             cost: d.totalCost
                                         }))}
                                         xKey="date"
-                                        lines={[{ key: 'cost', name: 'Cost (₹)', color: '#4f46e5' }]}
+                                        lines={[{ key: 'cost', name: 'Cost (₹)', color: '#d4a853' }]}
                                     />
                                 </div>
                             </div>
@@ -185,36 +187,36 @@ const AnalyticsProduction = () => {
 
                     {/* Efficiency Analysis */}
                     {efficiency?.inefficientBatches && efficiency.inefficientBatches.length > 0 && (
-                        <div className="space-y-4 pt-6 mt-6 border-t border-slate-200">
-                            <h3 className="text-lg font-bold font-heading text-slate-900 border-b pb-2">Material Re-issue Analysis (Inefficiency)</h3>
-                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                                <div className="px-5 py-4 border-b border-rose-100 bg-rose-50/50">
-                                    <h3 className="font-bold text-rose-800 flex items-center gap-2">
-                                        <Layers className="h-5 w-5 text-rose-600" /> Multiple Issue Requests Detected (&gt;3 per material)
+                        <div className="space-y-4 pt-6 mt-6 border-t border-subtle">
+                            <h3 className="text-xl font-bold font-heading text-primary border-b border-subtle pb-2">Material Re-issue Analysis (Inefficiency)</h3>
+                            <div className="bg-card rounded-xl shadow-lg border border-subtle overflow-hidden">
+                                <div className="px-6 py-4 border-b border-status-danger/30 bg-status-danger/5 backdrop-blur-sm">
+                                    <h3 className="font-bold tracking-wider uppercase text-status-danger flex items-center gap-2 text-sm">
+                                        <Layers className="h-5 w-5 text-status-danger" /> Multiple Issue Requests Detected (&gt;3 per material)
                                     </h3>
-                                    <p className="text-xs text-rose-600 mt-1">Frequent small re-issues of the same chemical for a batch indicate poor matching or lab dip failures.</p>
+                                    <p className="text-xs text-status-danger/80 mt-1.5 font-bold font-mono tracking-tight">Frequent small re-issues of the same chemical for a batch indicate poor matching or lab dip failures.</p>
                                 </div>
                                 <div className="overflow-x-auto">
-                                    <table className="w-full text-sm">
-                                        <thead className="bg-white">
+                                    <table className="w-full text-sm text-left border-collapse">
+                                        <thead className="bg-elevated border-b border-subtle">
                                             <tr>
-                                                <th className="px-6 py-3 text-left font-bold text-slate-500 uppercase text-xs">Batch Reference</th>
-                                                <th className="px-6 py-3 text-left font-bold text-slate-500 uppercase text-xs">Material Name</th>
-                                                <th className="px-6 py-3 text-center font-bold text-slate-500 uppercase text-xs">Issue Count</th>
-                                                <th className="px-6 py-3 text-right font-bold text-slate-500 uppercase text-xs">Total Qty Used</th>
+                                                <th className="px-6 py-3.5 font-bold text-secondary uppercase tracking-wider text-xs">Batch Reference</th>
+                                                <th className="px-6 py-3.5 font-bold text-secondary uppercase tracking-wider text-xs">Material Name</th>
+                                                <th className="px-6 py-3.5 text-center font-bold text-secondary uppercase tracking-wider text-xs">Issue Count</th>
+                                                <th className="px-6 py-3.5 text-right font-bold text-secondary uppercase tracking-wider text-xs">Total Qty Used</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-100">
+                                        <tbody className="divide-y divide-subtle">
                                             {efficiency.inefficientBatches.map((b: any, i: number) => (
-                                                <tr key={i} className="hover:bg-slate-50 transition-colors">
-                                                    <td className="px-6 py-3 text-slate-900 font-mono font-medium">{b.batchId}</td>
-                                                    <td className="px-6 py-3 text-slate-700 font-medium">{b.materialName}</td>
-                                                    <td className="px-6 py-3 text-center">
-                                                        <span className="inline-flex items-center justify-center px-2.5 py-1 rounded bg-rose-100 text-rose-800 font-bold">
+                                                <tr key={i} className="hover:bg-canvas/50 transition-colors">
+                                                    <td className="px-6 py-4 text-primary font-mono font-bold">{b.batchId}</td>
+                                                    <td className="px-6 py-4 text-primary font-bold font-heading">{b.materialName}</td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-[4px] bg-status-danger/10 border border-status-danger/30 text-status-danger font-bold shadow-sm text-xs tracking-wider uppercase">
                                                             {b.issueCount} times
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-3 text-right text-slate-600 font-mono">{b.totalQty.toFixed(2)}</td>
+                                                    <td className="px-6 py-4 text-right text-secondary font-mono tracking-tight font-bold">{b.totalQty.toFixed(2)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
