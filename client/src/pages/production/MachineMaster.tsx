@@ -189,8 +189,8 @@ const MachineMaster = () => {
             header: 'Name & Type',
             cell: (m) => (
                 <>
-                    <div className="text-sm text-gray-900 font-semibold">{m.name}</div>
-                    <div className="text-xs text-gray-500">{m.type.replace('_', ' ')}</div>
+                    <div className="text-sm text-primary font-semibold">{m.name}</div>
+                    <div className="text-xs text-secondary">{m.type.replace('_', ' ')}</div>
                 </>
             )
         },
@@ -198,8 +198,8 @@ const MachineMaster = () => {
             header: 'Capacity & Location',
             cell: (m) => (
                 <>
-                    <div className="text-sm text-gray-900">{m.capacityKg} kg</div>
-                    <div className="text-xs text-gray-500">{m.infrastructure?.location || 'N/A'}</div>
+                    <div className="text-sm text-primary">{m.capacityKg} kg</div>
+                    <div className="text-xs text-secondary">{m.infrastructure?.location || 'N/A'}</div>
                 </>
             )
         },
@@ -208,7 +208,7 @@ const MachineMaster = () => {
             cell: (m) => (
                 <span className={`px-2 py-1 text-xs rounded-full font-medium ${m.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
                     m.status === 'MAINTENANCE' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-600'
+                        'bg-elevated text-secondary'
                     }`}>
                     {m.status}
                 </span>
@@ -221,7 +221,7 @@ const MachineMaster = () => {
             <ReadOnlyTable
                 title="Machine Master"
                 description="View dyeing equipment, capacities, and technical specs"
-                icon={<Factory className="h-6 w-6 text-indigo-600" />}
+                icon={<Factory className="h-6 w-6 text-primary" />}
                 data={machines}
                 columns={columns}
                 isLoading={isLoading}
@@ -231,62 +231,62 @@ const MachineMaster = () => {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
+        <div className="space-y-6 animate-fade-in">
+            <div className="flex justify-between items-center border-b border-subtle pb-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                        <Factory className="h-6 w-6 text-indigo-600" />
+                    <h2 className="text-2xl font-bold font-heading text-primary flex items-center gap-2">
+                        <Factory className="h-7 w-7 text-brand-primary" />
                         Machine Master
                     </h2>
-                    <p className="text-gray-500">Manage dyeing equipment, capacities, and technical specs</p>
+                    <p className="text-secondary mt-1">Manage dyeing equipment, capacities, and technical specs</p>
                 </div>
                 <button
                     onClick={() => openModal()}
-                    className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+                    className="flex items-center gap-2 bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-brand-primary/90 transition-all font-bold shadow-md"
                 >
                     <Plus className="h-4 w-4" /> Add Machine
                 </button>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+            <div className="bg-card rounded-xl shadow-lg overflow-hidden border border-subtle">
+                <table className="w-full text-left border-collapse">
+                    <thead className="bg-elevated border-b border-subtle">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Machine ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name & Type</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Capacity & Location</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            <th className="px-6 py-3.5 text-left text-xs font-bold text-secondary uppercase tracking-wider">Machine ID</th>
+                            <th className="px-6 py-3.5 text-left text-xs font-bold text-secondary uppercase tracking-wider">Name & Type</th>
+                            <th className="px-6 py-3.5 text-left text-xs font-bold text-secondary uppercase tracking-wider">Capacity & Location</th>
+                            <th className="px-6 py-3.5 text-left text-xs font-bold text-secondary uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3.5 text-right text-xs font-bold text-secondary uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="divide-y divide-subtle">
                         {isLoading ? (
-                            <tr><td colSpan={5} className="text-center py-8 text-gray-500">Loading machines...</td></tr>
+                            <tr><td colSpan={5} className="text-center py-8 text-secondary">Loading machines...</td></tr>
                         ) : machines.length === 0 ? (
-                            <tr><td colSpan={5} className="text-center py-8 text-gray-500">No machines found.</td></tr>
+                            <tr><td colSpan={5} className="text-center py-8 text-secondary">No machines found.</td></tr>
                         ) : (
                             machines.map(machine => (
-                                <tr key={machine._id} className={machine.status === 'RETIRED' ? 'bg-gray-50 opacity-60' : 'hover:bg-gray-50/50'}>
-                                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{machine.machineId}</td>
+                                <tr key={machine._id} className={machine.status === 'RETIRED' ? 'bg-canvas opacity-50' : 'hover:bg-canvas/60 transition-colors'}>
+                                    <td className="px-6 py-4 whitespace-nowrap font-bold text-primary font-mono tracking-tight">{machine.machineId}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-gray-900 font-semibold">{machine.name}</div>
-                                        <div className="text-xs text-gray-500">{machine.type.replace('_', ' ')}</div>
+                                        <div className="text-sm text-primary font-bold font-heading">{machine.name}</div>
+                                        <div className="text-xs text-secondary mt-1 uppercase tracking-wider font-semibold">{machine.type.replace('_', ' ')}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-gray-900">{machine.capacityKg} kg</div>
-                                        <div className="text-xs text-gray-500">{machine.infrastructure?.location || 'N/A'}</div>
+                                        <div className="text-sm font-bold text-primary tabular-nums font-mono">{machine.capacityKg} <span className="text-[10px] text-muted ml-0.5">kg</span></div>
+                                        <div className="text-xs text-secondary mt-1.5 uppercase font-semibold">{machine.infrastructure?.location || 'N/A'}</div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`px-2 py-1 text-xs rounded-full font-medium ${machine.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
-                                            machine.status === 'MAINTENANCE' ? 'bg-yellow-100 text-yellow-800' :
-                                                'bg-gray-100 text-gray-600'
+                                        <span className={`px-2.5 py-1 text-[10px] uppercase tracking-wider rounded-sm font-bold border ${machine.status === 'ACTIVE' ? 'bg-status-success/10 text-status-success border-status-success/30' :
+                                            machine.status === 'MAINTENANCE' ? 'bg-status-warning/10 text-status-warning border-status-warning/30' :
+                                                'bg-elevated text-secondary border-subtle'
                                             }`}>
                                             {machine.status}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                                         <div className="flex justify-end gap-3">
-                                            <button onClick={() => openModal(machine)} className="text-blue-600 hover:text-blue-800" title="Edit">
+                                            <button onClick={() => openModal(machine)} className="text-brand-primary hover:text-brand-primary/80 transition-colors" title="Edit">
                                                 <Edit2 className="h-4 w-4" />
                                             </button>
                                             {machine.status !== 'RETIRED' && (
@@ -294,7 +294,7 @@ const MachineMaster = () => {
                                                     if (window.confirm('Are you sure you want to retire this machine?')) {
                                                         retireMutation.mutate(machine._id);
                                                     }
-                                                }} className="text-red-500 hover:text-red-700" title="Retire">
+                                                }} className="text-status-danger hover:text-red-500 transition-colors" title="Retire">
                                                     <PowerOff className="h-4 w-4" />
                                                 </button>
                                             )}
@@ -309,17 +309,18 @@ const MachineMaster = () => {
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex py-10 justify-center z-50 overflow-y-auto">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl min-h-fit self-start animate-fade-in my-auto">
-                        <div className="sticky top-0 bg-white px-6 py-4 border-b border-gray-100 flex justify-between items-center rounded-t-xl z-10">
+                <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex py-10 justify-center z-50 overflow-y-auto animate-fade-in">
+                    <div className="bg-card rounded-xl shadow-2xl w-full max-w-4xl min-h-fit self-start my-auto border border-subtle relative overflow-hidden">
+                        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-brand-primary rounded-full opacity-5 blur-3xl pointer-events-none"></div>
+                        <div className="sticky top-0 bg-card/90 backdrop-blur-md px-6 py-4 border-b border-subtle flex justify-between items-center z-10">
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                    <Factory className="h-5 w-5 text-indigo-600" />
+                                <h3 className="text-lg font-bold font-heading text-primary flex items-center gap-2">
+                                    <Factory className="h-5 w-5 text-brand-primary" />
                                     {editingMachine ? 'Edit Machine' : 'Add New Machine'}
                                 </h3>
 
                             </div>
-                            <button onClick={closeModal} className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
+                            <button onClick={closeModal} className="text-muted hover:text-brand-primary bg-canvas hover:bg-elevated p-2 rounded-full transition-colors border border-transparent hover:border-brand-primary/30">
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
@@ -328,40 +329,40 @@ const MachineMaster = () => {
 
                             {/* SECTION 1: BASIC INFORMATION */}
                             <section>
-                                <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 border-b pb-2">SECTION 1: BASIC INFORMATION</h4>
+                                <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 border-b pb-2">SECTION 1: BASIC INFORMATION</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Machine ID (Auto/Manual) *</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Machine ID (Auto/Manual) *</label>
                                         <input
                                             required type="text"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.machineId}
                                             onChange={e => setFormData({ ...formData, machineId: e.target.value })}
                                             placeholder="GTD-M-XXX"
                                         />
                                     </div>
                                     <div className="col-span-2">
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Name *</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Name *</label>
                                         <input
                                             required type="text"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.name}
                                             onChange={e => setFormData({ ...formData, name: e.target.value })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Capacity (Kg) *</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Capacity (Kg) *</label>
                                         <input
                                             required type="number" min="1"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.capacityKg}
                                             onChange={e => setFormData({ ...formData, capacityKg: Number(e.target.value) })}
                                         />
                                     </div>
                                     <div className="col-span-2">
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Type *</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Type *</label>
                                         <select
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.type}
                                             onChange={e => setFormData({ ...formData, type: e.target.value })}
                                         >
@@ -373,9 +374,9 @@ const MachineMaster = () => {
                                         </select>
                                     </div>
                                     <div className="col-span-2">
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Status</label>
                                         <select
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.status}
                                             onChange={e => setFormData({ ...formData, status: e.target.value })}
                                         >
@@ -390,30 +391,30 @@ const MachineMaster = () => {
 
                             {/* SECTION 2: TECHNICAL SPECIFICATIONS */}
                             <section>
-                                <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 border-b pb-2">SECTION 2: TECHNICAL SPECIFICATIONS (Erode Standards)</h4>
+                                <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 border-b pb-2">SECTION 2: TECHNICAL SPECIFICATIONS (Erode Standards)</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Max Temp (°C)</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Max Temp (°C)</label>
                                         <input
                                             type="number"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.specifications.maxTemperatureC}
                                             onChange={e => setFormData({ ...formData, specifications: { ...formData.specifications, maxTemperatureC: Number(e.target.value) } })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Max Pressure (kg/cm²)</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Max Pressure (kg/cm²)</label>
                                         <input
                                             type="number"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.specifications.maxPressure}
                                             onChange={e => setFormData({ ...formData, specifications: { ...formData.specifications, maxPressure: Number(e.target.value) } })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Liquor Ratio (Water:Fabric)</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Liquor Ratio (Water:Fabric)</label>
                                         <select
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.specifications.liquorRatio}
                                             onChange={e => setFormData({ ...formData, specifications: { ...formData.specifications, liquorRatio: e.target.value } })}
                                         >
@@ -424,9 +425,9 @@ const MachineMaster = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Heating Source</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Heating Source</label>
                                         <select
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.specifications.heatingSource}
                                             onChange={e => setFormData({ ...formData, specifications: { ...formData.specifications, heatingSource: e.target.value } })}
                                         >
@@ -442,9 +443,9 @@ const MachineMaster = () => {
                                             id="waterRecycling"
                                             checked={formData.specifications.waterRecycling}
                                             onChange={e => setFormData({ ...formData, specifications: { ...formData.specifications, waterRecycling: e.target.checked } })}
-                                            className="h-4 w-4 text-indigo-600 rounded border-gray-300"
+                                            className="h-4 w-4 text-primary rounded border-subtle"
                                         />
-                                        <label htmlFor="waterRecycling" className="text-sm font-medium text-gray-700">Water Recycling Included (TNPCB Compliance)</label>
+                                        <label htmlFor="waterRecycling" className="text-sm font-medium text-primary">Water Recycling Included (TNPCB Compliance)</label>
                                     </div>
                                     <div className="col-span-2 flex items-center gap-2 mt-2">
                                         <input
@@ -452,50 +453,50 @@ const MachineMaster = () => {
                                             id="powerBackup"
                                             checked={formData.specifications.powerBackup}
                                             onChange={e => setFormData({ ...formData, specifications: { ...formData.specifications, powerBackup: e.target.checked } })}
-                                            className="h-4 w-4 text-indigo-600 rounded border-gray-300"
+                                            className="h-4 w-4 text-primary rounded border-subtle"
                                         />
-                                        <label htmlFor="powerBackup" className="text-sm font-medium text-gray-700">Power Backup (UPS/Generator Line Connected)</label>
+                                        <label htmlFor="powerBackup" className="text-sm font-medium text-primary">Power Backup (UPS/Generator Line Connected)</label>
                                     </div>
                                 </div>
                             </section>
 
                             {/* SECTION 3: OPERATIONAL PROFILE */}
                             <section>
-                                <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 border-b pb-2">SECTION 3: OPERATIONAL PROFILE</h4>
+                                <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 border-b pb-2">SECTION 3: OPERATIONAL PROFILE</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Batches per Shift</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Batches per Shift</label>
                                         <input
                                             type="number"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.operation.shiftCapacity}
                                             onChange={e => setFormData({ ...formData, operation: { ...formData.operation, shiftCapacity: Number(e.target.value) } })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Avg Batch Time (Hours)</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Avg Batch Time (Hours)</label>
                                         <input
                                             type="number" step="0.5"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.operation.avgBatchTimeHours}
                                             onChange={e => setFormData({ ...formData, operation: { ...formData.operation, avgBatchTimeHours: Number(e.target.value) } })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Maint. Cycle (Days)</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Maint. Cycle (Days)</label>
                                         <input
                                             type="number"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.operation.maintenanceCycle}
                                             onChange={e => setFormData({ ...formData, operation: { ...formData.operation, maintenanceCycle: Number(e.target.value) } })}
                                         />
                                     </div>
 
                                     <div className="col-span-4 mt-2">
-                                        <label className="block text-xs font-medium text-gray-700 mb-2">Preferred Fabrics (Select multiple)</label>
+                                        <label className="block text-xs font-medium text-primary mb-2">Preferred Fabrics (Select multiple)</label>
                                         <div className="flex flex-wrap gap-2">
                                             {FABRIC_OPTIONS.map(fabric => (
-                                                <label key={`pref-${fabric}`} className={`px-3 py-1.5 border rounded-lg text-xs font-medium cursor-pointer transition-colors ${formData.operation.preferredFabrics.includes(fabric) ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'}`}>
+                                                <label key={`pref-${fabric}`} className={`px-3 py-1.5 border rounded-lg text-xs font-medium cursor-pointer transition-colors ${formData.operation.preferredFabrics.includes(fabric) ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-canvas border-subtle text-secondary hover:bg-elevated'}`}>
                                                     <input
                                                         type="checkbox"
                                                         className="hidden"
@@ -509,10 +510,10 @@ const MachineMaster = () => {
                                     </div>
 
                                     <div className="col-span-4 mt-2">
-                                        <label className="block text-xs font-medium text-gray-700 mb-2">Unsuitable / Excluded Fabrics (Select multiple)</label>
+                                        <label className="block text-xs font-medium text-primary mb-2">Unsuitable / Excluded Fabrics (Select multiple)</label>
                                         <div className="flex flex-wrap gap-2">
                                             {FABRIC_OPTIONS.map(fabric => (
-                                                <label key={`excl-${fabric}`} className={`px-3 py-1.5 border rounded-lg text-xs font-medium cursor-pointer transition-colors ${formData.operation.excludedFabrics.includes(fabric) ? 'bg-red-50 border-red-200 text-red-700' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'}`}>
+                                                <label key={`excl-${fabric}`} className={`px-3 py-1.5 border rounded-lg text-xs font-medium cursor-pointer transition-colors ${formData.operation.excludedFabrics.includes(fabric) ? 'bg-status-danger/10 border-status-danger/30 text-red-700' : 'bg-canvas border-subtle text-secondary hover:bg-elevated'}`}>
                                                     <input
                                                         type="checkbox"
                                                         className="hidden"
@@ -529,30 +530,30 @@ const MachineMaster = () => {
 
                             {/* SECTION 4: FINANCIAL & COMPLIANCE */}
                             <section>
-                                <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 border-b pb-2">SECTION 4: FINANCIAL & COMPLIANCE</h4>
+                                <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 border-b pb-2">SECTION 4: FINANCIAL & COMPLIANCE</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Installation Date</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Installation Date</label>
                                         <input
                                             type="date"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.financial.installationDate}
                                             onChange={e => setFormData({ ...formData, financial: { ...formData.financial, installationDate: e.target.value } })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Purchase Cost (INR)</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Purchase Cost (INR)</label>
                                         <input
                                             type="number"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.financial.purchaseCost}
                                             onChange={e => setFormData({ ...formData, financial: { ...formData.financial, purchaseCost: Number(e.target.value) } })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Supplier Name</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Supplier Name</label>
                                         <select
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.financial.supplierName}
                                             onChange={e => setFormData({ ...formData, financial: { ...formData.financial, supplierName: e.target.value } })}
                                         >
@@ -564,29 +565,29 @@ const MachineMaster = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Warranty Expiry Date</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Warranty Expiry Date</label>
                                         <input
                                             type="date"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.financial.warrantyExpiry}
                                             onChange={e => setFormData({ ...formData, financial: { ...formData.financial, warrantyExpiry: e.target.value } })}
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">AMC Provider</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">AMC Provider</label>
                                         <input
                                             type="text"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.financial.amcProvider}
                                             onChange={e => setFormData({ ...formData, financial: { ...formData.financial, amcProvider: e.target.value } })}
                                             placeholder="e.g Sclavos India"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">AMC Valid Until</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">AMC Valid Until</label>
                                         <input
                                             type="date"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.financial.amcExpiry}
                                             onChange={e => setFormData({ ...formData, financial: { ...formData.financial, amcExpiry: e.target.value } })}
                                         />
@@ -596,12 +597,12 @@ const MachineMaster = () => {
 
                             {/* SECTION 5: INFRASTRUCTURE */}
                             <section>
-                                <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 border-b pb-2">SECTION 5: INFRASTRUCTURE (Erode Factory Layout)</h4>
+                                <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 border-b pb-2">SECTION 5: INFRASTRUCTURE (Erode Factory Layout)</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Location</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Location</label>
                                         <select
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.infrastructure.location}
                                             onChange={e => setFormData({ ...formData, infrastructure: { ...formData.infrastructure, location: e.target.value } })}
                                         >
@@ -613,9 +614,9 @@ const MachineMaster = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Power Connection</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Power Connection</label>
                                         <select
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.infrastructure.powerConnection}
                                             onChange={e => setFormData({ ...formData, infrastructure: { ...formData.infrastructure, powerConnection: e.target.value } })}
                                         >
@@ -624,19 +625,19 @@ const MachineMaster = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Power Rating (kW)</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Power Rating (kW)</label>
                                         <input
                                             type="number"
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.infrastructure.powerRatingKw}
                                             onChange={e => setFormData({ ...formData, infrastructure: { ...formData.infrastructure, powerRatingKw: Number(e.target.value) } })}
                                             placeholder="kW"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Water Line Size</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Water Line Size</label>
                                         <select
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.infrastructure.waterLineSize}
                                             onChange={e => setFormData({ ...formData, infrastructure: { ...formData.infrastructure, waterLineSize: e.target.value } })}
                                         >
@@ -647,9 +648,9 @@ const MachineMaster = () => {
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700 mb-1">Effluent Outlet</label>
+                                        <label className="block text-xs font-medium text-primary mb-1">Effluent Outlet</label>
                                         <select
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 outline-none"
+                                            className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.infrastructure.effluentOutlet}
                                             onChange={e => setFormData({ ...formData, infrastructure: { ...formData.infrastructure, effluentOutlet: e.target.value } })}
                                         >
@@ -665,21 +666,21 @@ const MachineMaster = () => {
                                             id="steamConnection"
                                             checked={formData.infrastructure.steamConnection}
                                             onChange={e => setFormData({ ...formData, infrastructure: { ...formData.infrastructure, steamConnection: e.target.checked } })}
-                                            className="h-4 w-4 text-indigo-600 rounded border-gray-300"
+                                            className="h-4 w-4 text-primary rounded border-subtle"
                                         />
-                                        <label htmlFor="steamConnection" className="text-sm font-medium text-gray-700">Steam Connected (Required for winch heating)</label>
+                                        <label htmlFor="steamConnection" className="text-sm font-medium text-primary">Steam Connected (Required for winch heating)</label>
                                     </div>
                                 </div>
                             </section>
 
-                            <div className="pt-6 border-t border-gray-100 flex justify-end gap-3 sticky bottom-0 bg-white shadow-[0_-15px_15px_-15px_rgba(0,0,0,0.1)] py-4">
-                                <button type="button" onClick={closeModal} className="px-6 py-2.5 font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                            <div className="pt-6 border-t border-subtle flex justify-end gap-3 sticky bottom-0 bg-card/90 backdrop-blur-md py-4 shadow-[0_-15px_15px_-15px_rgba(0,0,0,0.1)] px-6 z-10">
+                                <button type="button" onClick={closeModal} className="px-6 py-2.5 text-sm font-bold text-secondary bg-elevated border border-subtle hover:bg-canvas hover:text-primary rounded-lg transition-colors">
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={createMutation.isPending || updateMutation.isPending}
-                                    className="px-6 py-2.5 font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg disabled:opacity-50 transition-colors shadow-sm"
+                                    className="px-6 py-2.5 text-sm font-bold text-white bg-brand-primary hover:bg-brand-primary/90 rounded-lg disabled:opacity-50 transition-all shadow-md"
                                 >
                                     {editingMachine ? 'Save Changes' : 'Save Machine'}
                                 </button>
