@@ -15,17 +15,19 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
+        const baseStyles = 'inline-flex items-center justify-center rounded-md font-medium transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
+
         const variants = {
-            primary: 'bg-slate-800 text-white hover:bg-slate-700 active:bg-slate-900 shadow-sm',
-            secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200 active:bg-slate-300',
-            outline: 'border border-slate-300 bg-transparent hover:bg-slate-50 text-slate-700',
-            ghost: 'hover:bg-slate-100 text-slate-600 hover:text-slate-900',
-            danger: 'bg-rose-600 text-white hover:bg-rose-700 shadow-sm',
+            primary: 'bg-brand-primary text-white font-medium hover:bg-brand-hover transition-all',
+            secondary: 'bg-elevated border border-subtle text-primary hover:bg-card transition-all',
+            outline: 'border border-subtle bg-transparent hover:bg-elevated text-primary',
+            ghost: 'hover:bg-elevated text-secondary hover:text-primary transition-colors',
+            danger: 'bg-status-danger/10 text-status-danger border border-status-danger/20 hover:bg-status-danger/20 transition-colors',
         };
 
         const sizes = {
             sm: 'h-8 px-3 text-xs',
-            md: 'h-10 px-4 py-2',
+            md: 'h-10 px-4 py-2.5',
             lg: 'h-12 px-8 text-lg',
         };
 
@@ -34,7 +36,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                 ref={ref}
                 disabled={isLoading || disabled}
                 className={cn(
-                    'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:pointer-events-none disabled:opacity-50',
+                    baseStyles,
                     variants[variant],
                     sizes[size],
                     className

@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+    darkMode: 'class',
     content: [
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
@@ -8,39 +9,57 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],
-                heading: ['Outfit', 'sans-serif'],
+                heading: ['Space Grotesk', 'sans-serif'],
+                mono: ['JetBrains Mono', 'monospace'],
             },
             colors: {
-                // Industrial Base (Slate / Zinc)
-                slate: {
-                    50: '#f8fafc',
-                    100: '#f1f5f9',
-                    200: '#e2e8f0',
-                    300: '#cbd5e1',
-                    400: '#94a3b8',
-                    500: '#64748b',
-                    600: '#475569',
-                    700: '#334155',
-                    800: '#1e293b',
-                    900: '#0f172a', // Main dark bg
-                    950: '#020617',
-                },
-                // Semantic Colors (Strict)
+                canvas: 'var(--bg-canvas)',
+                card: 'var(--bg-card)',
+                elevated: 'var(--bg-elevated)',
+                subtle: 'var(--border-subtle)',
+                border: 'var(--border-subtle)', // alias for backwards compat
+                surface: 'var(--bg-card)', // alias for backwards compat
+                void: 'var(--bg-canvas)', // alias for backwards compat
                 brand: {
-                    primary: '#475569', // Slate-600 as primary brand color (Industrial)
-                    secondary: '#64748b',
-                    accent: '#0f172a',
+                    primary: 'var(--brand-primary)',
+                    hover: 'var(--brand-hover)',
+                    light: 'var(--brand-light)',
+                    gold: 'var(--brand-primary)', // legacy alias
+                    copper: 'var(--brand-primary)', // legacy alias
+                },
+                primary: {
+                    DEFAULT: 'var(--brand-primary)',
+                    hover: 'var(--brand-hover)',
+                    foreground: '#ffffff',
+                },
+                text: {
+                    primary: 'var(--text-primary)',
+                    secondary: 'var(--text-secondary)',
+                    muted: 'var(--text-muted)',
                 },
                 status: {
-                    critical: '#e11d48', // Rose-600
-                    warning: '#f59e0b', // Amber-500
-                    good: '#059669',    // Emerald-600
-                    neutral: '#64748b', // Slate-500
-                }
+                    success: 'var(--status-success)',
+                    warning: 'var(--status-warning)',
+                    danger: 'var(--status-danger)',
+                    critical: 'var(--status-danger)', // legacy alias
+                    info: 'var(--status-info)',
+                },
+                // keep aliases during migration
+                success: 'var(--status-success)',
+                warning: 'var(--status-warning)',
+                danger: 'var(--status-danger)',
+                info: 'var(--status-info)',
+            },
+            spacing: {
+                '4.5': '1.125rem',
+            },
+            maxWidth: {
+                '8xl': '1600px',
             },
             animation: {
-                'fade-in': 'fadeIn 0.6s ease-out forwards',
+                'fade-in': 'fadeIn 0.3s ease-out forwards',
                 'slide-up': 'slideUp 0.8s ease-out forwards',
+                'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             },
             keyframes: {
                 fadeIn: {

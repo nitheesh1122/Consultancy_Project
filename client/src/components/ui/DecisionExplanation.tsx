@@ -22,31 +22,31 @@ const DecisionExplanation: React.FC<DecisionExplanationProps> = ({
     const config = {
         critical: {
             icon: AlertCircle,
-            bg: 'bg-rose-50',
-            border: 'border-rose-200',
-            text: 'text-rose-900',
-            iconColor: 'text-rose-600',
+            bg: 'bg-status-danger/10',
+            border: 'border-status-danger/30',
+            text: 'text-status-danger',
+            iconColor: 'text-status-danger',
         },
         warning: {
             icon: AlertTriangle,
-            bg: 'bg-amber-50',
-            border: 'border-amber-200',
-            text: 'text-amber-900',
-            iconColor: 'text-amber-600',
+            bg: 'bg-status-warning/10',
+            border: 'border-status-warning/30',
+            text: 'text-status-warning',
+            iconColor: 'text-status-warning',
         },
         good: {
             icon: CheckCircle,
-            bg: 'bg-emerald-50',
-            border: 'border-emerald-200',
-            text: 'text-emerald-900',
-            iconColor: 'text-emerald-600',
+            bg: 'bg-status-success/10',
+            border: 'border-status-success/30',
+            text: 'text-status-success',
+            iconColor: 'text-status-success',
         },
         info: {
             icon: Info,
-            bg: 'bg-slate-50',
-            border: 'border-slate-200',
-            text: 'text-slate-900',
-            iconColor: 'text-slate-600',
+            bg: 'bg-canvas',
+            border: 'border-subtle',
+            text: 'text-primary',
+            iconColor: 'text-secondary',
         },
     };
 
@@ -71,10 +71,10 @@ const DecisionExplanation: React.FC<DecisionExplanationProps> = ({
 
                     <div className="grid gap-4 md:grid-cols-2">
                         <div>
-                            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 block">
+                            <span className="text-xs font-bold uppercase tracking-wider text-secondary mb-1 block">
                                 Why?
                             </span>
-                            <ul className="list-disc list-inside text-sm text-slate-700 space-y-1">
+                            <ul className="list-disc list-inside text-sm text-primary space-y-1">
                                 {reasons.map((reason, i) => (
                                     <li key={i}>{reason}</li>
                                 ))}
@@ -83,19 +83,19 @@ const DecisionExplanation: React.FC<DecisionExplanationProps> = ({
 
                         <div className="space-y-3">
                             <div>
-                                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 block">
+                                <span className="text-xs font-bold uppercase tracking-wider text-secondary mb-1 block">
                                     Recommended Action
                                 </span>
-                                <p className="text-sm font-medium text-slate-900">
+                                <p className="text-sm font-medium text-primary">
                                     {action}
                                 </p>
                             </div>
 
                             <div>
-                                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 block">
+                                <span className="text-xs font-bold uppercase tracking-wider text-secondary mb-1 block">
                                     Impact if Ignored
                                 </span>
-                                <p className="text-sm text-slate-700 italic">
+                                <p className="text-sm text-primary italic">
                                     {impact}
                                 </p>
                             </div>

@@ -26,29 +26,29 @@ const MetricCard: React.FC<MetricCardProps> = ({
     onClick,
 }) => {
     const statusStyles = {
-        default: 'border-slate-200',
-        critical: 'border-rose-200 bg-rose-50/30',
-        warning: 'border-amber-200 bg-amber-50/30',
-        good: 'border-emerald-200 bg-emerald-50/30',
+        default: 'border-subtle bg-card',
+        critical: 'border-status-danger/30 bg-status-danger/5',
+        warning: 'border-status-warning/30 bg-status-warning/5',
+        good: 'border-status-success/30 bg-status-success/5',
     };
 
     return (
         <div
             onClick={onClick}
             className={cn(
-                'relative overflow-hidden rounded-xl border bg-white p-5 shadow-sm transition-all hover:shadow-md cursor-default',
+                'relative overflow-hidden rounded-xl border p-5 shadow-sm transition-all hover:shadow-md cursor-default',
                 statusStyles[status],
                 onClick && 'cursor-pointer',
                 className
             )}
         >
             <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-slate-500 font-heading">{title}</p>
-                {Icon && <Icon className="h-5 w-5 text-slate-400" />}
+                <p className="text-sm font-semibold text-secondary uppercase tracking-wider font-heading">{title}</p>
+                {Icon && <Icon className="h-5 w-5 text-muted" />}
             </div>
 
             <div className="mt-2 flex items-baseline gap-2">
-                <h3 className="text-2xl font-bold text-slate-900 tracking-tight font-heading">
+                <h3 className="text-3xl font-bold text-primary tracking-tight font-mono tabular-nums">
                     {value}
                 </h3>
             </div>
@@ -57,15 +57,14 @@ const MetricCard: React.FC<MetricCardProps> = ({
                 <div className="mt-3 flex items-center text-xs">
                     <span
                         className={cn(
-                            "flex items-center font-medium",
-                            trend.isPositive ? "text-emerald-600" : "text-rose-600",
-                            // If status is critical, maybe flip logic depending on metric, but kept simple here
+                            "flex items-center font-bold",
+                            trend.isPositive ? "text-status-success" : "text-status-danger",
                         )}
                     >
                         {trend.isPositive ? <ArrowUp className="mr-1 h-3 w-3" /> : <ArrowDown className="mr-1 h-3 w-3" />}
                         {Math.abs(trend.value)}%
                     </span>
-                    <span className="ml-2 text-slate-400">{trend.label || "vs last month"}</span>
+                    <span className="ml-2 text-muted">{trend.label || "vs last month"}</span>
                 </div>
             )}
         </div>
