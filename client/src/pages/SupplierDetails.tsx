@@ -39,13 +39,13 @@ const SupplierDetails = () => {
 
     return (
         <div className="space-y-6">
-            <button onClick={() => navigate('/suppliers')} className="flex items-center text-gray-500 hover:text-gray-900">
+            <button onClick={() => navigate('/suppliers')} className="flex items-center text-secondary hover:text-primary">
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back to Suppliers
             </button>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h1 className="text-2xl font-bold text-gray-900">{supplier.name}</h1>
-                <div className="flex items-center text-sm text-gray-500 mt-1">
+            <div className="bg-surface p-6 rounded-xl shadow-sm border border-border">
+                <h1 className="text-2xl font-bold text-primary">{supplier.name}</h1>
+                <div className="flex items-center text-sm text-secondary mt-1">
                     <span className="mr-4">Contact: {supplier.contactPerson} ({supplier.phone})</span>
                     <span>Status: {metrics.status}</span>
                 </div>
@@ -56,19 +56,19 @@ const SupplierDetails = () => {
                     title="Avg Delivery Time"
                     value={`${metrics.avgDeliveryTime} Days`}
                     icon={Clock}
-                    color="text-indigo-600"
+                    status="info"
                 />
                 <KPICard
                     title="On-Time Rate"
                     value={`${metrics.onTimePercentage}%`}
                     icon={CheckCircle}
-                    color="text-green-600"
+                    status="success"
                 />
                 <KPICard
                     title="Delayed Deliveries"
                     value={metrics.delayedCount}
                     icon={AlertCircle}
-                    color={metrics.delayedCount > 0 ? "text-red-500" : "text-gray-500"}
+                    status={metrics.delayedCount > 0 ? "danger" : "neutral"}
                 />
                 <KPICard
                     title="Total Completed PIs"
@@ -78,8 +78,8 @@ const SupplierDetails = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-96">
-                    <h3 className="text-lg font-bold mb-4 text-gray-800">Delivery Delay Trend</h3>
+                <div className="bg-surface p-6 rounded-xl shadow-sm border border-border h-96">
+                    <h3 className="text-lg font-bold mb-4 text-primary">Delivery Delay Trend</h3>
                     <SimpleLineChart
                         data={chartData}
                         xKey="date"
@@ -87,22 +87,22 @@ const SupplierDetails = () => {
                     />
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-bold mb-4 text-gray-800">Recent History</h3>
+                <div className="bg-surface p-6 rounded-xl shadow-sm border border-border">
+                    <h3 className="text-lg font-bold mb-4 text-primary">Recent History</h3>
                     <div className="overflow-auto max-h-80">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                        <table className="min-w-full divide-y divide-border">
+                            <thead className="bg-background">
                                 <tr>
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Date</th>
-                                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Delay (Days)</th>
-                                    <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Status</th>
+                                    <th className="px-4 py-2 text-left text-xs font-medium text-secondary">Date</th>
+                                    <th className="px-4 py-2 text-right text-xs font-medium text-secondary">Delay (Days)</th>
+                                    <th className="px-4 py-2 text-right text-xs font-medium text-secondary">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {history.map((h: any, i: number) => (
-                                    <tr key={i} className="border-b last:border-0 hover:bg-gray-50">
-                                        <td className="px-4 py-2 text-sm text-gray-900">{new Date(h.completedAt).toLocaleDateString()}</td>
-                                        <td className="px-4 py-2 text-sm text-right font-medium text-gray-900">{h.delayDays}</td>
+                                    <tr key={i} className="border-b last:border-0 hover:bg-background">
+                                        <td className="px-4 py-2 text-sm text-primary">{new Date(h.completedAt).toLocaleDateString()}</td>
+                                        <td className="px-4 py-2 text-sm text-right font-medium text-primary">{h.delayDays}</td>
                                         <td className="px-4 py-2 text-sm text-right">
                                             <span className={`px-2 py-1 rounded-full text-xs ${h.isDelayed ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
                                                 {h.isDelayed ? 'Late' : 'On Time'}
