@@ -77,6 +77,18 @@ export const getPendingMRS = async (req: AuthRequest, res: Response) => {
     }
 };
 
+export const getMRSHistory = async (req: AuthRequest, res: Response) => {
+    try {
+        const mrsList = await MRS.find({ status: { $in: ['ISSUED', 'REJECTED'] } })
+            .populate('items.materialId', 'name unit quantity')
+            .populate('supervisorId', 'username')
+            .sort({ createdAt: -1 }); // Newest first
+        res.json(mrsList);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 export const issueMRS = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { itemsIssue } = req.body; // Array of { materialId, quantityIssued }
