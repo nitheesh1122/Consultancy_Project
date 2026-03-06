@@ -10,7 +10,7 @@ const Sidebar = () => {
         {
             label: 'Operations',
             items: [
-                { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['ADMIN', 'SUPERVISOR', 'STORE_MANAGER'] },
+                { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['ADMIN', 'SUPERVISOR', 'STORE_MANAGER', 'HR_MANAGER'] },
                 { name: 'Analytics & Reports', path: '/analytics', icon: TrendingUp, roles: ['ADMIN', 'STORE_MANAGER'] },
             ]
         },
@@ -45,7 +45,7 @@ const Sidebar = () => {
         {
             label: 'System Admin',
             items: [
-                { name: 'Human Resources', path: '/hr', icon: Users, roles: ['ADMIN', 'STORE_MANAGER'] },
+                { name: 'Human Resources', path: '/hr', icon: Users, roles: ['ADMIN', 'HR_MANAGER'] },
                 { name: 'System Settings', path: '/settings', icon: Settings, roles: ['ADMIN'] },
                 { name: 'Audit Logs', path: '/audit-logs', icon: Settings, roles: ['ADMIN'] },
             ]
@@ -57,7 +57,7 @@ const Sidebar = () => {
             {/* Branding Header */}
             <div className="p-6 border-b border-subtle bg-card sticky top-0 z-10 shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center border border-brand-primary/20 weave-pattern shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center border border-brand-primary/20 shrink-0">
                         <Factory className="w-4 h-4 text-white" />
                     </div>
                     <div>

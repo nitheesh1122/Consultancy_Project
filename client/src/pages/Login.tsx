@@ -30,7 +30,7 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-canvas weave-pattern transition-colors duration-300 relative overflow-hidden">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-canvas transition-colors duration-300 relative overflow-hidden">
             <div className="z-10 w-full max-w-md px-4">
                 <div className="text-center mb-8 flex flex-col items-center">
                     <div className="w-16 h-16 rounded-xl bg-brand-primary/10 flex items-center justify-center border border-brand-primary/20 mb-6 shrink-0 shadow-[0_0_15px_rgba(79,70,229,0.15)]">

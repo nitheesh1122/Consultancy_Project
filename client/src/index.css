@@ -6,20 +6,20 @@
 
 @layer base {
   :root {
-    /* DEFAULT LIGHT MODE TOKENS (Indigo Industrial) */
-    --bg-canvas: #F8FAFC;
+    /* DEFAULT LIGHT MODE TOKENS (Enterprise) */
+    --bg-canvas: #F8F9FA;
     --bg-card: #FFFFFF;
     --bg-elevated: #F1F5F9;
 
     --border-subtle: #E2E8F0;
 
-    --text-primary: #0F172A;
-    --text-secondary: #475569;
+    --text-primary: #2F3E46;
+    --text-secondary: #64748B;
     --text-muted: #94A3B8;
 
-    --brand-primary: #4F46E5;
-    --brand-hover: #6366F1;
-    --brand-light: #EEF2FF;
+    --brand-primary: #0F4C81;
+    --brand-hover: #1E6091;
+    --brand-light: #DBEAFE;
 
     --status-success: #059669;
     --status-warning: #D97706;
@@ -29,22 +29,20 @@
 
   html.dark,
   .dark {
-    /* DARK MODE TOKENS */
-    --bg-canvas: #0B0F19;
-    /* Navy void */
-    --bg-card: #151B2B;
-    /* Navy surface */
-    --bg-elevated: #1E2538;
+    /* DARK MODE TOKENS (Enterprise) */
+    --bg-canvas: #09111A;
+    --bg-card: #121C27;
+    --bg-elevated: #1E293B;
 
     --border-subtle: #2A3447;
 
-    --text-primary: #F8FAFC;
+    --text-primary: #E0E0E0;
     --text-secondary: #94A3B8;
     --text-muted: #475569;
 
-    --brand-primary: #6366F1;
-    --brand-hover: #818CF8;
-    --brand-light: #1E1B4B;
+    --brand-primary: #5B8DB8;
+    --brand-hover: #87A6C3;
+    --brand-light: #1E3A5F;
 
     --status-success: #059669;
     --status-warning: #D97706;
@@ -66,13 +64,6 @@
     margin: 0;
     padding: 0;
   }
-}
-
-.weave-pattern {
-  background-image: linear-gradient(to right, var(--brand-primary) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--brand-primary) 1px, transparent 1px);
-  background-size: 24px 24px;
-  background-position: center;
 }
 
 @layer utilities {

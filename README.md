@@ -198,6 +198,7 @@ These are intentionally planned as a roadmap to ensure system stability and scal
 ## 📚 Documentation
 
 * **Project Overview & Workflow** – `PROJECT_EXPLANATION.md`
+* **System Process Workflow (End-to-End)** – `SYSTEM_PROCESS.md`
 * **Backend Documentation** – `BACKEND_DOCS.md`
 * **Frontend Documentation** – `FRONTEND_DOCS.md`
 * **Future Improvements Plan** – `FUTURE_IMPROVEMENTS.md`

@@ -483,3 +483,33 @@ export const getSupplierQuality = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const getHRDashboardStats = async (req: AuthRequest, res: Response) => {
+    try {
+        const Worker = mongoose.model('Worker');
+
+        // Total workers
+        const totalWorkers = await Worker.countDocuments();
+
+        // Active Workers
+        const activeWorkers = await Worker.countDocuments({ status: { $in: ['ACTIVE', 'BUSY'] } });
+
+        // Workers on Leave
+        const workersOnLeave = await Worker.countDocuments({ status: 'ON_LEAVE' });
+
+        // Placeholder for Leaves/Shifts since models might not be fully fleshed out
+        const pendingLeaves = 3; // Placeholder until Leave model exists
+        const activeShifts = 2; // Placeholder until Shift model exists
+
+        res.json({
+            totalWorkers,
+            activeWorkers,
+            workersOnLeave,
+            pendingLeaves,
+            activeShifts,
+        });
+
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};

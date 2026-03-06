@@ -8,7 +8,8 @@ import {
     getForecast,
     getWorkerPerformance,
     getWorkerEfficiency,
-    getSupplierQuality
+    getSupplierQuality,
+    getHRDashboardStats
 } from '../controllers/analyticsController';
 import { protect, authorize } from '../middleware/authMiddleware';
 
@@ -25,8 +26,11 @@ router.get('/cost', protect, authorize('ADMIN', 'STORE_MANAGER'), getCostAnalyti
 router.get('/forecast', protect, authorize('ADMIN', 'STORE_MANAGER'), getForecast);
 
 // Phase 1.5 endpoints
-router.get('/workers/performance', protect, authorize('ADMIN', 'STORE_MANAGER'), getWorkerPerformance);
-router.get('/workers/efficiency', protect, authorize('ADMIN', 'STORE_MANAGER'), getWorkerEfficiency);
+router.get('/workers/performance', protect, authorize('ADMIN', 'STORE_MANAGER', 'HR_MANAGER'), getWorkerPerformance);
+router.get('/workers/efficiency', protect, authorize('ADMIN', 'STORE_MANAGER', 'HR_MANAGER'), getWorkerEfficiency);
 router.get('/suppliers/quality', protect, authorize('ADMIN', 'STORE_MANAGER'), getSupplierQuality);
+
+// HR Dashboard
+router.get('/hr-dashboard', protect, authorize('ADMIN', 'HR_MANAGER'), getHRDashboardStats);
 
 export default router;

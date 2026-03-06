@@ -74,7 +74,7 @@ export const TableCell = React.forwardRef<
     <td
         ref={ref}
         className={cn(
-            "py-2.5 px-3 align-middle text-primary",
+            "py-1.5 px-2 align-middle text-primary",
             isMonospace && "font-mono tabular-nums",
             isStatus && "font-mono font-semibold border-l-2 border-l-brand-primary",
             className

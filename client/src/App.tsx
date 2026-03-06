@@ -41,6 +41,9 @@ import HrLayout from './pages/hr/HrLayout';
 import HRWorkerList from './pages/hr/HRWorkerList';
 import AttendanceTracker from './pages/hr/AttendanceTracker';
 import HRPerformance from './pages/hr/HRPerformance';
+import ShiftManagement from './pages/hr/ShiftManagement';
+import LeaveRequests from './pages/hr/LeaveRequests';
+import WorkerAssignment from './pages/hr/WorkerAssignment';
 
 const AppRoutes = () => {
   return (
@@ -79,6 +82,9 @@ const AppRoutes = () => {
           <Route path="workers" element={<HRWorkerList />} />
           <Route path="attendance" element={<AttendanceTracker />} />
           <Route path="performance" element={<HRPerformance />} />
+          <Route path="shifts" element={<ShiftManagement />} />
+          <Route path="leaves" element={<LeaveRequests />} />
+          <Route path="assignments" element={<WorkerAssignment />} />
         </Route>
 
         {/* Production Module Routes */}

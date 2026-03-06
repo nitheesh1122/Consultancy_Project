@@ -21,7 +21,7 @@ const AnalyticsLayout = () => {
         <div className="space-y-6 animate-fade-in">
             <div>
                 <h2 className="text-3xl font-bold text-primary font-heading flex items-center gap-3">
-                    <TrendingUp className="h-8 w-8 text-brand-gold" />
+                    <TrendingUp className="h-8 w-8 text-brand-primary" />
                     Enterprise Analytics
                 </h2>
                 <p className="text-secondary mt-1">Cross-departmental performance metrics and insights</p>
@@ -34,8 +34,8 @@ const AnalyticsLayout = () => {
                         to={tab.path}
                         className={({ isActive }) =>
                             `flex items-center gap-2 px-6 py-2.5 text-sm font-bold tracking-wide rounded-lg transition-all whitespace-nowrap ${isActive
-                                ? 'bg-brand-gold/10 text-brand-gold shadow-sm border border-brand-gold/30'
-                                : 'text-secondary hover:text-brand-gold/80 hover:bg-void/50 border border-transparent'
+                                ? 'bg-brand-primary/10 text-brand-primary shadow-sm border border-brand-primary/30'
+                                : 'text-secondary hover:text-brand-primary/80 hover:bg-void/50 border border-transparent'
                             }`
                         }
                     >

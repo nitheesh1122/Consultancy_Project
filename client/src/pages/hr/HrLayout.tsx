@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
-import { Users, Clock, TrendingUp } from 'lucide-react';
+import { Users, Clock, TrendingUp, CalendarClock, CalendarOff, Briefcase } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 const HrLayout = () => {
@@ -13,6 +13,9 @@ const HrLayout = () => {
     const tabs = [
         { name: 'Worker Directory', path: '/hr/workers', icon: Users },
         { name: 'Attendance', path: '/hr/attendance', icon: Clock },
+        { name: 'Shift Management', path: '/hr/shifts', icon: CalendarClock },
+        { name: 'Leave Requests', path: '/hr/leaves', icon: CalendarOff },
+        { name: 'Worker Assignment', path: '/hr/assignments', icon: Briefcase },
         { name: 'Performance Metrics', path: '/hr/performance', icon: TrendingUp },
     ];
 
@@ -20,7 +23,7 @@ const HrLayout = () => {
         <div className="space-y-6 animate-fade-in">
             <div>
                 <h2 className="text-3xl font-bold font-heading text-primary flex items-center gap-3">
-                    <Users className="h-8 w-8 text-brand-gold" />
+                    <Users className="h-8 w-8 text-brand-primary" />
                     Human Resources
                 </h2>
                 <p className="text-secondary mt-1">Manage workforce directory, attendance, and analytics</p>
@@ -33,8 +36,8 @@ const HrLayout = () => {
                         to={tab.path}
                         className={({ isActive }) =>
                             `flex items-center gap-2 px-6 py-2.5 text-sm font-bold tracking-wide rounded-lg transition-all whitespace-nowrap ${isActive
-                                ? 'bg-brand-gold/10 text-brand-gold shadow-sm border border-brand-gold/30'
-                                : 'text-secondary hover:text-brand-gold/80 hover:bg-void/50 border border-transparent'
+                                ? 'bg-brand-primary/10 text-brand-primary shadow-sm border border-brand-primary/30'
+                                : 'text-secondary hover:text-brand-primary/80 hover:bg-void/50 border border-transparent'
                             }`
                         }
                     >

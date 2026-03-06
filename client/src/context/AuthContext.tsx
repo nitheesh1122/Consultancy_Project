@@ -4,7 +4,7 @@ import api from '../lib/api';
 interface User {
     _id: string;
     username: string;
-    role: 'ADMIN' | 'SUPERVISOR' | 'STORE_MANAGER';
+    role: 'ADMIN' | 'SUPERVISOR' | 'STORE_MANAGER' | 'HR_MANAGER';
     token: string;
 }
 
