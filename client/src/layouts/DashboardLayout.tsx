@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import LoadingScreen from '../components/ui/LoadingScreen';
-import { ThemeToggle } from '../components/ThemeToggle';
 import NotificationBell from '../components/NotificationBell';
 import { Search } from 'lucide-react';
 
@@ -42,8 +41,6 @@ const DashboardLayout = () => {
 
                     <div className="flex items-center gap-4">
                         <NotificationBell />
-                        <div className="h-8 w-px bg-subtle mx-2" />
-                        <ThemeToggle />
                     </div>
                 </header>
 

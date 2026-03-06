@@ -6,57 +6,36 @@
 
 @layer base {
   :root {
-    /* DEFAULT LIGHT MODE TOKENS (Enterprise) */
-    --bg-canvas: #F8F9FA;
+    /* DEFAULT TOKENS (Enterprise Slate Gray) */
+    --bg-canvas: #F8FAFC;
     --bg-card: #FFFFFF;
     --bg-elevated: #F1F5F9;
 
     --border-subtle: #E2E8F0;
 
-    --text-primary: #2F3E46;
-    --text-secondary: #64748B;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
     --text-muted: #94A3B8;
 
-    --brand-primary: #0F4C81;
-    --brand-hover: #1E6091;
-    --brand-light: #DBEAFE;
+    /* Slate Gray / Charcoal Brand Palette */
+    --brand-primary: #334155;
+    --brand-hover: #1E293B;
+    --brand-light: #E2E8F0;
+    /* Slate 200 */
 
     --status-success: #059669;
+    /* Emerald */
     --status-warning: #D97706;
+    /* Amber */
     --status-danger: #DC2626;
+    /* Red */
     --status-info: #2563EB;
-  }
-
-  html.dark,
-  .dark {
-    /* DARK MODE TOKENS (Enterprise) */
-    --bg-canvas: #09111A;
-    --bg-card: #121C27;
-    --bg-elevated: #1E293B;
-
-    --border-subtle: #2A3447;
-
-    --text-primary: #E0E0E0;
-    --text-secondary: #94A3B8;
-    --text-muted: #475569;
-
-    --brand-primary: #5B8DB8;
-    --brand-hover: #87A6C3;
-    --brand-light: #1E3A5F;
-
-    --status-success: #059669;
-    --status-warning: #D97706;
-    --status-danger: #DC2626;
-    --status-info: #2563EB;
+    /* Blue */
   }
 
   html {
     color-scheme: light;
     transition: background-color 0.3s ease, color 0.3s ease;
-  }
-
-  html.dark {
-    color-scheme: dark;
   }
 
   body {
