@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    darkMode: 'class',
     content: [
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
@@ -8,24 +7,33 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Inter', 'sans-serif'],
-                heading: ['Space Grotesk', 'sans-serif'],
+                sans: ['Source Sans 3', 'system-ui', 'sans-serif'],
+                heading: ['Source Sans 3', 'system-ui', 'sans-serif'],
+                display: ['Source Sans 3', 'system-ui', 'sans-serif'],
                 mono: ['JetBrains Mono', 'monospace'],
+            },
+            borderRadius: {
+                'sm-token': 'var(--radius-sm)',
+                'md-token': 'var(--radius-md)',
+                'lg-token': 'var(--radius-lg)',
             },
             colors: {
                 canvas: 'var(--bg-canvas)',
                 card: 'var(--bg-card)',
                 elevated: 'var(--bg-elevated)',
+                background: 'var(--bg-card)',
                 subtle: 'var(--border-subtle)',
-                border: 'var(--border-subtle)', // alias for backwards compat
-                surface: 'var(--bg-card)', // alias for backwards compat
-                void: 'var(--bg-canvas)', // alias for backwards compat
+                'border-strong': 'var(--border-strong)',
+                border: 'var(--border-subtle)',
+                surface: 'var(--bg-card)',
+                'surface-highlight': 'var(--bg-elevated)',
+                void: 'var(--bg-canvas)',
                 brand: {
                     primary: 'var(--brand-primary)',
                     hover: 'var(--brand-hover)',
                     light: 'var(--brand-light)',
-                    gold: 'var(--brand-primary)', // legacy alias
-                    copper: 'var(--brand-primary)', // legacy alias
+                    gold: 'var(--brand-primary)',
+                    copper: 'var(--brand-primary)',
                 },
                 primary: {
                     DEFAULT: 'var(--brand-primary)',
@@ -41,10 +49,9 @@ export default {
                     success: 'var(--status-success)',
                     warning: 'var(--status-warning)',
                     danger: 'var(--status-danger)',
-                    critical: 'var(--status-danger)', // legacy alias
+                    critical: 'var(--status-danger)',
                     info: 'var(--status-info)',
                 },
-                // keep aliases during migration
                 success: 'var(--status-success)',
                 warning: 'var(--status-warning)',
                 danger: 'var(--status-danger)',
@@ -57,8 +64,8 @@ export default {
                 '8xl': '1600px',
             },
             animation: {
-                'fade-in': 'fadeIn 0.3s ease-out forwards',
-                'slide-up': 'slideUp 0.8s ease-out forwards',
+                'fade-in': 'fadeIn 0.25s ease-out forwards',
+                'slide-up': 'slideUp 0.4s ease-out forwards',
                 'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             },
             keyframes: {
@@ -67,11 +74,11 @@ export default {
                     '100%': { opacity: '1' },
                 },
                 slideUp: {
-                    '0%': { opacity: '0', transform: 'translateY(10px)' },
+                    '0%': { opacity: '0', transform: 'translateY(8px)' },
                     '100%': { opacity: '1', transform: 'translateY(0)' },
-                }
-            }
+                },
+            },
         },
     },
     plugins: [],
-}
+};

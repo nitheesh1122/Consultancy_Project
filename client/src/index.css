@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,61 +6,86 @@
 
 @layer base {
   :root {
-    /* DEFAULT TOKENS (Enterprise Slate Gray) */
-    --bg-canvas: #F8FAFC;
-    --bg-card: #FFFFFF;
-    --bg-elevated: #F1F5F9;
+    /* Warm paper/stone neutrals */
+    --bg-canvas: #F5F4F2;
+    --bg-card: #FDFCFB;
+    --bg-elevated: #EDEBE8;
 
-    --border-subtle: #E2E8F0;
+    --border-subtle: #E0DDD8;
+    --border-strong: #C9C4BC;
 
-    --text-primary: #0F172A;
-    --text-secondary: #475569;
-    --text-muted: #94A3B8;
+    --text-primary: #1A1918;
+    --text-secondary: #4F4B48;
+    --text-muted: #7A7570;
 
-    /* Slate Gray / Charcoal Brand Palette */
-    --brand-primary: #334155;
-    --brand-hover: #1E293B;
-    --brand-light: #E2E8F0;
-    /* Slate 200 */
+    /* Muted teal accent */
+    --brand-primary: #0F766E;
+    --brand-hover: #0D5C55;
+    --brand-light: #CCFBF1;
+    --brand-muted: #99F6E4;
 
-    --status-success: #059669;
-    /* Emerald */
-    --status-warning: #D97706;
-    /* Amber */
-    --status-danger: #DC2626;
-    /* Red */
-    --status-info: #2563EB;
-    /* Blue */
+    --status-success: #047857;
+    --status-warning: #A16207;
+    --status-danger: #BE123C;
+    --status-info: #1E40AF;
+
+    /* Shape */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --shadow-sm: 0 1px 2px rgba(26, 25, 24, 0.06);
+    --shadow-md: 0 4px 12px rgba(26, 25, 24, 0.08);
   }
 
   html {
     color-scheme: light;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   body {
-    @apply font-sans antialiased bg-canvas text-primary selection:bg-brand-primary selection:text-white;
+    @apply font-sans antialiased text-primary selection:bg-brand-primary selection:text-white;
     margin: 0;
     padding: 0;
+    background-color: var(--bg-canvas);
   }
 }
 
-@layer utilities {
+@layer components {
   .industrial-card {
-    @apply bg-card border border-subtle rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease;
+  }
+  .industrial-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-elevated {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    box-shadow: var(--shadow-md);
   }
 }
 
-/* Custom Scrollbar */
+/* Custom scrollbar - plain CSS only */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-canvas;
+  background: var(--bg-elevated);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-subtle rounded-full hover:bg-brand-primary transition-colors;
+  background: var(--border-strong);
+  border-radius: 9999px;
+  transition: background-color 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-primary);
 }

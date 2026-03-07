@@ -32,7 +32,7 @@ export const Pipeline: React.FC<PipelineProps> = ({ currentStep, className }) =>
  className={cn(
  "w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all duration-300 z-10 shrink-0",
  isCompleted ? "bg-success border-success text-primary" :
- isActive ? "bg-primary border-primary text-black shadow-[0_0_15px_rgba(212,168,83,0.5)]" :
+ isActive ? "bg-primary border-primary text-white shadow-md" :
  "bg-surface border-border text-muted"
  )}
  >

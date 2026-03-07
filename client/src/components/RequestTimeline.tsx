@@ -44,7 +44,7 @@ const RequestTimeline: React.FC<RequestTimelineProps> = ({ status, createdAt, co
  {/* Step Circle */}
  <div className="relative flex flex-col items-center group">
  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all
- ${isCompleted ? 'bg-primary border-primary text-primary shadow-md' : 'bg-surface border-border text-muted'}
+ ${isCompleted ? 'bg-primary border-primary text-white shadow-md' : 'bg-surface border-border text-muted'}
  `}>
  <step.icon className="h-4 w-4" />
  </div>

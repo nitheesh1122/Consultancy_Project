@@ -79,6 +79,7 @@ const ReturnMaterial = () => {
  onChange={(e) => setSelectedMaterialId(e.target.value)}
  className="w-full p-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
  required
+ aria-label="Select material to return"
  >
  <option value="">Choose Material to Return...</option>
  {materials.map(m => (
@@ -114,7 +115,7 @@ const ReturnMaterial = () => {
  <button
  type="submit"
  disabled={loading}
- className="w-full py-3 bg-primary text-primary rounded-lg hover:bg-primary-hover font-bold shadow-md transition-all flex items-center justify-center gap-2"
+ className="w-full py-3 bg-primary text-white rounded-lg hover:bg-primary-hover font-bold shadow-md transition-all flex items-center justify-center gap-2"
  >
  {loading ? 'Processing...' : (
  <>

@@ -53,48 +53,48 @@ const Sidebar = () => {
     ];
 
     return (
-        <div className="h-screen w-64 bg-card text-primary flex flex-col border-r border-subtle shadow-2xl shrink-0 transition-colors duration-300">
-            {/* Branding Header */}
-            <div className="p-6 border-b border-subtle bg-card sticky top-0 z-10 shrink-0">
+        <aside className="h-screen w-64 flex flex-col shrink-0 bg-card border-r border-subtle shadow-sm transition-colors duration-300">
+            {/* Brand */}
+            <div className="p-5 border-b border-subtle shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center border border-brand-primary/20 shrink-0">
-                        <Factory className="w-4 h-4 text-white" />
+                    <div className="w-10 h-10 rounded-lg bg-brand-primary flex items-center justify-center shadow-sm">
+                        <Factory className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-base font-bold font-heading tracking-tight text-primary leading-tight">
+                        <h1 className="text-base font-bold font-heading text-primary leading-tight">
                             Golden Textile
                         </h1>
-                        <p className="text-[10px] text-brand-primary uppercase tracking-wider font-semibold font-mono">Dyers ERP</p>
+                        <p className="text-[10px] text-brand-primary font-semibold uppercase tracking-wider font-mono">Dyers ERP</p>
                     </div>
                 </div>
             </div>
 
-            {/* Navigation */}
+            {/* Nav */}
             <nav className="flex-1 py-4 overflow-y-auto custom-scrollbar">
                 {navSections.map((section, idx) => {
                     const visibleItems = section.items.filter(item => item.roles.includes(user?.role || ''));
                     if (visibleItems.length === 0) return null;
 
                     return (
-                        <div key={idx} className="mb-6">
-                            <p className="px-6 py-2 text-xs uppercase tracking-wider text-muted font-heading font-semibold">
+                        <div key={idx} className="mb-5">
+                            <p className="px-5 py-2 text-[11px] uppercase tracking-wider text-muted font-heading font-semibold">
                                 {section.label}
                             </p>
-                            <div className="space-y-0.5">
+                            <div className="space-y-0.5 px-3">
                                 {visibleItems.map((item) => (
                                     <NavLink
                                         key={item.path}
                                         to={item.path}
                                         className={({ isActive }) =>
-                                            `flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all duration-200 group relative ${isActive
-                                                ? 'bg-brand-light text-brand-primary border-r-2 border-brand-primary'
+                                            `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${isActive
+                                                ? 'bg-brand-light text-brand-primary border border-brand-primary/20'
                                                 : 'text-secondary hover:bg-elevated hover:text-primary'
                                             }`
                                         }
                                     >
                                         {({ isActive }) => (
                                             <>
-                                                <item.icon className={`h-[18px] w-[18px] transition-all group-hover:scale-110 ${isActive ? 'text-brand-primary' : 'opacity-80'}`} />
+                                                <item.icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? 'text-brand-primary' : 'opacity-70'}`} />
                                                 <span>{item.name}</span>
                                             </>
                                         )}
@@ -106,27 +106,26 @@ const Sidebar = () => {
                 })}
             </nav>
 
-            {/* Footer / User Profile */}
-            <div className="p-4 border-t border-subtle bg-card shrink-0">
-                <div className="flex items-center gap-3 overflow-hidden mb-3 p-2 rounded-lg bg-elevated/50 border border-subtle">
+            {/* User & Logout */}
+            <div className="p-4 border-t border-subtle shrink-0 space-y-3">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-elevated border border-subtle">
                     <div className="h-9 w-9 shrink-0 rounded-md bg-brand-light flex items-center justify-center text-sm font-bold text-brand-primary border border-brand-primary/20">
                         {user?.username?.charAt(0).toUpperCase()}
                     </div>
-                    <div className="overflow-hidden">
-                        <p className="text-sm font-semibold text-primary truncate leading-tight">{user?.username}</p>
-                        <p className="text-xs text-secondary truncate lowercase font-mono">{user?.role?.replace('_', ' ')}</p>
+                    <div className="min-w-0">
+                        <p className="text-sm font-semibold text-primary truncate">{user?.username}</p>
+                        <p className="text-xs text-muted truncate font-mono lowercase">{user?.role?.replace('_', ' ')}</p>
                     </div>
                 </div>
-
                 <button
                     onClick={logout}
-                    className="flex items-center justify-center gap-2 px-3 py-2 w-full text-center text-xs font-medium text-status-danger bg-status-danger/5 border border-status-danger/20 hover:bg-status-danger/10 rounded-md transition-colors"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 text-xs font-semibold text-status-danger bg-status-danger/10 border border-status-danger/20 hover:bg-status-danger/15 rounded-lg transition-colors"
                 >
                     <LogOut className="h-4 w-4" />
-                    <span className="uppercase tracking-wider">Sign Out</span>
+                    Sign Out
                 </button>
             </div>
-        </div>
+        </aside>
     );
 };
 

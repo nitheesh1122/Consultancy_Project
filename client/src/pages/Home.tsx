@@ -42,15 +42,15 @@ const Home = () => {
 
     return (
         <div className="space-y-8 animate-fade-in">
-            <div className="flex justify-between items-end border-b border-subtle pb-5">
+            <div className="flex justify-between items-end border-b border-subtle pb-6">
                 <div>
                     <h1 className="text-2xl font-bold font-heading text-primary tracking-tight">Dashboard Overview</h1>
                     <p className="text-secondary mt-1 text-sm">
-                        Welcome back, <span className="font-semibold text-primary">{user?.username}</span>. Here is the operational status.
+                        Welcome back, <span className="font-semibold text-brand-primary">{user?.username}</span>. Here is the operational status.
                     </p>
                 </div>
                 <div className="hidden md:block">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-elevated text-secondary border border-subtle">
+                    <span className="inline-flex items-center px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wide bg-brand-light text-brand-primary border border-brand-primary/20">
                         {user?.role?.replace('_', ' ')} View
                     </span>
                 </div>
@@ -60,15 +60,15 @@ const Home = () => {
             {user?.role === 'SUPERVISOR' && (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Link to="/request-material" className="group relative overflow-hidden rounded-xl bg-card p-8 shadow-md transition-all hover:shadow-xl hover:-translate-y-1">
-                            <div className="absolute top-0 right-0 -mt-4 -mr-4 h-32 w-32 rounded-full bg-elevated opacity-50 blur-2xl group-hover:bg-indigo-900 transition-colors"></div>
+                        <Link to="/request-material" className="group relative overflow-hidden rounded-xl bg-card p-8 shadow-sm border border-subtle transition-all hover:shadow-md hover:border-brand-primary/20">
+                            <div className="absolute top-0 right-0 h-32 w-32 rounded-full bg-brand-primary/5 blur-2xl group-hover:bg-brand-primary/10 transition-colors" />
                             <div className="relative z-10 flex items-center">
-                                <div className="bg-elevated p-3 rounded-lg mr-4 group-hover:bg-elevated transition-colors shadow-inner">
-                                    <FileText className="h-8 w-8 text-primary" />
+                                <div className="bg-brand-light p-3 rounded-xl mr-4 border border-brand-primary/10">
+                                    <FileText className="h-8 w-8 text-brand-primary" />
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-primary font-heading">New Material Request</h3>
-                                    <p className="text-muted text-sm mt-1 group-hover:text-muted">Create a new dye/chemical batch request</p>
+                                    <p className="text-muted text-sm mt-1">Create a new dye/chemical batch request</p>
                                 </div>
                             </div>
                         </Link>
@@ -197,7 +197,7 @@ const Home = () => {
                                         </thead>
                                         <tbody className="divide-y divide-border">
                                             {stats.lowStockItems.slice(0, 5).map((item: any) => (
-                                                <tr key={item._id} className="hover:bg-status-danger/10/10 transition-colors">
+                                                <tr key={item._id} className="hover:bg-status-danger/10 transition-colors">
                                                     <td className="px-6 py-3 font-medium text-primary">{item.name}</td>
                                                     <td className="px-6 py-3 text-right font-bold text-status-danger">{item.quantity} {item.unit}</td>
                                                     <td className="px-6 py-3 text-right text-secondary">{item.minStock} {item.unit}</td>
@@ -239,11 +239,11 @@ const Home = () => {
                                 )}
                             </div>
 
-                            <div className="bg-card text-primary p-6 rounded-xl shadow-lg relative overflow-hidden">
+                            <div className="bg-card text-primary p-6 rounded-xl border border-subtle shadow-sm relative overflow-hidden">
                                 <div className="relative z-10">
                                     <h3 className="font-bold text-lg font-heading mb-2">Deep Analytics</h3>
                                     <p className="text-muted text-sm mb-4">Analyze batch costs, supplier performance, and consumption trends.</p>
-                                    <Link to="/reports" className="inline-flex items-center justify-center px-4 py-2 bg-card text-primary text-sm font-bold rounded-lg hover:bg-elevated transition-colors w-full">
+                                    <Link to="/reports" className="inline-flex items-center justify-center px-4 py-2.5 bg-brand-primary text-white text-sm font-semibold rounded-xl hover:bg-brand-hover transition-colors w-full shadow-md shadow-brand-primary/20">
                                         Open Reports
                                     </Link>
                                 </div>

@@ -89,7 +89,7 @@ const BatchExecution = () => {
  <div className="max-w-4xl mx-auto space-y-6 pb-20">
  {/* Header */}
  <div className="flex items-center gap-4">
- <button onClick={() => navigate(-1)} className="p-2 hover:bg-surface-highlight rounded-full text-secondary">
+ <button type="button" onClick={() => navigate(-1)} className="p-2 hover:bg-surface-highlight rounded-full text-secondary" aria-label="Go back">
  <ArrowLeft className="h-5 w-5" />
  </button>
  <div>
@@ -174,7 +174,7 @@ const BatchExecution = () => {
  <button
  onClick={handleStart}
  disabled={startMutation.isPending || selectedWorkers.length === 0}
- className="w-full py-4 bg-primary text-primary rounded-xl text-lg font-bold hover:bg-primary-hover transition flex items-center justify-center gap-3 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:shadow-none"
+ className="w-full py-4 bg-primary text-white rounded-xl text-lg font-bold hover:bg-primary-hover transition flex items-center justify-center gap-3 shadow-md disabled:opacity-50"
  >
  <Play className="h-6 w-6" fill="currentColor" />
  {startMutation.isPending ? 'STARTING...' : 'START BATCH EXECUTION'}
@@ -216,30 +216,36 @@ const BatchExecution = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
  <div>
- <label className="block text-sm font-bold text-primary mb-2">1st Grade Output (Kg)</label>
+ <label className="block text-sm font-bold text-primary mb-2" htmlFor="output-first-grade">1st Grade Output (Kg)</label>
  <input
+ id="output-first-grade"
  required type="number" min="0" step="0.1"
  value={completeData.outputFirstGradeKg}
  onChange={e => setCompleteData({ ...completeData, outputFirstGradeKg: Number(e.target.value) })}
  className="w-full border-2 border-border rounded-lg px-4 py-3 text-xl font-mono focus:border-blue-500 focus:ring-0 outline-none"
+ aria-label="1st grade output in kg"
  />
  </div>
  <div>
- <label className="block text-sm font-bold text-primary mb-2">2nd Grade Output (Kg)</label>
+ <label className="block text-sm font-bold text-primary mb-2" htmlFor="output-second-grade">2nd Grade Output (Kg)</label>
  <input
+ id="output-second-grade"
  required type="number" min="0" step="0.1"
  value={completeData.outputSecondGradeKg}
  onChange={e => setCompleteData({ ...completeData, outputSecondGradeKg: Number(e.target.value) })}
  className="w-full border-2 border-border rounded-lg px-4 py-3 text-xl font-mono focus:border-blue-500 focus:ring-0 outline-none"
+ aria-label="2nd grade output in kg"
  />
  </div>
  <div>
- <label className="block text-sm font-bold text-red-700 mb-2">Rejection (Kg)</label>
+ <label className="block text-sm font-bold text-red-700 mb-2" htmlFor="rejection-kg">Rejection (Kg)</label>
  <input
+ id="rejection-kg"
  required type="number" min="0" step="0.1"
  value={completeData.rejectionKg}
  onChange={e => setCompleteData({ ...completeData, rejectionKg: Number(e.target.value) })}
  className="w-full border-2 border-red-300 bg-danger/10 rounded-lg px-4 py-3 text-xl font-mono focus:border-red-500 focus:ring-0 outline-none"
+ aria-label="Rejection in kg"
  />
  </div>
  </div>

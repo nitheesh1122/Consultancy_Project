@@ -15,20 +15,20 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
-        const baseStyles = 'inline-flex items-center justify-center rounded-md font-medium transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
+        const baseStyles = 'inline-flex items-center justify-center rounded-lg font-medium transition-colors duration-150 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
 
         const variants = {
-            primary: 'bg-brand-primary text-white font-medium hover:bg-brand-hover transition-all',
-            secondary: 'bg-elevated border border-subtle text-primary hover:bg-card transition-all',
+            primary: 'bg-brand-primary text-white hover:bg-brand-hover shadow-sm',
+            secondary: 'bg-elevated border border-subtle text-primary hover:bg-card hover:border-border-strong',
             outline: 'border border-subtle bg-transparent hover:bg-elevated text-primary',
-            ghost: 'hover:bg-elevated text-secondary hover:text-primary transition-colors',
-            danger: 'bg-status-danger/10 text-status-danger border border-status-danger/20 hover:bg-status-danger/20 transition-colors',
+            ghost: 'hover:bg-elevated text-secondary hover:text-primary',
+            danger: 'bg-status-danger/10 text-status-danger border border-status-danger/30 hover:bg-status-danger/15',
         };
 
         const sizes = {
-            sm: 'h-8 px-3 text-xs',
-            md: 'h-10 px-4 py-2.5',
-            lg: 'h-12 px-8 text-lg',
+            sm: 'h-9 px-3.5 text-xs rounded-md',
+            md: 'h-10 px-4 text-sm rounded-lg',
+            lg: 'h-11 px-6 text-base rounded-lg',
         };
 
         return (
@@ -39,7 +39,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                     baseStyles,
                     variants[variant],
                     sizes[size],
-                    className
+                    className,
+                    variant === 'primary' && '!text-white'
                 )}
                 {...props}
             >

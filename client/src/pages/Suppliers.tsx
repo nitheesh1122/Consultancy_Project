@@ -37,7 +37,7 @@ const Suppliers = () => {
  <h2 className="text-2xl font-bold text-primary">Supplier Management</h2>
  <p className="text-secondary">Monitor supplier performance and reliability</p>
  </div>
- <button className="bg-primary text-primary px-4 py-2 rounded-lg hover:bg-primary-hover">
+ <button className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover">
  Add Supplier
  </button>
  </div>

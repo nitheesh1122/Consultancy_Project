@@ -86,7 +86,7 @@ const ScheduleBatch = () => {
  <div className="max-w-4xl mx-auto space-y-6">
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-4">
- <button onClick={() => navigate(-1)} className="p-2 hover:bg-surface-highlight rounded-full text-secondary">
+ <button type="button" onClick={() => navigate(-1)} className="p-2 hover:bg-surface-highlight rounded-full text-secondary" aria-label="Go back">
  <ArrowLeft className="h-5 w-5" />
  </button>
  <div>
@@ -105,18 +105,21 @@ const ScheduleBatch = () => {
  </div>
  )}
 
- <form onSubmit={handleSubmit} className="bg-surface rounded-xl shadow-sm border border-border p-6 space-y-6">
+ <form onSubmit={handleSubmit} className="bg-surface rounded-xl shadow-sm border border-border p-6 space-y-6" aria-label="Schedule new batch" title="Schedule new batch form">
+ <h2 id="schedule-form-title" className="sr-only">Schedule New Batch</h2>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  {/* Scheduling Details */}
  <div className="space-y-4">
  <h3 className="font-semibold text-primary border-b pb-2">Schedule Details</h3>
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Machine</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="schedule-machine">Machine</label>
  <select
+ id="schedule-machine"
  required
  value={formData.machineId}
  onChange={e => setFormData({ ...formData, machineId: e.target.value })}
  className="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary outline-none"
+ aria-label="Select machine"
  >
  <option value="" disabled>Select a machine...</option>
  {machines.map((m: any) => (
@@ -126,21 +129,25 @@ const ScheduleBatch = () => {
  </div>
  <div className="grid grid-cols-2 gap-4">
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Date</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="schedule-date">Date</label>
  <input
+ id="schedule-date"
  required type="date"
  value={formData.scheduledDate}
  onChange={e => setFormData({ ...formData, scheduledDate: e.target.value })}
- min={new Date().toISOString().split('T')[0]} // cannot schedule in past easily
+ min={new Date().toISOString().split('T')[0]}
  className="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary outline-none"
+ aria-label="Scheduled date"
  />
  </div>
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Shift</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="schedule-shift">Shift</label>
  <select
+ id="schedule-shift"
  value={formData.shift}
  onChange={e => setFormData({ ...formData, shift: e.target.value })}
  className="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary outline-none"
+ aria-label="Select shift"
  >
  <option value="MORNING">Morning (06:00 - 14:00)</option>
  <option value="EVENING">Evening (14:00 - 22:00)</option>
@@ -158,11 +165,13 @@ const ScheduleBatch = () => {
  </div>
 
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Select Pending Fabric Lot</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="pending-lot">Select Pending Fabric Lot</label>
  <select
+ id="pending-lot"
  value={formData.selectedLotId}
  onChange={handleLotSelect}
  className="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary outline-none bg-primary/10 mb-2 font-medium text-primary"
+ aria-label="Select pending fabric lot"
  >
  <option value="">-- Manual Entry --</option>
  {lots.map((l: any) => (
@@ -219,27 +228,34 @@ const ScheduleBatch = () => {
  </div>
  <div className="grid grid-cols-3 gap-4">
  <div className="col-span-1">
- <label className="block text-sm font-medium text-primary mb-1">Input (Kg)</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="input-kg">Input (Kg)</label>
  <input
+ id="input-kg"
  required type="number" min="1" step="0.1"
  value={formData.inputKg}
  onChange={e => setFormData({ ...formData, inputKg: e.target.value })}
  className="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary outline-none"
+ aria-label="Input in kg"
  />
  </div>
  <div className="col-span-1">
- <label className="block text-sm font-medium text-primary mb-1">Rolls</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="rolls">Rolls</label>
  <input
+ id="rolls"
  required type="number" min="1"
  value={formData.rolls}
  onChange={e => setFormData({ ...formData, rolls: e.target.value })}
  className="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary outline-none"
+ aria-label="Number of rolls"
  />
  </div>
  <div className="col-span-1">
- <label className="block text-sm font-medium text-primary mb-1">Shade Target</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="shade-target">Shade Target</label>
  <input
- required type="text" placeholder="Navy Blue"
+ id="shade-target"
+ required type="text"
+ placeholder="Navy Blue"
+ aria-label="Shade target"
  value={formData.shadeTarget}
  onChange={e => setFormData({ ...formData, shadeTarget: e.target.value })}
  className="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary outline-none"
@@ -260,7 +276,7 @@ const ScheduleBatch = () => {
  <button
  type="submit"
  disabled={createBatchMutation.isPending || machinesLoading}
- className="px-6 py-2.5 text-sm font-medium text-primary bg-primary hover:bg-primary-hover rounded-lg flex items-center gap-2 transition disabled:opacity-50"
+ className="px-6 py-2.5 text-sm font-medium text-white bg-primary hover:bg-primary-hover rounded-lg flex items-center gap-2 transition disabled:opacity-50"
  >
  <Save className="h-4 w-4" />
  {createBatchMutation.isPending ? 'Scheduling...' : 'Schedule Batch'}

@@ -175,7 +175,7 @@ const MRSList = () => {
                                         <div className="flex justify-end mt-4">
                                             <button
                                                 onClick={() => handleIssueClick(mrs)}
-                                                className="bg-primary text-primary px-4 py-2 rounded text-sm font-medium hover:bg-primary-hover flex items-center"
+                                                className="bg-primary text-white px-4 py-2 rounded text-sm font-medium hover:bg-primary-hover flex items-center"
                                             >
                                                 <Check className="w-4 h-4 mr-2" /> Issue Materials
                                             </button>
@@ -206,13 +206,15 @@ const MRSList = () => {
                                             <p className="text-xs text-secondary">Stock: {item.materialId.quantity} {item.materialId.unit}</p>
                                         </div>
                                         <div className="col-span-2">
-                                            <label className="text-xs text-secondary block">Issue Qty (Pending: {pending})</label>
+                                            <label className="text-xs text-secondary block" htmlFor={`issue-qty-${item.materialId._id}`}>Issue Qty (Pending: {pending})</label>
                                             <input
+                                                id={`issue-qty-${item.materialId._id}`}
                                                 type="number"
                                                 max={Math.min(pending, item.materialId.quantity)}
                                                 value={issueQuantities[item.materialId._id]}
                                                 onChange={(e) => setIssueQuantities({ ...issueQuantities, [item.materialId._id]: parseFloat(e.target.value) })}
                                                 className="w-full border rounded p-2 text-sm"
+                                                aria-label={`Issue quantity for ${item.materialId.name}`}
                                             />
                                         </div>
                                     </div>

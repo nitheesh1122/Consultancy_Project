@@ -40,7 +40,7 @@ const MyBatches = () => {
  </div>
  <button
  onClick={() => navigate('/production/schedule')}
- className="flex items-center gap-2 bg-primary text-primary px-4 py-2 rounded-lg hover:bg-primary-hover transition"
+ className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover transition"
  >
  <Plus className="h-4 w-4" /> Schedule New
  </button>
@@ -80,7 +80,7 @@ const MyBatches = () => {
  <div className="px-4 py-3 bg-background border-t flex justify-end">
  <button
  onClick={() => navigate(`/production/batch/${batch._id}/execute`)}
- className="flex items-center gap-2 px-4 py-2 bg-primary text-primary text-sm font-medium rounded-lg hover:bg-primary-hover transition w-full justify-center shadow-sm"
+ className="flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-hover transition w-full justify-center shadow-sm"
  >
  {batch.status === 'SCHEDULED' ? (
  <><Play className="h-4 w-4" /> Start Execution</>

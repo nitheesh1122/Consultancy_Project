@@ -207,6 +207,7 @@ const RequestMaterial = () => {
  value={item.materialId}
  onChange={(e) => handleItemChange(index, 'materialId', e.target.value)}
  className="w-full p-2 bg-surface border border-border rounded text-sm focus:outline-none focus:border-primary"
+ aria-label="Material"
  >
  <option value="">Select Material...</option>
  {materials.map((m) => (
@@ -217,14 +218,16 @@ const RequestMaterial = () => {
  </select>
  </div>
  <div className="w-32">
- <label className="block text-xs text-secondary mb-1">Quantity</label>
+ <label className="block text-xs text-secondary mb-1" htmlFor={`req-qty-${index}`}>Quantity</label>
  <input
+ id={`req-qty-${index}`}
  type="number"
  min="0"
  step="0.01"
  value={item.quantityRequested}
  onChange={(e) => handleItemChange(index, 'quantityRequested', parseFloat(e.target.value))}
  className="w-full p-2 bg-surface border border-border rounded text-sm focus:outline-none focus:border-primary"
+ aria-label="Quantity requested"
  />
  </div>
  <button
@@ -243,7 +246,7 @@ const RequestMaterial = () => {
  <button
  type="submit"
  disabled={loading}
- className="flex items-center px-8 py-3 bg-primary text-primary rounded-lg hover:bg-primary-hover disabled:opacity-50 font-medium shadow-sm transition-all hover:shadow-md"
+ className="flex items-center px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover disabled:opacity-50 font-medium shadow-sm transition-all hover:shadow-md"
  >
  {loading ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <Save className="h-5 w-5 mr-2" />}
  {loading ? 'Submitting...' : 'Submit Request'}

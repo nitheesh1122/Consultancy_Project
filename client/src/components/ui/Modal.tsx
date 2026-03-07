@@ -24,22 +24,22 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
 
  return (
  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
- <div className="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity" onClick={onClose} />
- <div className={cn("industrial-card relative w-full max-w-lg z-10 animate-slide-up bg-surface", className)}>
+ <div className="fixed inset-0 bg-text-primary/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
+ <div className={cn("industrial-card relative w-full max-w-lg z-10 animate-slide-up", className)}>
  {title && (
- <div className="flex items-center justify-between p-5 border-b border-border">
- <h2 className="text-xl font-heading font-semibold text-primary">{title}</h2>
- <button onClick={onClose} className="rounded-md p-1 hover:bg-surface-highlight text-secondary hover:text-primary transition-colors">
+ <div className="flex items-center justify-between p-4 border-b border-subtle">
+ <h2 className="text-lg font-semibold text-primary">{title}</h2>
+ <button onClick={onClose} className="rounded-md p-1.5 hover:bg-elevated text-secondary hover:text-primary transition-colors" aria-label="Close">
  <X className="h-5 w-5" />
  </button>
  </div>
  )}
  {!title && (
- <button onClick={onClose} className="absolute top-4 right-4 rounded-md p-1 hover:bg-surface-highlight text-secondary hover:text-primary transition-colors z-20">
+ <button onClick={onClose} className="absolute top-4 right-4 rounded-md p-1.5 hover:bg-elevated text-secondary hover:text-primary transition-colors z-20" aria-label="Close">
  <X className="h-5 w-5" />
  </button>
  )}
- <div className="p-5">
+ <div className="p-4">
  {children}
  </div>
  </div>

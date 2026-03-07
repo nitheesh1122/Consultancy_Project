@@ -30,24 +30,28 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-canvas transition-colors duration-300 relative overflow-hidden">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-canvas relative overflow-hidden">
+            {/* Background accent */}
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-light/20 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute top-0 right-0 w-[40vw] h-[40vw] max-w-[400px] max-h-[400px] rounded-full bg-brand-primary/5 blur-3xl pointer-events-none" />
+
             <div className="z-10 w-full max-w-md px-4">
                 <div className="text-center mb-8 flex flex-col items-center">
-                    <div className="w-16 h-16 rounded-xl bg-brand-primary/10 flex items-center justify-center border border-brand-primary/20 mb-6 shrink-0 shadow-[0_0_15px_rgba(79,70,229,0.15)]">
-                        <Factory className="w-8 h-8 text-brand-primary" />
+                    <div className="w-16 h-16 rounded-lg bg-brand-primary flex items-center justify-center shadow-sm mb-6 shrink-0">
+                        <Factory className="w-8 h-8 text-white" />
                     </div>
                     <h1 className="text-3xl font-bold font-heading text-primary tracking-tight">Golden Textile Dyers</h1>
-                    <p className="text-brand-primary text-sm font-semibold tracking-wider mt-2 uppercase font-mono">Operational Intelligence System</p>
+                    <p className="text-brand-primary text-sm font-semibold tracking-wider mt-2 uppercase font-mono">Operational Intelligence</p>
                 </div>
 
-                <div className="bg-card p-8 rounded-xl shadow-2xl border border-subtle backdrop-blur-sm bg-card/90">
+                <div className="bg-card p-8 rounded-lg border border-subtle shadow-md">
                     <h2 className="text-lg font-semibold text-primary mb-6 flex items-center gap-2">
-                        <span className="w-1 h-6 bg-brand-primary rounded-sm"></span>
+                        <span className="w-1 h-5 bg-brand-primary rounded-full" />
                         Secure Access
                     </h2>
 
                     {error && (
-                        <div className="mb-6 p-4 rounded-md bg-status-critical/10 border border-status-critical/30 text-sm text-status-critical font-medium">
+                        <div className="mb-6 p-4 rounded-lg bg-status-danger/10 border border-status-danger/30 text-sm text-status-danger font-medium">
                             {error}
                         </div>
                     )}
@@ -63,7 +67,7 @@ const Login = () => {
                                     type="text"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="pl-10 h-12 text-base"
+                                    className="pl-10 h-11 text-base rounded-lg"
                                     placeholder="Enter Employee ID"
                                     isMonospace
                                     required
@@ -81,8 +85,8 @@ const Login = () => {
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="pl-10 h-12 text-base"
-                                    placeholder="Enter your security token"
+                                    className="pl-10 h-11 text-base rounded-lg"
+                                    placeholder="Enter your password"
                                     isMonospace
                                     required
                                 />
@@ -92,12 +96,12 @@ const Login = () => {
                         <Button
                             type="submit"
                             variant="primary"
-                            className="w-full mt-4 h-12 text-lg"
+                            className="w-full mt-4 h-11 rounded-lg"
                             isLoading={isLoading}
                         >
                             {!isLoading && (
-                                <span className="flex items-center">
-                                    Access System <ArrowRight className="ml-2 h-5 w-5" />
+                                <span className="flex items-center justify-center gap-2">
+                                    Access System <ArrowRight className="h-5 w-5" />
                                 </span>
                             )}
                         </Button>
@@ -105,7 +109,7 @@ const Login = () => {
                 </div>
 
                 <p className="text-center text-xs text-muted mt-8 font-mono">
-                    &copy; {new Date().getFullYear()} Golden Textile Dyers. All rights reserved.
+                    &copy; {new Date().getFullYear()} Golden Textile Dyers
                 </p>
             </div>
         </div>

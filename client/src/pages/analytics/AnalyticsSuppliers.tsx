@@ -61,7 +61,7 @@ const AnalyticsSuppliers = () => {
  <div className="space-y-6 pt-4 border-t border-subtle">
  <h3 className="text-xl font-bold font-heading text-primary border-b pb-2">Material Quality by Supplier</h3>
  <div className="bg-card rounded-xl shadow-sm border border-subtle overflow-hidden max-w-5xl">
- <div className="px-5 py-4 border-b border-primary/20 bg-primary/10/50">
+ <div className="px-5 py-4 border-b border-primary/20 bg-primary/10">
  <h3 className="font-bold text-primary flex items-center gap-2">
  <Truck className="h-5 w-5 text-primary" /> Quality Rejection Rates
  </h3>

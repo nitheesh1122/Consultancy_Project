@@ -43,8 +43,8 @@ export const TableRow = React.forwardRef<
     <tr
         ref={ref}
         className={cn(
-            "border-b border-subtle hover:bg-elevated/50 even:bg-elevated/25 transition-colors duration-150",
-            active && "bg-brand-primary/5 border-l-2 border-l-brand-primary",
+            "border-b border-subtle hover:bg-elevated/60 transition-colors duration-100",
+            active && "bg-brand-light/50 border-l-2 border-l-brand-primary",
             className
         )}
         {...props}
@@ -59,7 +59,7 @@ export const TableHead = React.forwardRef<
     <th
         ref={ref}
         className={cn(
-            "h-12 px-4 text-left align-middle font-semibold text-secondary",
+            "h-11 px-4 text-left align-middle font-semibold text-secondary text-xs uppercase tracking-wider",
             className
         )}
         {...props}

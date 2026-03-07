@@ -27,15 +27,15 @@ const AnalyticsLayout = () => {
                 <p className="text-secondary mt-1">Cross-departmental performance metrics and insights</p>
             </div>
 
-            <div className="bg-elevated p-1.5 rounded-xl shadow-md border border-subtle inline-flex overflow-x-auto w-full sm:w-auto">
+            <div className="bg-elevated p-1.5 rounded-xl border border-subtle inline-flex overflow-x-auto w-full sm:w-auto">
                 {tabs.map(tab => (
                     <NavLink
                         key={tab.path}
                         to={tab.path}
                         className={({ isActive }) =>
                             `flex items-center gap-2 px-6 py-2.5 text-sm font-bold tracking-wide rounded-lg transition-all whitespace-nowrap ${isActive
-                                ? 'bg-brand-primary/10 text-brand-primary shadow-sm border border-brand-primary/30'
-                                : 'text-secondary hover:text-brand-primary/80 hover:bg-void/50 border border-transparent'
+                                ? 'bg-brand-light text-brand-primary border border-brand-primary/20'
+                                : 'text-secondary hover:text-brand-primary hover:bg-canvas border border-transparent'
                             }`
                         }
                     >

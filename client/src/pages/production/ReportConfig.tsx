@@ -105,13 +105,15 @@ const ReportConfig = () => {
  <Target className="h-5 w-5 text-blue-500" /> Plant Yield Targets
  </h3>
  <div className="max-w-xs">
- <label className="block text-sm font-medium text-primary mb-2">Target Yield (%)</label>
+ <label className="block text-sm font-medium text-primary mb-2" htmlFor="target-yield">Target Yield (%)</label>
  <div className="relative">
  <input
+ id="target-yield"
  type="number" step="0.1" min="0" max="100"
  value={formData.targetYieldPercentage}
  onChange={e => setFormData({ ...formData, targetYieldPercentage: Number(e.target.value) })}
  className="w-full border-border rounded-lg pr-8 focus:ring-primary focus:border-primary shadow-sm"
+ aria-label="Target yield percentage"
  />
  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
  <span className="text-secondary">%</span>
@@ -130,12 +132,13 @@ const ReportConfig = () => {
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
  <div>
- <label className="block text-sm font-medium text-primary mb-2 flex items-center gap-1">
+ <label className="flex items-center gap-1 text-sm font-medium text-primary mb-2" htmlFor="power-per-kwh">
  <Zap className="h-4 w-4 text-yellow-500" /> Power (per kWh)
  </label>
  <div className="flex items-center gap-2">
  <span className="text-secondary font-medium font-mono">₹</span>
  <input
+ id="power-per-kwh"
  type="number" step="0.1" min="0"
  value={formData.utilityRates.powerPerKwh}
  onChange={e => setFormData({
@@ -143,16 +146,18 @@ const ReportConfig = () => {
  utilityRates: { ...formData.utilityRates, powerPerKwh: Number(e.target.value) }
  })}
  className="w-full border-border rounded-lg focus:ring-primary focus:border-primary shadow-sm"
+ aria-label="Power cost per kWh"
  />
  </div>
  </div>
  <div>
- <label className="block text-sm font-medium text-primary mb-2 flex items-center gap-1">
+ <label className="flex items-center gap-1 text-sm font-medium text-primary mb-2" htmlFor="water-per-liter">
  <Droplet className="h-4 w-4 text-blue-500" /> Water (per L)
  </label>
  <div className="flex items-center gap-2">
  <span className="text-secondary font-medium font-mono">₹</span>
  <input
+ id="water-per-liter"
  type="number" step="0.01" min="0"
  value={formData.utilityRates.waterPerLiter}
  onChange={e => setFormData({
@@ -160,16 +165,18 @@ const ReportConfig = () => {
  utilityRates: { ...formData.utilityRates, waterPerLiter: Number(e.target.value) }
  })}
  className="w-full border-border rounded-lg focus:ring-primary focus:border-primary shadow-sm"
+ aria-label="Water cost per liter"
  />
  </div>
  </div>
  <div>
- <label className="block text-sm font-medium text-primary mb-2 flex items-center gap-1">
+ <label className="flex items-center gap-1 text-sm font-medium text-primary mb-2" htmlFor="steam-per-kg">
  <Flame className="h-4 w-4 text-orange-500" /> Steam (per Kg)
  </label>
  <div className="flex items-center gap-2">
  <span className="text-secondary font-medium font-mono">₹</span>
  <input
+ id="steam-per-kg"
  type="number" step="0.1" min="0"
  value={formData.utilityRates.steamPerKg}
  onChange={e => setFormData({
@@ -177,6 +184,7 @@ const ReportConfig = () => {
  utilityRates: { ...formData.utilityRates, steamPerKg: Number(e.target.value) }
  })}
  className="w-full border-border rounded-lg focus:ring-primary focus:border-primary shadow-sm"
+ aria-label="Steam cost per kg"
  />
  </div>
  </div>
@@ -222,7 +230,7 @@ const ReportConfig = () => {
  <button
  type="submit"
  disabled={updateMutation.isPending}
- className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-primary px-8 py-3 rounded-lg font-bold shadow-md shadow-primary/20 transition disabled:opacity-50"
+ className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-white px-8 py-3 rounded-lg font-bold shadow-md transition disabled:opacity-50"
  >
  <Save className="h-5 w-5" />
  {updateMutation.isPending ? 'Saving...' : 'Save Configuration'}

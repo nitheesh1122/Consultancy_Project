@@ -329,7 +329,7 @@ const HRWorkerList = () => {
                 </div>
                 <button
                     onClick={() => openModal()}
-                    className="flex items-center gap-2 bg-primary text-primary px-4 py-2 rounded-lg hover:bg-primary-hover transition"
+                    className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover transition"
                 >
                     <Plus className="h-4 w-4" /> Add Worker
                 </button>
@@ -438,7 +438,7 @@ const HRWorkerList = () => {
                                 </h3>
                                 <p className="text-xs text-secondary mt-1">Configure Erode textile labor context and compliances.</p>
                             </div>
-                            <button onClick={closeModal} className="text-muted hover:text-secondary bg-canvas hover:bg-elevated p-2 rounded-full transition-colors">
+                            <button type="button" onClick={closeModal} className="text-muted hover:text-secondary bg-canvas hover:bg-elevated p-2 rounded-full transition-colors" aria-label="Close">
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
@@ -450,40 +450,48 @@ const HRWorkerList = () => {
                                 <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 border-b pb-2">SECTION 1: BASIC INFORMATION</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div>
-                                        <label className="block text-xs font-medium text-primary mb-1">Worker ID *</label>
+                                        <label className="block text-xs font-medium text-primary mb-1" htmlFor="worker-id">Worker ID *</label>
                                         <input
+                                            id="worker-id"
                                             required type="text"
                                             className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none uppercase font-mono"
                                             value={formData.workerId}
                                             onChange={e => setFormData({ ...formData, workerId: e.target.value.toUpperCase() })}
                                             placeholder="GTD-W-XXX"
+                                            aria-label="Worker ID"
                                         />
                                     </div>
                                     <div className="col-span-2">
-                                        <label className="block text-xs font-medium text-primary mb-1">Full Name *</label>
+                                        <label className="block text-xs font-medium text-primary mb-1" htmlFor="worker-name">Full Name *</label>
                                         <input
+                                            id="worker-name"
                                             required type="text"
                                             className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.name}
                                             onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                            aria-label="Full name"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-primary mb-1">Phone</label>
+                                        <label className="block text-xs font-medium text-primary mb-1" htmlFor="worker-phone">Phone</label>
                                         <input
+                                            id="worker-phone"
                                             type="tel"
                                             className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.phone}
                                             onChange={e => setFormData({ ...formData, phone: e.target.value })}
                                             placeholder="WhatsApp preferred"
+                                            aria-label="Phone number"
                                         />
                                     </div>
                                     <div className="col-span-2">
-                                        <label className="block text-xs font-medium text-primary mb-1">Role *</label>
+                                        <label className="block text-xs font-medium text-primary mb-1" htmlFor="worker-role">Role *</label>
                                         <select
+                                            id="worker-role"
                                             className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.role}
                                             onChange={e => setFormData({ ...formData, role: e.target.value })}
+                                            aria-label="Worker role"
                                         >
                                             <option value="HELPER">Helper</option>
                                             <option value="OPERATOR">Operator</option>
@@ -494,12 +502,14 @@ const HRWorkerList = () => {
                                         </select>
                                     </div>
                                     <div className="col-span-2">
-                                        <label className="block text-xs font-medium text-primary mb-1">Status</label>
+                                        <label className="block text-xs font-medium text-primary mb-1" htmlFor="worker-status">Status</label>
                                         <select
+                                            id="worker-status"
                                             className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.status}
                                             onChange={e => setFormData({ ...formData, status: e.target.value })}
                                             disabled={formData.status === 'BUSY'}
+                                            aria-label="Worker status"
                                         >
                                             <option value="ACTIVE">Active</option>
                                             <option value="BUSY" disabled>Busy</option>
@@ -515,20 +525,24 @@ const HRWorkerList = () => {
                                 <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 border-b pb-2">SECTION 2: PERSONAL DETAILS</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div>
-                                        <label className="block text-xs font-medium text-primary mb-1">Date of Birth</label>
+                                        <label className="block text-xs font-medium text-primary mb-1" htmlFor="dob">Date of Birth</label>
                                         <input
+                                            id="dob"
                                             type="date"
                                             className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.personal.dateOfBirth}
                                             onChange={e => handleNestedChange('personal', 'dateOfBirth', e.target.value)}
+                                            aria-label="Date of birth"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-primary mb-1">Gender</label>
+                                        <label className="block text-xs font-medium text-primary mb-1" htmlFor="gender">Gender</label>
                                         <select
+                                            id="gender"
                                             className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.personal.gender}
                                             onChange={e => handleNestedChange('personal', 'gender', e.target.value)}
+                                            aria-label="Gender"
                                         >
                                             <option value="MALE">Male</option>
                                             <option value="FEMALE">Female</option>
@@ -536,11 +550,13 @@ const HRWorkerList = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-primary mb-1">Blood Group</label>
+                                        <label className="block text-xs font-medium text-primary mb-1" htmlFor="blood-group">Blood Group</label>
                                         <select
+                                            id="blood-group"
                                             className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.personal.bloodGroup}
                                             onChange={e => handleNestedChange('personal', 'bloodGroup', e.target.value)}
+                                            aria-label="Blood group"
                                         >
                                             <option value="A+">A+</option>
                                             <option value="A-">A-</option>
@@ -559,11 +575,11 @@ const HRWorkerList = () => {
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                             <div className="col-span-2">
                                                 <input type="text" placeholder="Street" className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
-                                                    value={formData.personal.address.street} onChange={e => handleDeepNestedChange('personal', 'address', 'street', e.target.value)} />
+                                                    value={formData.personal.address.street} onChange={e => handleDeepNestedChange('personal', 'address', 'street', e.target.value)} aria-label="Street address" />
                                             </div>
                                             <div>
                                                 <select className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
-                                                    value={formData.personal.address.city} onChange={e => handleDeepNestedChange('personal', 'address', 'city', e.target.value)}>
+                                                    value={formData.personal.address.city} onChange={e => handleDeepNestedChange('personal', 'address', 'city', e.target.value)} aria-label="City">
                                                     <option value="Erode">Erode</option>
                                                     <option value="Coimbatore">Coimbatore</option>
                                                     <option value="Salem">Salem</option>
@@ -573,7 +589,7 @@ const HRWorkerList = () => {
                                             </div>
                                             <div>
                                                 <select className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
-                                                    value={formData.personal.address.state} onChange={e => handleDeepNestedChange('personal', 'address', 'state', e.target.value)}>
+                                                    value={formData.personal.address.state} onChange={e => handleDeepNestedChange('personal', 'address', 'state', e.target.value)} aria-label="State">
                                                     <option value="Tamil Nadu">Tamil Nadu</option>
                                                     <option value="Bihar">Bihar</option>
                                                     <option value="Uttar Pradesh">Uttar Pradesh</option>
@@ -583,7 +599,7 @@ const HRWorkerList = () => {
                                             </div>
                                             <div>
                                                 <input type="text" placeholder="Pincode" className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
-                                                    value={formData.personal.address.pincode} onChange={e => handleDeepNestedChange('personal', 'address', 'pincode', e.target.value)} />
+                                                    value={formData.personal.address.pincode} onChange={e => handleDeepNestedChange('personal', 'address', 'pincode', e.target.value)} aria-label="Pincode" />
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <input type="checkbox" id="isLocal" checked={formData.personal.address.isLocal} onChange={e => handleDeepNestedChange('personal', 'address', 'isLocal', e.target.checked)} className="h-4 w-4 text-primary rounded border-subtle" />
@@ -598,11 +614,11 @@ const HRWorkerList = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div>
                                                 <input type="text" placeholder="Name" className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
-                                                    value={formData.personal.emergencyContact.name} onChange={e => handleDeepNestedChange('personal', 'emergencyContact', 'name', e.target.value)} />
+                                                    value={formData.personal.emergencyContact.name} onChange={e => handleDeepNestedChange('personal', 'emergencyContact', 'name', e.target.value)} aria-label="Emergency contact name" />
                                             </div>
                                             <div>
                                                 <select className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
-                                                    value={formData.personal.emergencyContact.relation} onChange={e => handleDeepNestedChange('personal', 'emergencyContact', 'relation', e.target.value)}>
+                                                    value={formData.personal.emergencyContact.relation} onChange={e => handleDeepNestedChange('personal', 'emergencyContact', 'relation', e.target.value)} aria-label="Emergency contact relation">
                                                     <option value="Father">Father</option>
                                                     <option value="Spouse">Spouse</option>
                                                     <option value="Brother">Brother</option>
@@ -612,7 +628,7 @@ const HRWorkerList = () => {
                                             </div>
                                             <div>
                                                 <input type="tel" placeholder="Phone" className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
-                                                    value={formData.personal.emergencyContact.phone} onChange={e => handleDeepNestedChange('personal', 'emergencyContact', 'phone', e.target.value)} />
+                                                    value={formData.personal.emergencyContact.phone} onChange={e => handleDeepNestedChange('personal', 'emergencyContact', 'phone', e.target.value)} aria-label="Emergency contact phone" />
                                             </div>
                                         </div>
                                     </div>
@@ -624,21 +640,25 @@ const HRWorkerList = () => {
                                 <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 border-b pb-2">SECTION 3: EMPLOYMENT (Erode Context)</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div>
-                                        <label className="block text-xs font-medium text-primary mb-1">Joining Date</label>
+                                        <label className="block text-xs font-medium text-primary mb-1" htmlFor="joining-date">Joining Date</label>
                                         <input
+                                            id="joining-date"
                                             type="date"
                                             className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.employment.joiningDate}
                                             onChange={e => handleNestedChange('employment', 'joiningDate', e.target.value)}
+                                            aria-label="Joining date"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-primary mb-1">Prior Experience (Years)</label>
+                                        <label className="block text-xs font-medium text-primary mb-1" htmlFor="experience-years">Prior Experience (Years)</label>
                                         <input
+                                            id="experience-years"
                                             type="number"
                                             className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.employment.अनुभवExperienceYears}
                                             onChange={e => handleNestedChange('employment', 'experienceYears', Number(e.target.value))}
+                                            aria-label="Prior experience in years"
                                         />
                                     </div>
                                     <div>
@@ -652,12 +672,15 @@ const HRWorkerList = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-primary mb-1">Referred By</label>
+                                        <label className="block text-xs font-medium text-primary mb-1" htmlFor="referred-by">Referred By</label>
                                         <input
+                                            id="referred-by"
                                             type="text"
                                             className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
                                             value={formData.employment.referralSource}
                                             onChange={e => handleNestedChange('employment', 'referralSource', e.target.value)}
+                                            placeholder="Referral source"
+                                            aria-label="Referred by"
                                         />
                                     </div>
 
@@ -672,7 +695,7 @@ const HRWorkerList = () => {
                                                 <div>
                                                     <label className="block text-xs font-medium text-primary mb-1">Native State</label>
                                                     <select className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
-                                                        value={formData.employment.nativeState} onChange={e => handleNestedChange('employment', 'nativeState', e.target.value)}>
+                                                        value={formData.employment.nativeState} onChange={e => handleNestedChange('employment', 'nativeState', e.target.value)} aria-label="Native state">
                                                         <option value="Bihar">Bihar</option>
                                                         <option value="Uttar Pradesh">Uttar Pradesh</option>
                                                         <option value="Odisha">Odisha</option>
@@ -682,7 +705,7 @@ const HRWorkerList = () => {
                                                 <div>
                                                     <label className="block text-xs font-medium text-primary mb-1">Accommodation</label>
                                                     <select className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
-                                                        value={formData.employment.accommodation} onChange={e => handleNestedChange('employment', 'accommodation', e.target.value)}>
+                                                        value={formData.employment.accommodation} onChange={e => handleNestedChange('employment', 'accommodation', e.target.value)} aria-label="Accommodation">
                                                         <option value="FACTORY_HOSTEL">Factory Hostel</option>
                                                         <option value="RENTED_ROOM">Rented Room</option>
                                                         <option value="OWN_ARRANGEMENT">Own Arrangement</option>
@@ -702,21 +725,21 @@ const HRWorkerList = () => {
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                             <div>
                                                 <input type="text" placeholder="ESI Number" className="w-full border border-subtle rounded-md px-3 py-2 text-sm font-mono focus:ring-1 focus:ring-primary outline-none"
-                                                    value={formData.employment.esiNumber} onChange={e => handleNestedChange('employment', 'esiNumber', e.target.value)} />
+                                                    value={formData.employment.esiNumber} onChange={e => handleNestedChange('employment', 'esiNumber', e.target.value)} aria-label="ESI number" />
                                             </div>
                                             <div>
                                                 <input type="text" placeholder="PF Number" className="w-full border border-subtle rounded-md px-3 py-2 text-sm font-mono focus:ring-1 focus:ring-primary outline-none"
-                                                    value={formData.employment.pfNumber} onChange={e => handleNestedChange('employment', 'pfNumber', e.target.value)} />
+                                                    value={formData.employment.pfNumber} onChange={e => handleNestedChange('employment', 'pfNumber', e.target.value)} aria-label="PF number" />
                                             </div>
                                             <div>
                                                 <input type="text" placeholder="UAN Number" className="w-full border border-subtle rounded-md px-3 py-2 text-sm font-mono focus:ring-1 focus:ring-primary outline-none"
-                                                    value={formData.employment.uanNumber} onChange={e => handleNestedChange('employment', 'uanNumber', e.target.value)} />
+                                                    value={formData.employment.uanNumber} onChange={e => handleNestedChange('employment', 'uanNumber', e.target.value)} aria-label="UAN number" />
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                                             <div>
                                                 <select className="w-full border border-subtle rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-primary outline-none"
-                                                    value={formData.employment.bankAccount.bankName} onChange={e => handleDeepNestedChange('employment', 'bankAccount', 'bankName', e.target.value)}>
+                                                    value={formData.employment.bankAccount.bankName} onChange={e => handleDeepNestedChange('employment', 'bankAccount', 'bankName', e.target.value)} aria-label="Bank name">
                                                     <option value="SBI Erode">SBI Erode</option>
                                                     <option value="Canara Bank">Canara Bank</option>
                                                     <option value="IOB">IOB</option>
@@ -726,11 +749,11 @@ const HRWorkerList = () => {
                                             </div>
                                             <div>
                                                 <input type="text" placeholder="Account Number" className="w-full border border-subtle rounded-md px-3 py-2 text-sm font-mono focus:ring-1 focus:ring-primary outline-none"
-                                                    value={formData.employment.bankAccount.accountNumber} onChange={e => handleDeepNestedChange('employment', 'bankAccount', 'accountNumber', e.target.value)} />
+                                                    value={formData.employment.bankAccount.accountNumber} onChange={e => handleDeepNestedChange('employment', 'bankAccount', 'accountNumber', e.target.value)} aria-label="Bank account number" />
                                             </div>
                                             <div>
                                                 <input type="text" placeholder="IFSC Code" className="w-full border border-subtle rounded-md px-3 py-2 text-sm font-mono focus:ring-1 focus:ring-primary outline-none"
-                                                    value={formData.employment.bankAccount.ifscCode} onChange={e => handleDeepNestedChange('employment', 'bankAccount', 'ifscCode', e.target.value)} />
+                                                    value={formData.employment.bankAccount.ifscCode} onChange={e => handleDeepNestedChange('employment', 'bankAccount', 'ifscCode', e.target.value)} aria-label="IFSC code" />
                                             </div>
                                         </div>
                                     </div>
@@ -802,7 +825,7 @@ const HRWorkerList = () => {
                                 <button
                                     type="submit"
                                     disabled={createMutation.isPending || updateMutation.isPending}
-                                    className="px-6 py-2.5 font-medium text-primary bg-primary hover:bg-primary-hover rounded-lg disabled:opacity-50 transition-colors shadow-sm"
+                                    className="px-6 py-2.5 font-medium text-white bg-primary hover:bg-primary-hover rounded-lg disabled:opacity-50 transition-colors shadow-sm"
                                 >
                                     {editingWorker ? 'Save Changes' : 'Save Worker'}
                                 </button>

@@ -56,7 +56,7 @@ const DecisionExplanation: React.FC<DecisionExplanationProps> = ({
     return (
         <div
             className={cn(
-                'rounded-lg border p-4 my-4 font-sans',
+                'rounded-lg border p-4 my-4',
                 current.bg,
                 current.border,
                 className

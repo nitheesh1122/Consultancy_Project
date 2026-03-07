@@ -9,17 +9,17 @@ interface StatusBadgeProps {
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status, children, className }) => {
     const styles = {
-        info: 'bg-blue-100 text-blue-700 border-blue-200',
-        success: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-        warning: 'bg-amber-100 text-amber-700 border-amber-200',
-        critical: 'bg-rose-100 text-rose-700 border-rose-200',
+        info: 'bg-status-info/10 text-status-info border-status-info/30',
+        success: 'bg-status-success/10 text-status-success border-status-success/30',
+        warning: 'bg-status-warning/10 text-status-warning border-status-warning/30',
+        critical: 'bg-status-danger/10 text-status-danger border-status-danger/30',
         neutral: 'bg-elevated text-secondary border-subtle',
     };
 
     return (
         <span
             className={cn(
-                'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors',
+                'inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold',
                 styles[status],
                 className
             )}

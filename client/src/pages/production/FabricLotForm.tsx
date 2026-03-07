@@ -72,7 +72,7 @@ const FabricLotForm = ({ lot, onClose }: FabricLotFormProps) => {
  <h3 className="text-lg font-bold text-primary">
  {lot ? 'Edit Fabric Lot' : 'Receive New Fabric Lot'}
  </h3>
- <button onClick={onClose} className="text-muted hover:text-secondary">
+ <button type="button" onClick={onClose} className="text-muted hover:text-secondary" aria-label="Close">
  <X className="h-5 w-5" />
  </button>
  </div>
@@ -86,52 +86,62 @@ const FabricLotForm = ({ lot, onClose }: FabricLotFormProps) => {
  <form onSubmit={handleSubmit} className="p-6 space-y-4">
  <div className="grid grid-cols-2 gap-4">
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Lot Number / ID *</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="lot-number">Lot Number / ID *</label>
  <input
+ id="lot-number"
  required
  type="text"
  className="w-full rounded-lg border-border shadow-sm focus:border-primary focus:ring-primary"
  value={formData.lotNumber}
  onChange={e => setFormData({ ...formData, lotNumber: e.target.value })}
  placeholder="e.g. L-2024-001"
+ aria-label="Lot number or ID"
  />
  </div>
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Supplier Party *</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="supplier-party">Supplier Party *</label>
  <input
+ id="supplier-party"
  required
  type="text"
  className="w-full rounded-lg border-border shadow-sm focus:border-primary focus:ring-primary"
  value={formData.supplierParty}
  onChange={e => setFormData({ ...formData, supplierParty: e.target.value })}
+ placeholder="Supplier or party name"
+ aria-label="Supplier party"
  />
  </div>
 
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Fabric Type *</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="fabric-type">Fabric Type *</label>
  <input
+ id="fabric-type"
  required
  type="text"
  className="w-full rounded-lg border-border shadow-sm focus:border-primary focus:ring-primary"
  value={formData.fabricType}
  onChange={e => setFormData({ ...formData, fabricType: e.target.value })}
  placeholder="e.g. 100% Cotton Single Jersey"
+ aria-label="Fabric type"
  />
  </div>
  <div>
- <label className="block text-sm font-medium text-primary mb-1">GSM</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="gsm">GSM</label>
  <input
+ id="gsm"
  type="number"
  className="w-full rounded-lg border-border shadow-sm focus:border-primary focus:ring-primary"
  value={formData.gsm}
  onChange={e => setFormData({ ...formData, gsm: e.target.value })}
  placeholder="e.g. 180"
+ aria-label="GSM"
  />
  </div>
 
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Total Received Wt (Kg) *</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="total-weight">Total Received Wt (Kg) *</label>
  <input
+ id="total-weight"
  required
  type="number"
  min="1"
@@ -139,35 +149,42 @@ const FabricLotForm = ({ lot, onClose }: FabricLotFormProps) => {
  className="w-full rounded-lg border-border shadow-sm focus:border-primary focus:ring-primary"
  value={formData.totalWeightKg}
  onChange={e => setFormData({ ...formData, totalWeightKg: e.target.value })}
+ aria-label="Total received weight in kg"
  />
  </div>
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Total Rolls</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="total-rolls">Total Rolls</label>
  <input
+ id="total-rolls"
  type="number"
  min="1"
  className="w-full rounded-lg border-border shadow-sm focus:border-primary focus:ring-primary"
  value={formData.totalRolls}
  onChange={e => setFormData({ ...formData, totalRolls: e.target.value })}
+ aria-label="Total rolls"
  />
  </div>
 
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Received Date *</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="received-date">Received Date *</label>
  <input
+ id="received-date"
  required
  type="date"
  className="w-full rounded-lg border-border shadow-sm focus:border-primary focus:ring-primary"
  value={formData.receivedDate}
  onChange={e => setFormData({ ...formData, receivedDate: e.target.value })}
+ aria-label="Received date"
  />
  </div>
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Status</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="lot-status">Status</label>
  <select
+ id="lot-status"
  className="w-full rounded-lg border-border shadow-sm focus:border-primary focus:ring-primary"
  value={formData.status}
  onChange={e => setFormData({ ...formData, status: e.target.value })}
+ aria-label="Lot status"
  >
  <option value="PENDING">PENDING</option>
  <option value="IN_PRODUCTION">IN PRODUCTION</option>
@@ -187,7 +204,7 @@ const FabricLotForm = ({ lot, onClose }: FabricLotFormProps) => {
  <button
  type="submit"
  disabled={saveMutation.isPending}
- className="px-4 py-2 text-sm font-medium text-primary bg-primary hover:bg-primary-hover rounded-lg disabled:opacity-50"
+ className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-hover rounded-lg disabled:opacity-50"
  >
  {saveMutation.isPending ? 'Saving...' : 'Save Fabric Lot'}
  </button>

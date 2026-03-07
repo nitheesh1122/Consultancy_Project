@@ -25,7 +25,7 @@ export function ReadOnlyTable<T>({ title, description, icon, data, columns, isLo
  <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
  {icon}
  {title}
- <span className="ml-3 px-2 py-1 bg-surface-highlight text-secondary rounded text-xs font-bold uppercase tracking-wider border border-border">
+ <span className="ml-3 px-2 py-1 bg-elevated text-secondary rounded-md text-xs font-semibold uppercase tracking-wider border border-subtle">
  View Only
  </span>
  </h2>
@@ -33,9 +33,9 @@ export function ReadOnlyTable<T>({ title, description, icon, data, columns, isLo
  </div>
  </div>
 
- <div className="bg-surface rounded-xl shadow-sm overflow-hidden border border-border">
- <table className="min-w-full divide-y divide-border">
- <thead className="bg-background">
+ <div className="bg-card rounded-lg shadow-sm overflow-hidden border border-subtle">
+ <table className="min-w-full divide-y divide-subtle">
+ <thead className="bg-elevated">
  <tr>
  {columns.map((col, idx) => (
  <th key={idx} className={`px-6 py-3 text-left text-xs font-medium text-secondary uppercase ${col.className || ''}`}>
@@ -44,14 +44,14 @@ export function ReadOnlyTable<T>({ title, description, icon, data, columns, isLo
  ))}
  </tr>
  </thead>
- <tbody className="divide-y divide-border">
+ <tbody className="divide-y divide-subtle">
  {isLoading ? (
  <tr><td colSpan={columns.length} className="text-center py-8 text-secondary">Loading...</td></tr>
  ) : data.length === 0 ? (
  <tr><td colSpan={columns.length} className="text-center py-8 text-secondary">{emptyMessage}</td></tr>
  ) : (
  data.map((row, rowIdx) => (
- <tr key={rowIdx} className="hover:bg-background/50">
+ <tr key={rowIdx} className="hover:bg-elevated/50">
  {columns.map((col, colIdx) => (
  <td key={colIdx} className={`px-6 py-4 ${col.className || ''}`}>
  {col.cell ? col.cell(row) : (col.accessorKey ? row[col.accessorKey] as React.ReactNode : null)}

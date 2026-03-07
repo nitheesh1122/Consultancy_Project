@@ -6,11 +6,11 @@ interface MetricCardProps {
     title: string;
     value: string | number;
     trend?: {
-        value: number; // percentage
+        value: number;
         isPositive: boolean;
-        label?: string; // e.g. "vs last month"
+        label?: string;
     };
-    icon?: React.ElementType; // Icon component
+    icon?: React.ElementType;
     status?: 'default' | 'critical' | 'warning' | 'good';
     className?: string;
     onClick?: () => void;
@@ -36,7 +36,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
         <div
             onClick={onClick}
             className={cn(
-                'relative overflow-hidden rounded-xl border p-5 shadow-sm transition-all hover:shadow-md cursor-default',
+                'relative overflow-hidden rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md cursor-default',
                 statusStyles[status],
                 onClick && 'cursor-pointer',
                 className
