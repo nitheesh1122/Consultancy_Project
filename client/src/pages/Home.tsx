@@ -243,8 +243,8 @@ const Home = () => {
                                 <div className="relative z-10">
                                     <h3 className="font-bold text-lg font-heading mb-2">Deep Analytics</h3>
                                     <p className="text-muted text-sm mb-4">Analyze batch costs, supplier performance, and consumption trends.</p>
-                                    <Link to="/reports" className="inline-flex items-center justify-center px-4 py-2.5 bg-brand-primary text-white text-sm font-semibold rounded-xl hover:bg-brand-hover transition-colors w-full shadow-md shadow-brand-primary/20">
-                                        Open Reports
+                                    <Link to="/analytics" className="inline-flex items-center justify-center px-4 py-2.5 bg-brand-primary text-white text-sm font-semibold rounded-xl hover:bg-brand-hover transition-colors w-full shadow-md shadow-brand-primary/20">
+                                        Open Analytics & Reports
                                     </Link>
                                 </div>
                             </div>
