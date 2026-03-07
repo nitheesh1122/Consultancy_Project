@@ -1,282 +1,200 @@
 
+# Golden Textile Dyers – ERP System
+
+**Client:** Golden Textile Dyers, Erode  
+**Type:** Full-stack Consultancy ERP  
+**Stack:** React · TypeScript · Node.js · Express · MongoDB
+
+> A role-based, real-time ERP built for a textile dyeing factory — covering inventory, procurement, production, HR, analytics, audit trails, and report generation.
 
 ---
 
-# Textile Consultancy Management System
+## 📌 Overview
 
-**Client: Golden Textile Dyers**
+The system replaces manual operations with a structured, digital workflow covering the entire factory lifecycle:
 
-A role-based inventory, procurement, and analytics system designed for a textile dyeing unit.
-The system focuses on **operational visibility, procurement control, and decision support** for daily factory operations.
-
----
-
-## 📌 Project Overview
-
-This project was developed as a consultancy-style solution for **Golden Textile Dyers**, addressing common operational challenges in textile dyeing units such as:
-
-* Manual inventory tracking
-* Delayed procurement decisions
-* Limited visibility into material usage
-* Lack of structured analytics for management
-
-The system evolves inventory management from simple tracking to **decision-oriented operational intelligence**.
-
----
-
-## 🎯 Objectives
-
-* Maintain accurate, real-time inventory records
-* Enforce structured procurement workflows
-* Provide analytics for stock health and procurement performance
-* Support informed decision-making for store managers and admins
+- **Material procurement** from supplier to stock
+- **Production batch management** from scheduling to completion
+- **HR & workforce management** including compliance tracking
+- **Analytics & decision support** with AI-driven reorder forecasting
+- **Audit trail & reporting** with exportable PDF/CSV documents
 
 ---
 
 ## 👥 User Roles
 
-### Supervisor
-
-* Raise Material Request Slips (MRS)
-* Track request status
-* No access to inventory or procurement analytics
-
-### Store Manager
-
-* Manage inventory
-* Raise Purchase Indents (PI)
-* View procurement context and forecast suggestions
-
-### Admin
-
-* Approve Purchase Indents
-* View analytics and supplier performance
-* Oversee overall system usage
+| Role | Key Capabilities |
+|---|---|
+| **Admin** | PI approvals, full analytics, audit logs, reports, supplier management, user control |
+| **Store Manager** | Inventory management, raise PI, inward entry, MRS issuance |
+| **Supervisor** | Raise MRS, return material, schedule & execute production batches |
+| **HR Manager** | Worker management, attendance, performance, shift & leave management |
 
 ---
 
-## 🧩 Core Functional Modules
+## 🧩 Functional Modules
 
 ### 1. Inventory Management
-
-* Real-time stock tracking
-* Automatic stock updates through inward and issue transactions
-* Identification of low stock and dead stock
+- Real-time stock tracking with ABC categorisation
+- Low stock and dead stock detection
+- Material procurement context (last order, supplier, price)
 
 ### 2. Material Request System (MRS)
+- Supervisors raise requests; store managers issue materials
+- Pending & history views with PDF slip generation (company letterhead)
+- Audit trail on every issue and return
 
-* Supervisors raise material requests
-* Store managers issue materials
-* Status-based workflow ensures accountability
-
-### 3. Procurement & Product Inward
-
-* Purchase Indent creation and approval
-* Product inward entries update stock
-* Procurement history maintained for audit purposes
+### 3. Procurement & Inward
+- Purchase Indent (PI) with admin approval workflow
+- Inward entry auto-updates inventory
+- Supplier performance scoring and delay tracking
 
 ### 4. Supplier Management
+- Supplier master records and procurement history
+- Performance analytics based on delivery reliability
 
-* Supplier master records
-* Supplier association through procurement
-* Supplier performance reflected in delay-based analytics
+### 5. Production Module
+- Machine master (Hard/Soft flow, water recycling, generator mapping)
+- Fabric lot management and batch scheduling
+- Batch execution from start to completion with live monitor
+- Yield analytics and re-issue efficiency metrics
 
-### 5. Analytics & Reports
+### 6. HR Module
+- Worker list with ESI/PF, migrant status, and skill matrix
+- Attendance tracker, performance reviews, shift scheduling
+- Leave management and worker-to-batch assignment
 
-* Inventory health analysis (ABC Categorization)
-* Procurement delay metrics
-* Consumption and cost trends (Monthly Analysis)
-* Forecast-based reorder recommendations
-* Cost Intelligence Dashboard
+### 7. Analytics & Reports
+- Inventory health (stock distribution, low stock, dead stock)
+- AI-driven reorder forecast (30-day consumption + safety buffer)
+- Production yield, cost trends, and inefficiency analysis
+- Supplier performance and worker efficiency analytics
 
-### 6. System Security & Audit
-
-* Role-based access control
-* Comprehensive Audit Logs for all critical actions
-* Secure Real-time Notifications
-
-### 7. Material Procurement Context
-
-* Accessible from the inventory overview
-* Shows whether a material was previously ordered
-* Displays last purchase date, supplier, and inward details
-* Helps store managers make quicker procurement decisions
-
-### 8. Production Tracking Module
-
-* Comprehensive Machine Master tracking Erode-specific setups (Hard/Soft flow configurations, Water recycling, Generator mapping)
-* Detailed Worker Management encompassing HR compliance (ESI/PF, Migrant status, complex skill matrices)
-* Real-time Batch tracking and Yield Analytics capturing 1st Grade, 2nd Grade, and recoverable rejection metrics.
+### 8. Audit Logs & Reports Module *(Admin only)*
+- Complete audit trail for all critical system actions
+- Built-in audit log browser with search, filters, date range, and pagination
+- Colour-coded action badges by category (Auth, Inventory, Procurement, Production)
+- Export audit logs as CSV
+- Download / email system operations reports as PDF or CSV
+- Automated daily report scheduling with configurable cron
+- Report recipient management
 
 ---
 
-## 📊 Analytics Focus
+## 📄 PDF Document System
 
-The analytics layer is **decision-oriented**, not just visual:
+All PDFs across the system share a **standardised company letterhead**:
 
-* Days of stock remaining
-* Dead stock detection
-* Procurement approval and delivery delays
-* Batch and supervisor usage patterns
-* Simple, explainable forecast logic for reordering
+```
+GSTIN : 33AALFG7407L1Z6          0424 - 2534457
+                                  Fax : 0424 - 2534458
+            GOLDEN TEXTILE DYERS
+          206 / 1, Gangapuram, ERODE – 638 102.
+══════════════════════════════════════════════
+```
+
+**Features:** double page border · metadata info-card · colour-coded status rows · signature/authorization section · page-numbered footer
+
+**Standardised filename format:** `GTD_{DocumentType}_{Identifier}_{Date}.pdf`
+
+| Document | Example Filename |
+|---|---|
+| System Operations Report | `GTD_System-Operations-Report_2026-03-01_to_2026-03-07.pdf` |
+| Material Request Slip | `GTD_Material-Request-Slip_MRS-ABC123_2026-03-07.pdf` |
+| Product Inward Order | `GTD_Product-Inward-Order_PI-XYZ456_2026-03-07.pdf` |
+| Reorder Forecast | `GTD_Reorder-Forecast_2026-03-07.pdf` |
+| Audit Logs Export | `GTD_Audit-Logs_2026-03-07.csv` |
 
 ---
 
 ## 🛠️ Technology Stack
 
 ### Frontend
-
-* React (Vite)
-* TypeScript
-* Tailwind CSS
-* Recharts
+- React 18 + TypeScript (Vite)
+- Vanilla CSS (Indigo Industrial design system)
+- Recharts (analytics charts)
+- jsPDF + jspdf-autotable (client-side PDF generation)
+- React Query, React Router, React Hot Toast, Socket.io-client
 
 ### Backend
-
-* Node.js
-* Express
-* MongoDB (Mongoose)
-* JWT-based authentication
-
----
-
-## 🔐 Design Principles
-
-* Role-based access control
-* Immutable transaction records
-* Read-only analytics (no data mutation)
-* Clarity over visual complexity
-* Explainable logic over black-box models
+- Node.js + Express + TypeScript
+- MongoDB + Mongoose
+- JWT authentication + Role-based middleware
+- PDFKit (server-side PDF), json2csv (CSV export)
+- Nodemailer (email reports), node-cron (scheduled reports)
+- Socket.io (real-time notifications)
 
 ---
 
-## 🚀 Phase Status
+## 🔐 Security & Access Control
 
-### ✅ Phase 1 – Operational Foundation
-
-* Inventory, MRS, and procurement workflows
-* Role-based access and authentication
-
-### ✅ Phase 2 – Analytics & Control
-
-* Inventory health analytics
-* Procurement delay tracking
-* Consumption and cost insights
-
-### ✅ Phase 3 – Operational Intelligence
-
-* Decision-centric UI
-* Procurement context integrated into inventory
-* Forecast-driven reorder suggestions
-* Brand-aligned system experience for Golden Textile Dyers
-
-### ✅ Phase 4 – Technical & Admin Enhancements
-
-* **Comprehensive Audit Logs:** Tracking all sensitive actions.
-* **Cost Intelligence:** Monthly spending trends.
-* **Real-Time Interactions:** Socket.io notifications for instant alerts.
-* **ABC Analysis:** Automated inventory categorization.
-* **Supplier Scoring:** Performance rating system.
-
+- JWT-based authentication with role-enforcement middleware
+- All sensitive routes protected by `protect` + `authorize` middleware
+- Admin-only access to Reports, Audit Logs, PI Approvals, User Management
+- Passwords and tokens stripped from all audit log entries
+- Immutable audit trail for all write operations
 
 ---
 
-## 🗺️ Phase 4 – Roadmap (Future Enhancements)
-
-The following enhancements are proposed as **future scope**, based on longer operational data cycles and real-world validation:
-
-* Production output and yield correlation
-* Wastage and quality incident analytics
-* Rule-based alerts and configurable thresholds
-* Executive-level summary dashboards
-* Data governance and audit hardening
-
-These are intentionally planned as a roadmap to ensure system stability and scalability.
-
----
-
-## 📚 Documentation
-
-* **Project Overview & Workflow** – `PROJECT_EXPLANATION.md`
-* **System Process Workflow (End-to-End)** – `SYSTEM_PROCESS.md`
-* **Backend Documentation** – `BACKEND_DOCS.md`
-* **Frontend Documentation** – `FRONTEND_DOCS.md`
-* **Future Improvements Plan** – `FUTURE_IMPROVEMENTS.md`
-
----
-
-## ⚡ Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
-
-* Node.js (v18 or above)
-* MongoDB (local or cloud instance)
+- Node.js v18+
+- MongoDB (local or cloud)
 
 ### Installation
 
-1. **Clone the repository**
-
 ```bash
-git clone <repo-url>
-cd consultancy-project
-```
+# Clone
+git clone https://github.com/nitheesh1122/Consultancy_Project.git
+cd Consultancy_Project
 
-2. **Install dependencies**
-
-*Server*
-
-```bash
+# Server
 cd server
 npm install
-```
 
-*Client*
-
-```bash
+# Client
 cd ../client
 npm install
 ```
 
-3. **Environment setup**
+### Environment Variables
 
-Create `.env` files in both folders.
-
-*Server (.env):*
-
+**`server/.env`**
 ```
 PORT=5000
-MONGO_URI=<your_mongodb_url>
-JWT_SECRET=<your_secret>
+MONGO_URI=<your_mongodb_connection_string>
+JWT_SECRET=<your_jwt_secret>
+EMAIL_USER=<smtp_email_address>
+EMAIL_PASS=<smtp_password>
 ```
 
-*Client (.env):*
-
+**`client/.env`**
 ```
 VITE_API_URL=http://localhost:5000/api
 ```
 
-4. **Run locally**
+### Running Locally
 
 ```bash
-# Terminal 1
-cd server
-npm run dev
+# Terminal 1 – Backend
+cd server && npm run dev
+
+# Terminal 2 – Frontend
+cd client && npm run dev
 ```
 
-```bash
-# Terminal 2
-cd client
-npm run dev
-```
+---
 
-5. **Seed data (optional)**
+## 📊 Phase Status
 
-Populate the database with 60 days of realistic demo data:
-
-```bash
-cd server
-npx ts-node src/seed.ts
-```
+| Phase | Status | Description |
+|---|---|---|
+| 1 – Foundation | ✅ Complete | Inventory, MRS, procurement, auth |
+| 2 – Analytics | ✅ Complete | Inventory health, procurement delays, cost trends |
+| 3 – Intelligence | ✅ Complete | Reorder forecast, procurement context, brand UI |
+| 4 – Production & HR | ✅ Complete | Batch management, live monitor, HR module |
+| 5 – Audit & Reports | ✅ Complete | Full audit trail, reports dashboard, PDF letterhead system |
 
 ---
 
@@ -284,8 +202,8 @@ npx ts-node src/seed.ts
 
 MIT License
 
-----
-👤 Project Ownership
+---
 
-Created by: Nitheesh S
-GitHub: nitheesh1122
+👤 **Project Ownership**  
+Created by: **Nitheesh S**  
+GitHub: [nitheesh1122](https://github.com/nitheesh1122)
