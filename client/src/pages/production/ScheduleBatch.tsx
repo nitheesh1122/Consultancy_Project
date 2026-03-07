@@ -105,8 +105,9 @@ const ScheduleBatch = () => {
  </div>
  )}
 
- <form onSubmit={handleSubmit} className="bg-surface rounded-xl shadow-sm border border-border p-6 space-y-6" aria-label="Schedule new batch" title="Schedule new batch form">
- <h2 id="schedule-form-title" className="sr-only">Schedule New Batch</h2>
+ <form onSubmit={handleSubmit} className="bg-surface rounded-xl shadow-sm border border-border p-6 space-y-6" aria-labelledby="schedule-form-heading">
+ <fieldset className="border-0 p-0 m-0 min-w-0 space-y-6">
+ <legend id="schedule-form-heading" className="text-lg font-bold text-primary mb-4 sr-only">Schedule New Batch</legend>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  {/* Scheduling Details */}
  <div className="space-y-4">
@@ -184,45 +185,57 @@ const ScheduleBatch = () => {
 
  <div className="grid grid-cols-2 gap-4">
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Lot Number</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="schedule-lot-number">Lot Number</label>
  <input
- required type="text" placeholder="e.g. L-12345"
+ id="schedule-lot-number"
+ required type="text"
+ placeholder="e.g. L-12345"
  value={formData.lotNumber}
  onChange={e => setFormData({ ...formData, lotNumber: e.target.value })}
  className="w-full border border-border rounded-lg px-4 py-2 font-mono uppercase focus:ring-2 focus:ring-primary outline-none bg-background"
  readOnly={!!formData.selectedLotId}
+ aria-label="Lot number"
  />
  </div>
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Supplier Party</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="schedule-supplier">Supplier Party</label>
  <input
+ id="schedule-supplier"
  required type="text"
+ placeholder="Supplier or party name"
  value={formData.supplierParty}
  onChange={e => setFormData({ ...formData, supplierParty: e.target.value })}
  className="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary outline-none bg-background"
  readOnly={!!formData.selectedLotId}
+ aria-label="Supplier party"
  />
  </div>
  </div>
  <div className="grid grid-cols-2 gap-4">
  <div>
- <label className="block text-sm font-medium text-primary mb-1">Fabric Type</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="schedule-fabric-type">Fabric Type</label>
  <input
- required type="text" placeholder="e.g. 100% Cotton"
+ id="schedule-fabric-type"
+ required type="text"
+ placeholder="e.g. 100% Cotton"
  value={formData.fabricType}
  onChange={e => setFormData({ ...formData, fabricType: e.target.value })}
  className="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary outline-none bg-background"
  readOnly={!!formData.selectedLotId}
+ aria-label="Fabric type"
  />
  </div>
  <div>
- <label className="block text-sm font-medium text-primary mb-1">GSM</label>
+ <label className="block text-sm font-medium text-primary mb-1" htmlFor="schedule-gsm">GSM</label>
  <input
- required type="text" placeholder="e.g. 180"
+ id="schedule-gsm"
+ required type="text"
+ placeholder="e.g. 180"
  value={formData.gsm}
  onChange={e => setFormData({ ...formData, gsm: e.target.value })}
  className="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary outline-none bg-background"
  readOnly={!!formData.selectedLotId}
+ aria-label="GSM"
  />
  </div>
  </div>
@@ -282,6 +295,7 @@ const ScheduleBatch = () => {
  {createBatchMutation.isPending ? 'Scheduling...' : 'Schedule Batch'}
  </button>
  </div>
+ </fieldset>
  </form>
  </div>
  );
