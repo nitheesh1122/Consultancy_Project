@@ -17,6 +17,8 @@ import settingsRoutes from './routes/settingsRoutes';
 import productionBatchRoutes from './routes/productionBatchRoutes';
 import productionAnalyticsRoutes from './routes/productionAnalyticsRoutes';
 import fabricLotRoutes from './routes/fabricLotRoutes';
+import reportRoutes from './routes/reportRoutes';
+
 
 import { createServer } from 'http';
 import { initSocket } from './socket';
@@ -50,15 +52,35 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/production-batches', productionBatchRoutes);
 app.use('/api/production-analytics', productionAnalyticsRoutes);
 app.use('/api/fabric-lots', fabricLotRoutes);
+app.use('/api/reports', reportRoutes);
+
 
 app.get('/', (req, res) => {
     res.send('Inventory System API is running');
 });
 
+import ReportRecipient from './models/ReportRecipient';
+
 // Initialize automated scheduled jobs
 if (process.env.NODE_ENV !== 'test') {
     initCronJobs();
 }
+
+// Seed Default Recipient
+const seedDefaults = async () => {
+    try {
+        const adminEmail = 'nitheeshselvaraj01@gmail.com';
+        const exists = await ReportRecipient.findOne({ email: adminEmail });
+        if (!exists) {
+            await ReportRecipient.create({ email: adminEmail, name: 'Root Admin', isActive: true });
+            console.log(`Seeded default report recipient: ${adminEmail}`);
+        }
+    } catch (e) {
+        console.error('Failed to seed default recipient', e);
+    }
+};
+seedDefaults();
+
 
 const httpServer = createServer(app);
 const io = initSocket(httpServer);
@@ -66,3 +88,4 @@ const io = initSocket(httpServer);
 httpServer.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+

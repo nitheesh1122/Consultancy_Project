@@ -8,6 +8,8 @@ import Suppliers from './pages/Suppliers';
 import SupplierDetails from './pages/SupplierDetails';
 import ReturnMaterial from './pages/ReturnMaterial';
 import AdminAudit from './pages/AdminAudit';
+import ReportsModule from './pages/ReportsModule';
+import Unauthorized from './components/Unauthorized';
 
 const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
   const { isAuthenticated } = useAuth();
@@ -70,6 +72,8 @@ const AppRoutes = () => {
         <Route path="inventory/:id" element={<MaterialDetails />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="audit-logs" element={<AdminAudit />} />
+        <Route path="reports" element={<ReportsModule />} />
+        <Route path="unauthorized" element={<Unauthorized />} />
 
         {/* System Settings */}
         <Route path="settings" element={<SettingsLayout />}>
@@ -109,6 +113,7 @@ const AppRoutes = () => {
 };
 
 import { SocketProvider } from './context/SocketContext';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
@@ -116,6 +121,7 @@ function App() {
       <AuthProvider>
         <SocketProvider>
           <AppRoutes />
+          <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
         </SocketProvider>
       </AuthProvider>
     </Router>

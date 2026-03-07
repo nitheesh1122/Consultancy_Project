@@ -47,6 +47,7 @@ const Sidebar = () => {
             items: [
                 { name: 'Human Resources', path: '/hr', icon: Users, roles: ['ADMIN', 'HR_MANAGER'] },
                 { name: 'System Settings', path: '/settings', icon: Settings, roles: ['ADMIN'] },
+                { name: 'Reports', path: '/reports', icon: FileText, roles: ['ADMIN'] },
                 { name: 'Audit Logs', path: '/audit-logs', icon: Settings, roles: ['ADMIN'] },
             ]
         }
