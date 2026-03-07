@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import ReportRecipient from '../models/ReportRecipient';
 import ReportConfig from '../models/ReportConfig';
 import { getDailyActivitySummary } from '../services/reportDataService';
-import { generateCSVReport, generatePDFReport } from '../services/reportFileService';
+import { generateCSVReport, generatePDFReport, buildReportFileName } from '../services/reportFileService';
 import { sendReportEmail } from '../services/emailService';
 import { AuditLog } from '../models/AuditLog';
 
@@ -106,12 +106,12 @@ export const generateReport = async (req: Request, res: Response) => {
         if (format === 'csv') {
             const csvBuffer = generateCSVReport(data);
             res.setHeader('Content-Type', 'text/csv');
-            res.setHeader('Content-Disposition', `attachment; filename=Report_${start.toISOString().split('T')[0]}.csv`);
+            res.setHeader('Content-Disposition', `attachment; filename=${buildReportFileName('System-Operations-Report', start, end, 'csv')}`);
             return res.send(csvBuffer);
         } else {
             const pdfBuffer = await generatePDFReport(data);
             res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename=Report_${start.toISOString().split('T')[0]}.pdf`);
+            res.setHeader('Content-Disposition', `attachment; filename=${buildReportFileName('System-Operations-Report', start, end, 'pdf')}`);
             return res.send(pdfBuffer);
         }
     } catch (error: any) {
@@ -144,7 +144,7 @@ export const sendReport = async (req: Request, res: Response) => {
             attachment = { filename: `${filename}.csv`, content: csvStr };
         } else {
             const pdfBuffer = await generatePDFReport(data);
-            attachment = { filename: `${filename}.pdf`, content: pdfBuffer };
+            attachment = { filename: buildReportFileName('System-Operations-Report', start, end, 'pdf'), content: pdfBuffer };
         }
 
         const subject = `System Operations Report (${start.toLocaleDateString()} - ${end.toLocaleDateString()})`;

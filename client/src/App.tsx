@@ -7,7 +7,6 @@ import DashboardLayout from './layouts/DashboardLayout';
 import Suppliers from './pages/Suppliers';
 import SupplierDetails from './pages/SupplierDetails';
 import ReturnMaterial from './pages/ReturnMaterial';
-import AdminAudit from './pages/AdminAudit';
 import ReportsModule from './pages/ReportsModule';
 import Unauthorized from './components/Unauthorized';
 
@@ -71,8 +70,8 @@ const AppRoutes = () => {
         <Route path="suppliers/:id" element={<SupplierDetails />} />
         <Route path="inventory/:id" element={<MaterialDetails />} />
         <Route path="notifications" element={<Notifications />} />
-        <Route path="audit-logs" element={<AdminAudit />} />
         <Route path="reports" element={<ReportsModule />} />
+        <Route path="audit-logs" element={<Navigate to="/reports" />} />
         <Route path="unauthorized" element={<Unauthorized />} />
 
         {/* System Settings */}

@@ -6,7 +6,7 @@ import MetricCard from '../../components/ui/MetricCard';
 import DecisionExplanation from '../../components/ui/DecisionExplanation';
 import { SimpleBarChart } from '../../components/Charts';
 import { Button } from '../../components/ui/Button';
-import { generatePDF } from '../../lib/pdfGenerator';
+import { generatePDF, buildFileName } from '../../lib/pdfGenerator';
 
 const AnalyticsInventory = () => {
     const { data: health, isLoading: isLoadingHealth } = useQuery({
@@ -38,7 +38,7 @@ const AnalyticsInventory = () => {
             title: "REORDER FORECAST",
             reportType: "Forecast Analysis",
             generatedBy: "System (Admin)",
-            fileName: "forecast_report.pdf",
+            fileName: buildFileName('Reorder-Forecast'),
             tableColumns: [
                 { header: "Material", dataKey: "name" },
                 { header: "Current Stock", dataKey: "currentStock" },

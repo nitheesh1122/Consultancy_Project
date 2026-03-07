@@ -1,6 +1,7 @@
 import express from 'express';
 import { getMaterials, getProcurementContext, calculateABC } from '../controllers/materialController';
 import { protect, authorize } from '../middleware/authMiddleware';
+import { logAudit } from '../middleware/auditMiddleware';
 
 const router = express.Router();
 

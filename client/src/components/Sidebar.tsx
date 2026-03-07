@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { LayoutDashboard, Package, FileText, ShoppingCart, LogOut, Truck, Settings, Users, RefreshCw, Factory, CalendarClock, Activity, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Package, FileText, ShoppingCart, LogOut, Truck, Settings, Users, RefreshCw, Factory, CalendarClock, Activity, TrendingUp, Shield } from 'lucide-react';
 
 const Sidebar = () => {
     const { user, logout } = useAuth();
@@ -47,8 +47,7 @@ const Sidebar = () => {
             items: [
                 { name: 'Human Resources', path: '/hr', icon: Users, roles: ['ADMIN', 'HR_MANAGER'] },
                 { name: 'System Settings', path: '/settings', icon: Settings, roles: ['ADMIN'] },
-                { name: 'Reports', path: '/reports', icon: FileText, roles: ['ADMIN'] },
-                { name: 'Audit Logs', path: '/audit-logs', icon: Settings, roles: ['ADMIN'] },
+                { name: 'Reports & Audit', path: '/reports', icon: Shield, roles: ['ADMIN'] },
             ]
         }
     ];
