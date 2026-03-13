@@ -26,7 +26,6 @@ const FabricLotSchema: Schema = new Schema({
     supervisorId: { type: Schema.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 
-FabricLotSchema.index({ lotNumber: 1 });
 FabricLotSchema.index({ status: 1 });
 
 export default mongoose.model<IFabricLot>('FabricLot', FabricLotSchema);

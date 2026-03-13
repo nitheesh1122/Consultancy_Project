@@ -39,3 +39,11 @@ export const requireManager = (req: AuthRequest, res: Response, next: NextFuncti
     }
     next();
 };
+
+// Block external roles (CUSTOMER, SUPPLIER) from internal ERP routes
+export const internalOnly = (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (req.user && ['CUSTOMER', 'SUPPLIER'].includes(req.user.role)) {
+        return res.status(403).json({ message: 'External users cannot access internal routes' });
+    }
+    next();
+};

@@ -6,8 +6,11 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         required: true,
-        enum: ['ADMIN', 'SUPERVISOR', 'STORE_MANAGER', 'HR_MANAGER']
+
+        enum: ['ADMIN', 'MANAGER', 'STORE_MANAGER', 'SUPERVISOR', 'HR_MANAGER', 'CUSTOMER', 'SUPPLIER']
     },
+    profileId: { type: mongoose.Schema.Types.ObjectId, refPath: 'role' },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     createdAt: { type: Date, default: Date.now }
 });
 
