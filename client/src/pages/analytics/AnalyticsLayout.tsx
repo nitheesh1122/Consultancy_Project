@@ -11,6 +11,7 @@ const AnalyticsLayout = () => {
     }
 
     const tabs = [
+        { name: 'Decision Board', path: '/analytics/decision-board', icon: TrendingUp },
         { name: 'Inventory', path: '/analytics/inventory', icon: Package },
         { name: 'Production', path: '/analytics/production', icon: Factory },
         { name: 'Workers', path: '/analytics/workers', icon: Users },

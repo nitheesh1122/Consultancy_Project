@@ -19,6 +19,7 @@ const Sidebar = () => {
             label: 'Business',
             items: [
                 { name: 'Analytics & Reports', path: '/analytics', icon: TrendingUp, roles: ['ADMIN', 'MANAGER'] },
+                { name: 'Decision Board', path: '/analytics/decision-board', icon: TrendingUp, roles: ['MANAGER', 'STORE_MANAGER', 'ADMIN'] },
                 { name: 'Customer Orders', path: '/customer-orders', icon: ShoppingCart, roles: ['MANAGER', 'ADMIN'] },
                 { name: 'Manage Customers', path: '/manage-customers', icon: UserPlus, roles: ['ADMIN', 'MANAGER'] },
                 { name: 'PI Approvals', path: '/pi-approvals', icon: ShoppingCart, roles: ['MANAGER'] },

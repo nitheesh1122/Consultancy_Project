@@ -12,7 +12,14 @@ import {
     getHRDashboardStats,
     getManagerDashboard,
     getStoreManagerDashboard,
-    getAdminDashboard
+    getAdminDashboard,
+    getDecisionFeedData,
+    getKpiDictionaryData,
+    getAnalyticsDataQuality,
+    trackDecisionActionOutcome,
+    getDecisionDrilldownData,
+    getDecisionSnapshotsData,
+    createKpiFormulaVersionData
 } from '../controllers/analyticsController';
 import { protect, authorize } from '../middleware/authMiddleware';
 
@@ -25,6 +32,15 @@ router.get('/dashboard', protect, getDashboardStats);
 router.get('/dashboard/manager', protect, authorize('MANAGER'), getManagerDashboard);
 router.get('/dashboard/store-manager', protect, authorize('STORE_MANAGER'), getStoreManagerDashboard);
 router.get('/dashboard/admin', protect, authorize('ADMIN'), getAdminDashboard);
+
+// Decision-first analytics
+router.get('/decision-feed', protect, authorize('ADMIN', 'MANAGER', 'STORE_MANAGER', 'SUPERVISOR'), getDecisionFeedData);
+router.get('/kpi-dictionary', protect, authorize('ADMIN', 'MANAGER', 'STORE_MANAGER', 'SUPERVISOR'), getKpiDictionaryData);
+router.get('/data-quality', protect, authorize('ADMIN', 'MANAGER'), getAnalyticsDataQuality);
+router.post('/decision-actions', protect, authorize('ADMIN', 'MANAGER', 'STORE_MANAGER', 'SUPERVISOR'), trackDecisionActionOutcome);
+router.get('/decision-drilldown/:decisionId', protect, authorize('ADMIN', 'MANAGER', 'STORE_MANAGER', 'SUPERVISOR'), getDecisionDrilldownData);
+router.get('/decision-snapshots', protect, authorize('ADMIN', 'MANAGER'), getDecisionSnapshotsData);
+router.post('/kpi-formula-versions', protect, authorize('ADMIN'), createKpiFormulaVersionData);
 
 // Detailed Analytics Modules
 router.get('/inventory-health', protect, authorize('ADMIN', 'MANAGER', 'STORE_MANAGER'), getInventoryHealth);

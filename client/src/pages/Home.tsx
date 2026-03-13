@@ -11,10 +11,12 @@ import MetricCard from '../components/ui/MetricCard';
 import DecisionExplanation from '../components/ui/DecisionExplanation';
 import { SimpleLineChart } from '../components/Charts';
 import HRDashboard from '../components/HRDashboard';
+import DecisionFeedPanel, { type DecisionActionStatus, type DecisionFeedItem } from '../components/ui/DecisionFeedPanel';
 
 const Home = () => {
     const { user } = useAuth();
     const [stats, setStats] = useState<any>(null);
+    const [decisionFeed, setDecisionFeed] = useState<any>(null);
     const [recentMRS, setRecentMRS] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -25,11 +27,19 @@ const Home = () => {
     const fetchDashboardData = async () => {
         try {
             if (user?.role === 'MANAGER') {
-                const { data } = await api.get('/analytics/dashboard/manager');
-                setStats(data);
+                const [dashboardRes, decisionRes] = await Promise.all([
+                    api.get('/analytics/dashboard/manager'),
+                    api.get('/analytics/decision-feed?window=30d'),
+                ]);
+                setStats(dashboardRes.data);
+                setDecisionFeed(decisionRes.data);
             } else if (user?.role === 'STORE_MANAGER') {
-                const { data } = await api.get('/analytics/dashboard/store-manager');
-                setStats(data);
+                const [dashboardRes, decisionRes] = await Promise.all([
+                    api.get('/analytics/dashboard/store-manager'),
+                    api.get('/analytics/decision-feed?window=30d'),
+                ]);
+                setStats(dashboardRes.data);
+                setDecisionFeed(decisionRes.data);
             } else if (user?.role === 'ADMIN') {
                 const { data } = await api.get('/analytics/dashboard/admin');
                 setStats(data);
@@ -41,6 +51,19 @@ const Home = () => {
             console.error('Error fetching dashboard data', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleTrackDecisionAction = async (item: DecisionFeedItem, status: DecisionActionStatus) => {
+        try {
+            await api.post('/analytics/decision-actions', {
+                decisionId: item.id,
+                actionLink: item.actionLink,
+                status,
+                contextWindow: decisionFeed?.window || '30d',
+            });
+        } catch (error) {
+            console.error('Failed to track decision action', error);
         }
     };
 
@@ -137,6 +160,15 @@ const Home = () => {
             {/* ========== MANAGER VIEW ========== */}
             {user?.role === 'MANAGER' && stats && (
                 <>
+                    {decisionFeed && (
+                        <DecisionFeedPanel
+                            title="Top 5 Actions For Today"
+                            windowLabel={decisionFeed.windowLabel || '30 Days'}
+                            topActions={decisionFeed.topActions || []}
+                            onTrackAction={handleTrackDecisionAction}
+                        />
+                    )}
+
                     {/* Key Metrics */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <MetricCard
@@ -310,6 +342,15 @@ const Home = () => {
             {/* ========== STORE MANAGER VIEW ========== */}
             {user?.role === 'STORE_MANAGER' && stats && (
                 <>
+                    {decisionFeed && (
+                        <DecisionFeedPanel
+                            title="Top 5 Actions For Today"
+                            windowLabel={decisionFeed.windowLabel || '30 Days'}
+                            topActions={decisionFeed.topActions || []}
+                            onTrackAction={handleTrackDecisionAction}
+                        />
+                    )}
+
                     {/* Critical Alert */}
                     {stats.lowStockCount > 0 && (
                         <DecisionExplanation

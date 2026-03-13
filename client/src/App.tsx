@@ -68,6 +68,7 @@ import AnalyticsInventory from './pages/analytics/AnalyticsInventory';
 import AnalyticsProduction from './pages/analytics/AnalyticsProduction';
 import AnalyticsWorkers from './pages/analytics/AnalyticsWorkers';
 import AnalyticsSuppliers from './pages/analytics/AnalyticsSuppliers';
+import DecisionBoard from './pages/analytics/DecisionBoard';
 
 // Settings Module
 import SettingsLayout from './pages/settings/SettingsLayout';
@@ -165,6 +166,7 @@ const AppRoutes = () => {
 
         {/* Enterprise Analytics */}
         <Route path="analytics" element={<AnalyticsLayout />}>
+          <Route path="decision-board" element={<DecisionBoard />} />
           <Route path="inventory" element={<AnalyticsInventory />} />
           <Route path="production" element={<AnalyticsProduction />} />
           <Route path="workers" element={<AnalyticsWorkers />} />

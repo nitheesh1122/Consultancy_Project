@@ -8,6 +8,20 @@ import { CustomerOrder } from '../models/CustomerOrder';
 import { Supplier } from '../models/Supplier';
 import { User } from '../models/User';
 import { AuditLog } from '../models/AuditLog';
+import AnalyticsDecisionAction from '../models/AnalyticsDecisionAction';
+import {
+    getDecisionFeed,
+    getKpiDictionary,
+    getDataQualitySummary,
+    getDecisionDrilldown,
+    ensureKpiFormulaVersionsSeeded,
+    getKpiFormulaVersions,
+    upsertKpiFormulaVersion,
+    getLatestDecisionSnapshots,
+    type AnalyticsWindow,
+    type DecisionRole
+} from '../services/analyticsDecisionService';
+import { manualLog } from '../middleware/auditMiddleware';
 
 interface AuthRequest extends Request {
     user?: any;
@@ -678,6 +692,144 @@ export const getAdminDashboard = async (req: AuthRequest, res: Response) => {
             lowStockCount,
             activeBatches,
         });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// ============================================================
+// DECISION-FIRST ANALYTICS (PHASE 1)
+// ============================================================
+
+export const getDecisionFeedData = async (req: AuthRequest, res: Response) => {
+    try {
+        const requestedRole = (req.query.role as string | undefined)?.toUpperCase() as DecisionRole | undefined;
+        const roleFromToken = (req.user?.role || '').toUpperCase() as DecisionRole;
+
+        const allowedRoles: DecisionRole[] = ['ADMIN', 'MANAGER', 'STORE_MANAGER', 'SUPERVISOR'];
+        if (!allowedRoles.includes(roleFromToken)) {
+            return res.status(403).json({ message: 'Role not authorized for decision analytics feed.' });
+        }
+
+        let role: DecisionRole = roleFromToken;
+        if (requestedRole && requestedRole !== roleFromToken) {
+            if (roleFromToken !== 'ADMIN') {
+                return res.status(403).json({ message: 'Only admin can query decision feed for a different role.' });
+            }
+            role = requestedRole;
+        }
+
+        const window = req.query.window as AnalyticsWindow | undefined;
+        const feed = await getDecisionFeed(role, window);
+
+        res.json(feed);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const getKpiDictionaryData = async (req: AuthRequest, res: Response) => {
+    try {
+        await ensureKpiFormulaVersionsSeeded();
+        const versions = await getKpiFormulaVersions();
+        res.json({
+            ...getKpiDictionary(),
+            formulaVersions: versions,
+        });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const getDecisionDrilldownData = async (req: AuthRequest, res: Response) => {
+    try {
+        const decisionId = req.params.decisionId as string;
+        if (!decisionId) {
+            return res.status(400).json({ message: 'decisionId is required.' });
+        }
+
+        const windowParam = Array.isArray(req.query.window) ? req.query.window[0] : req.query.window;
+        const window = windowParam as AnalyticsWindow | undefined;
+        const data = await getDecisionDrilldown(decisionId, window);
+        res.json(data);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const getDecisionSnapshotsData = async (req: AuthRequest, res: Response) => {
+    try {
+        const role = (req.query.role as string | undefined)?.toUpperCase() as DecisionRole | undefined;
+        const window = req.query.window as AnalyticsWindow | undefined;
+        const snapshots = await getLatestDecisionSnapshots(role, window);
+        res.json({ snapshots });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const createKpiFormulaVersionData = async (req: AuthRequest, res: Response) => {
+    try {
+        const { metricId, formula, thresholds, desiredDirection, roles, changeNote } = req.body || {};
+        if (!metricId || !formula || !desiredDirection || !Array.isArray(roles)) {
+            return res.status(400).json({
+                message: 'metricId, formula, desiredDirection and roles are required.',
+            });
+        }
+
+        const version = await upsertKpiFormulaVersion({
+            metricId,
+            formula,
+            thresholds,
+            desiredDirection,
+            roles,
+            changedBy: req.user?.id,
+            changeNote,
+        });
+
+        await manualLog('KPI_FORMULA_VERSION_CREATED', req.user?.id, {
+            metricId,
+            version: version.version,
+            changeNote,
+        });
+
+        res.status(201).json({ message: 'KPI formula version created.', version });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const getAnalyticsDataQuality = async (req: AuthRequest, res: Response) => {
+    try {
+        const summary = await getDataQualitySummary();
+        res.json(summary);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const trackDecisionActionOutcome = async (req: AuthRequest, res: Response) => {
+    try {
+        const { decisionId, actionLink, status, contextWindow } = req.body || {};
+
+        if (!decisionId || !actionLink || !status) {
+            return res.status(400).json({ message: 'decisionId, actionLink and status are required.' });
+        }
+
+        if (!['CLICKED', 'IGNORED', 'RESOLVED'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid status. Use CLICKED, IGNORED or RESOLVED.' });
+        }
+
+        const record = await AnalyticsDecisionAction.create({
+            userId: req.user?.id,
+            role: req.user?.role,
+            decisionId,
+            actionLink,
+            status,
+            contextWindow: contextWindow || '30d',
+        });
+
+        res.status(201).json({ message: 'Decision action recorded.', recordId: record._id });
     } catch (error: any) {
         res.status(500).json({ message: error.message });
     }
