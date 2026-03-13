@@ -21,6 +21,33 @@ export const getSuppliers = async (req: AuthRequest, res: Response) => {
     }
 };
 
+// Create a new supplier
+export const createSupplier = async (req: AuthRequest, res: Response) => {
+    try {
+        const { name, contactPerson, phone, materialCategories } = req.body;
+
+        if (!name || !contactPerson || !phone) {
+            return res.status(400).json({ message: 'Name, contact person, and phone are required' });
+        }
+
+        const existing = await Supplier.findOne({ name: name.trim() });
+        if (existing) {
+            return res.status(409).json({ message: 'A supplier with this name already exists' });
+        }
+
+        const supplier = await Supplier.create({
+            name: name.trim(),
+            contactPerson: contactPerson.trim(),
+            phone: phone.trim(),
+            materialCategories: materialCategories || [],
+        });
+
+        res.status(201).json(supplier);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // Get single supplier details with analytics
 export const getSupplierAnalytics = async (req: AuthRequest, res: Response) => {
     try {
