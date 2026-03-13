@@ -1,53 +1,68 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { LayoutDashboard, Package, FileText, ShoppingCart, LogOut, Truck, Settings, Users, RefreshCw, Factory, CalendarClock, Activity, TrendingUp, Shield } from 'lucide-react';
+import { LayoutDashboard, Package, FileText, ShoppingCart, LogOut, Truck, Settings, Users, RefreshCw, Factory, CalendarClock, Activity, TrendingUp, Shield, ClipboardList, UserPlus } from 'lucide-react';
 
 const Sidebar = () => {
     const { user, logout } = useAuth();
 
     const navSections = [
+        // --- Shared ---
         {
-            label: 'Operations',
+            label: 'Overview',
             items: [
-                { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['ADMIN', 'SUPERVISOR', 'STORE_MANAGER', 'HR_MANAGER'] },
-                { name: 'Analytics & Reports', path: '/analytics', icon: TrendingUp, roles: ['ADMIN', 'STORE_MANAGER'] },
+                { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'STORE_MANAGER', 'HR_MANAGER'] },
             ]
         },
+        // --- MANAGER: Business Oversight ---
         {
-            label: 'Materials',
+            label: 'Business',
             items: [
-                { name: 'Inventory', path: '/inventory', icon: Package, roles: ['ADMIN', 'STORE_MANAGER'] },
+                { name: 'Analytics & Reports', path: '/analytics', icon: TrendingUp, roles: ['ADMIN', 'MANAGER'] },
+                { name: 'Customer Orders', path: '/customer-orders', icon: ShoppingCart, roles: ['MANAGER', 'ADMIN'] },
+                { name: 'Manage Customers', path: '/manage-customers', icon: UserPlus, roles: ['ADMIN', 'MANAGER'] },
+                { name: 'PI Approvals', path: '/pi-approvals', icon: ShoppingCart, roles: ['MANAGER'] },
+                { name: 'Suppliers', path: '/suppliers', icon: Truck, roles: ['ADMIN', 'MANAGER'] },
+            ]
+        },
+        // --- STORE MANAGER: Inventory & Material Flow ---
+        {
+            label: 'Inventory & Materials',
+            items: [
+                { name: 'Inventory', path: '/inventory', icon: Package, roles: ['ADMIN', 'MANAGER', 'STORE_MANAGER'] },
+                { name: 'Material Requests', path: '/mrs-list', icon: FileText, roles: ['STORE_MANAGER'] },
+                { name: 'Raise PI', path: '/raise-pi', icon: ShoppingCart, roles: ['STORE_MANAGER'] },
+                { name: 'Inward Entry', path: '/inward-entry', icon: Truck, roles: ['STORE_MANAGER'] },
+                { name: 'RFQ & Procurement', path: '/procurement', icon: ClipboardList, roles: ['STORE_MANAGER'] },
+            ]
+        },
+        // --- SUPERVISOR: Field Operations ---
+        {
+            label: 'Field Operations',
+            items: [
                 { name: 'Request Material', path: '/request-material', icon: FileText, roles: ['SUPERVISOR'] },
                 { name: 'Return Material', path: '/return-material', icon: RefreshCw, roles: ['SUPERVISOR'] },
-                { name: 'Material Requests', path: '/mrs-list', icon: FileText, roles: ['STORE_MANAGER'] },
-            ]
-        },
-        {
-            label: 'Procurement',
-            items: [
-                { name: 'Raise PI', path: '/raise-pi', icon: ShoppingCart, roles: ['STORE_MANAGER'] },
-                { name: 'PI Approvals', path: '/pi-approvals', icon: ShoppingCart, roles: ['ADMIN'] },
-                { name: 'Inward Entry', path: '/inward-entry', icon: Truck, roles: ['STORE_MANAGER'] },
-                { name: 'Suppliers', path: '/suppliers', icon: Truck, roles: ['ADMIN'] },
-            ]
-        },
-        {
-            label: 'Production Module',
-            items: [
-                { name: 'Machine Master', path: '/production/machines', icon: Factory, roles: ['STORE_MANAGER'] },
-                { name: 'Incoming Lots', path: '/production/lots', icon: Package, roles: ['ADMIN', 'SUPERVISOR', 'STORE_MANAGER'] },
                 { name: 'Schedule Batch', path: '/production/schedule', icon: CalendarClock, roles: ['SUPERVISOR'] },
                 { name: 'My Batches', path: '/production/my-batches', icon: Activity, roles: ['SUPERVISOR'] },
-                { name: 'Live Monitor', path: '/production/monitor', icon: Activity, roles: ['STORE_MANAGER', 'ADMIN'] },
             ]
         },
+        // --- Production Module ---
         {
-            label: 'System Admin',
+            label: 'Production',
             items: [
-                { name: 'Human Resources', path: '/hr', icon: Users, roles: ['ADMIN', 'HR_MANAGER'] },
+                { name: 'Machine Master', path: '/production/machines', icon: Factory, roles: ['MANAGER', 'ADMIN'] },
+                { name: 'Incoming Lots', path: '/production/lots', icon: Package, roles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'STORE_MANAGER'] },
+                { name: 'Live Monitor', path: '/production/monitor', icon: Activity, roles: ['STORE_MANAGER', 'ADMIN', 'MANAGER'] },
+                { name: 'Dispatch', path: '/dispatch', icon: Truck, roles: ['STORE_MANAGER', 'MANAGER'] },
+            ]
+        },
+        // --- System & Admin ---
+        {
+            label: 'Administration',
+            items: [
+                { name: 'Human Resources', path: '/hr', icon: Users, roles: ['ADMIN', 'MANAGER', 'HR_MANAGER'] },
+                { name: 'Reports & Audit', path: '/reports', icon: Shield, roles: ['ADMIN', 'MANAGER'] },
                 { name: 'System Settings', path: '/settings', icon: Settings, roles: ['ADMIN'] },
-                { name: 'Reports & Audit', path: '/reports', icon: Shield, roles: ['ADMIN'] },
             ]
         }
     ];

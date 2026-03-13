@@ -51,7 +51,7 @@ const FABRIC_OPTIONS = ['COTTON_JERSEY', 'POLYESTER', 'RAYON', 'WOOL', 'SILK', '
 const MachineMaster = () => {
     const queryClient = useQueryClient();
     const { user } = useAuth();
-    const isAdmin = user?.role === 'ADMIN';
+    const isReadOnly = user?.role === 'ADMIN';
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingMachine, setEditingMachine] = useState<Machine | null>(null);
@@ -216,7 +216,7 @@ const MachineMaster = () => {
         }
     ];
 
-    if (isAdmin) {
+    if (isReadOnly) {
         return (
             <ReadOnlyTable
                 title="Machine Master"

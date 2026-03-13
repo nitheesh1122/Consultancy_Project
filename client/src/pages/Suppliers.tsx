@@ -1,12 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
-import { Truck } from 'lucide-react';
+import { Truck, X } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 const Suppliers = () => {
  const navigate = useNavigate();
+ const { user } = useAuth();
+ const canCreate = ['ADMIN', 'MANAGER'].includes(user?.role || '');
  const [suppliers, setSuppliers] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
+ const [showModal, setShowModal] = useState(false);
+ const [creating, setCreating] = useState(false);
+ const [form, setForm] = useState({ name: '', contactPerson: '', phone: '', materialCategories: '' });
 
  useEffect(() => {
  fetchSuppliers();
@@ -37,7 +43,7 @@ const Suppliers = () => {
  <h2 className="text-2xl font-bold text-primary">Supplier Management</h2>
  <p className="text-secondary">Monitor supplier performance and reliability</p>
  </div>
- <button className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover">
+ <button className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover" onClick={() => setShowModal(true)}>
  Add Supplier
  </button>
  </div>
@@ -95,6 +101,54 @@ const Suppliers = () => {
  </tbody>
  </table>
  </div>
+
+ {/* Add Supplier Modal */}
+ {showModal && (
+ <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+ <div className="bg-surface rounded-xl p-6 w-full max-w-md shadow-xl border border-border">
+ <div className="flex justify-between items-center mb-4">
+ <h3 className="text-lg font-bold text-primary">Add Supplier</h3>
+ <button onClick={() => setShowModal(false)} className="text-secondary hover:text-primary"><X className="h-5 w-5" /></button>
+ </div>
+ <form onSubmit={async (e) => {
+ e.preventDefault();
+ setCreating(true);
+ try {
+ const categories = form.materialCategories.split(',').map(c => c.trim()).filter(Boolean);
+ await api.post('/suppliers', { ...form, materialCategories: categories });
+ setShowModal(false);
+ setForm({ name: '', contactPerson: '', phone: '', materialCategories: '' });
+ fetchSuppliers();
+ } catch (err: any) {
+ alert(err?.response?.data?.message || 'Failed to create supplier');
+ } finally {
+ setCreating(false);
+ }
+ }} className="space-y-4">
+ <div>
+ <label className="block text-sm font-medium text-secondary mb-1">Company Name *</label>
+ <input className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-primary" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+ </div>
+ <div>
+ <label className="block text-sm font-medium text-secondary mb-1">Contact Person *</label>
+ <input className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-primary" required value={form.contactPerson} onChange={e => setForm(f => ({ ...f, contactPerson: e.target.value }))} />
+ </div>
+ <div>
+ <label className="block text-sm font-medium text-secondary mb-1">Phone *</label>
+ <input className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-primary" required value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+ </div>
+ <div>
+ <label className="block text-sm font-medium text-secondary mb-1">Material Categories (comma-separated)</label>
+ <input className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-primary" placeholder="e.g. Dyes, Chemicals, Fabric" value={form.materialCategories} onChange={e => setForm(f => ({ ...f, materialCategories: e.target.value }))} />
+ </div>
+ <div className="flex justify-end gap-3 pt-2">
+ <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 text-sm rounded-lg border border-border text-secondary hover:bg-background">Cancel</button>
+ <button type="submit" disabled={creating} className="px-4 py-2 text-sm rounded-lg bg-primary text-white hover:bg-primary-hover disabled:opacity-50">{creating ? 'Creating...' : 'Create Supplier'}</button>
+ </div>
+ </form>
+ </div>
+ </div>
+ )}
  </div>
  );
 };
