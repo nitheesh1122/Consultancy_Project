@@ -10,9 +10,44 @@ import ReturnMaterial from './pages/ReturnMaterial';
 import ReportsModule from './pages/ReportsModule';
 import Unauthorized from './components/Unauthorized';
 
+// Customer Portal
+import CustomerLogin from './pages/customer/CustomerLogin';
+import CustomerLayout from './layouts/CustomerLayout';
+import CustomerDashboard from './pages/customer/CustomerDashboard';
+import CreateOrder from './pages/customer/CreateOrder';
+import OrderTracking from './pages/customer/OrderTracking';
+
+// Supplier Portal
+import SupplierLogin from './pages/supplier/SupplierLogin';
+import SupplierLayout from './layouts/SupplierLayout';
+import SupplierDashboard from './pages/supplier/SupplierDashboard';
+import RFQList from './pages/supplier/RFQList';
+import SubmitQuotation from './pages/supplier/SubmitQuotation';
+import SupplierPurchaseOrders from './pages/supplier/SupplierPurchaseOrders';
+
+// Internal: Customer Orders & Procurement
+import CustomerOrders from './pages/CustomerOrders';
+import Procurement from './pages/Procurement';
+import DispatchPage from './pages/DispatchPage';
+import ManageCustomers from './pages/ManageCustomers';
+
 const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+const CustomerRoute = ({ children }: { children: React.ReactElement }) => {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/customer/login" />;
+  if (user?.role !== 'CUSTOMER') return <Navigate to="/unauthorized" />;
+  return children;
+};
+
+const SupplierRoute = ({ children }: { children: React.ReactElement }) => {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/supplier/login" />;
+  if (user?.role !== 'SUPPLIER') return <Navigate to="/unauthorized" />;
+  return children;
 };
 
 import Home from './pages/Home';
@@ -50,6 +85,25 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+
+      {/* Customer Portal */}
+      <Route path="/customer/login" element={<CustomerLogin />} />
+      <Route path="/customer" element={<CustomerRoute><CustomerLayout /></CustomerRoute>}>
+        <Route path="dashboard" element={<CustomerDashboard />} />
+        <Route path="create-order" element={<CreateOrder />} />
+        <Route path="order/:id" element={<OrderTracking />} />
+      </Route>
+
+      {/* Supplier Portal */}
+      <Route path="/supplier/login" element={<SupplierLogin />} />
+      <Route path="/supplier" element={<SupplierRoute><SupplierLayout /></SupplierRoute>}>
+        <Route path="dashboard" element={<SupplierDashboard />} />
+        <Route path="rfq" element={<RFQList />} />
+        <Route path="rfq/:rfqId" element={<SubmitQuotation />} />
+        <Route path="purchase-orders" element={<SupplierPurchaseOrders />} />
+      </Route>
+
+      {/* Internal Dashboard */}
       <Route
         path="/"
         element={
@@ -73,6 +127,16 @@ const AppRoutes = () => {
         <Route path="reports" element={<ReportsModule />} />
         <Route path="audit-logs" element={<Navigate to="/reports" />} />
         <Route path="unauthorized" element={<Unauthorized />} />
+
+        {/* Customer Orders (Manager) */}
+        <Route path="customer-orders" element={<CustomerOrders />} />
+        <Route path="manage-customers" element={<ManageCustomers />} />
+
+        {/* Procurement (Manager/Store Manager) */}
+        <Route path="procurement" element={<Procurement />} />
+
+        {/* Dispatch (Store Manager/Manager) */}
+        <Route path="dispatch" element={<DispatchPage />} />
 
         {/* System Settings */}
         <Route path="settings" element={<SettingsLayout />}>
