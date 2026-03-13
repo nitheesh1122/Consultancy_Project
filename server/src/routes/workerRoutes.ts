@@ -11,8 +11,8 @@ router.get('/', protect, getWorkers);
 router.get('/available', protect, getAvailableWorkers);
 
 // Modifying workers is restricted
-router.post('/', protect, authorize('STORE_MANAGER', 'ADMIN'), requireManager, createWorker);
-router.put('/:id', protect, authorize('STORE_MANAGER', 'ADMIN'), requireManager, updateWorker);
-router.delete('/:id', protect, authorize('STORE_MANAGER', 'ADMIN'), requireManager, deleteWorker);
+router.post('/', protect, authorize('STORE_MANAGER', 'MANAGER', 'ADMIN'), requireManager, createWorker);
+router.put('/:id', protect, authorize('STORE_MANAGER', 'MANAGER', 'ADMIN'), requireManager, updateWorker);
+router.delete('/:id', protect, authorize('STORE_MANAGER', 'MANAGER', 'ADMIN'), requireManager, deleteWorker);
 
 export default router;

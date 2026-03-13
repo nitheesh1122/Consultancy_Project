@@ -3,7 +3,11 @@ import mongoose from 'mongoose';
 import { Material } from '../models/Material';
 import { ProductInward } from '../models/ProductInward';
 import { MRS } from '../models/MRS';
-import { Transaction } from '../models/Transaction'; // Assuming Transaction model logic is used via collection/model
+import { Transaction } from '../models/Transaction';
+import { CustomerOrder } from '../models/CustomerOrder';
+import { Supplier } from '../models/Supplier';
+import { User } from '../models/User';
+import { AuditLog } from '../models/AuditLog';
 
 interface AuthRequest extends Request {
     user?: any;
@@ -509,6 +513,171 @@ export const getHRDashboardStats = async (req: AuthRequest, res: Response) => {
             activeShifts,
         });
 
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// ============================================================
+// ROLE-SPECIFIC DASHBOARDS
+// ============================================================
+
+// MANAGER DASHBOARD — Business oversight: orders, approvals, suppliers, production
+export const getManagerDashboard = async (req: AuthRequest, res: Response) => {
+    try {
+        // Customer orders breakdown
+        const totalOrders = await CustomerOrder.countDocuments();
+        const activeOrders = await CustomerOrder.countDocuments({ status: { $in: ['PLACED', 'APPROVED', 'FABRIC_RECEIVED', 'IN_PRODUCTION'] } });
+        const completedOrders = await CustomerOrder.countDocuments({ status: { $in: ['COMPLETED', 'DISPATCHED', 'DELIVERED'] } });
+
+        // Revenue from completed/dispatched orders
+        const revenueAgg = await CustomerOrder.aggregate([
+            { $match: { status: { $in: ['COMPLETED', 'DISPATCHED', 'DELIVERED'] } } },
+            { $group: { _id: null, total: { $sum: '$totalValue' } } }
+        ]);
+        const totalRevenue = revenueAgg.length > 0 ? revenueAgg[0].total : 0;
+
+        // PI Approvals pending
+        const pendingPIApprovals = await ProductInward.countDocuments({ status: 'RAISED' });
+
+        // Supplier count
+        const activeSuppliers = await Supplier.countDocuments({ isActive: true });
+
+        // Production batches status
+        const ProductionBatch = mongoose.model('ProductionBatch');
+        const batchesInProgress = await ProductionBatch.countDocuments({ status: 'IN_PROGRESS' });
+        const batchesCompleted = await ProductionBatch.countDocuments({ status: 'COMPLETED' });
+
+        // Machine utilization
+        const Machine = mongoose.model('Machine');
+        const totalMachines = await Machine.countDocuments();
+        const activeMachines = await Machine.countDocuments({ status: { $in: ['ACTIVE', 'IN_USE'] } });
+
+        // Recent customer orders (last 5)
+        const recentOrders = await CustomerOrder.find()
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .populate('customerId', 'companyName')
+            .lean();
+
+        res.json({
+            totalOrders,
+            activeOrders,
+            completedOrders,
+            totalRevenue,
+            pendingPIApprovals,
+            activeSuppliers,
+            batchesInProgress,
+            batchesCompleted,
+            totalMachines,
+            activeMachines,
+            recentOrders,
+        });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// STORE MANAGER DASHBOARD — Inventory, material requests, inward/outward
+export const getStoreManagerDashboard = async (req: AuthRequest, res: Response) => {
+    try {
+        // Low stock
+        const lowStockCount = await Material.countDocuments({
+            $expr: { $lte: ['$quantity', '$minStock'] }
+        });
+        const lowStockItems = await Material.find({
+            $expr: { $lte: ['$quantity', '$minStock'] }
+        }).limit(5).lean();
+
+        // Pending MRS
+        const pendingMRS = await MRS.countDocuments({ status: { $in: ['PENDING', 'PARTIALLY_ISSUED'] } });
+
+        // Pending PIs (raised, waiting for approval)
+        const pendingPIs = await ProductInward.countDocuments({ status: 'RAISED' });
+
+        // Approved PIs (ready for inward)
+        const approvedPIs = await ProductInward.countDocuments({ status: 'APPROVED' });
+
+        // Inventory value
+        const inventoryValue = await Material.aggregate([
+            { $project: { totalValue: { $multiply: ['$quantity', '$unitCost'] } } },
+            { $group: { _id: null, total: { $sum: '$totalValue' } } }
+        ]);
+        const totalInventoryValue = inventoryValue.length > 0 ? inventoryValue[0].total : 0;
+
+        // Total materials count
+        const totalMaterials = await Material.countDocuments();
+
+        // Recent MRS (last 5)
+        const recentMRS = await MRS.find()
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .lean();
+
+        // Dispatch pending
+        const Dispatch = mongoose.model('Dispatch');
+        const pendingDispatches = await Dispatch.countDocuments({ status: { $in: ['PACKED'] } });
+
+        res.json({
+            lowStockCount,
+            lowStockItems,
+            pendingMRS,
+            pendingPIs,
+            approvedPIs,
+            totalInventoryValue,
+            totalMaterials,
+            recentMRS,
+            pendingDispatches,
+        });
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// ADMIN DASHBOARD — System overview, users, audit
+export const getAdminDashboard = async (req: AuthRequest, res: Response) => {
+    try {
+        // User counts by role
+        const usersByRole = await User.aggregate([
+            { $group: { _id: '$role', count: { $sum: 1 } } },
+            { $sort: { count: -1 } }
+        ]);
+        const totalUsers = usersByRole.reduce((sum, r) => sum + r.count, 0);
+
+        // System counts
+        const totalMaterials = await Material.countDocuments();
+        const totalSuppliers = await Supplier.countDocuments();
+        const Machine = mongoose.model('Machine');
+        const totalMachines = await Machine.countDocuments();
+        const totalOrders = await CustomerOrder.countDocuments();
+
+        // Recent audit logs (last 10)
+        const recentAuditLogs = await AuditLog.find()
+            .sort({ timestamp: -1 })
+            .limit(10)
+            .populate('userId', 'username role')
+            .lean();
+
+        // Inventory health summary
+        const lowStockCount = await Material.countDocuments({
+            $expr: { $lte: ['$quantity', '$minStock'] }
+        });
+
+        // Production summary
+        const ProductionBatch = mongoose.model('ProductionBatch');
+        const activeBatches = await ProductionBatch.countDocuments({ status: { $in: ['SCHEDULED', 'IN_PROGRESS'] } });
+
+        res.json({
+            totalUsers,
+            usersByRole,
+            totalMaterials,
+            totalSuppliers,
+            totalMachines,
+            totalOrders,
+            recentAuditLogs,
+            lowStockCount,
+            activeBatches,
+        });
     } catch (error: any) {
         res.status(500).json({ message: error.message });
     }

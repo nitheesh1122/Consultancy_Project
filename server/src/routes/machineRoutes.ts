@@ -7,9 +7,9 @@ const router = express.Router();
 // GET all machines is accessible to any logged-in user (Supervisors need it for assigning batches)
 router.get('/', protect, getMachines);
 
-// Only STORE_MANAGER can modify machines (ADMIN is restricted to read-only)
-router.post('/', protect, authorize('STORE_MANAGER', 'ADMIN'), requireManager, createMachine);
-router.put('/:id', protect, authorize('STORE_MANAGER', 'ADMIN'), requireManager, updateMachine);
-router.delete('/:id', protect, authorize('STORE_MANAGER', 'ADMIN'), requireManager, deleteMachine);
+// Only MANAGER can modify machines (ADMIN is restricted to read-only)
+router.post('/', protect, authorize('MANAGER', 'ADMIN'), requireManager, createMachine);
+router.put('/:id', protect, authorize('MANAGER', 'ADMIN'), requireManager, updateMachine);
+router.delete('/:id', protect, authorize('MANAGER', 'ADMIN'), requireManager, deleteMachine);
 
 export default router;

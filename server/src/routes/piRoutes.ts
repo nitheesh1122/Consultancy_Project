@@ -9,10 +9,10 @@ const router = express.Router();
 router.post('/', protect, authorize('STORE_MANAGER'), logAudit('PI_RAISED'), createPI);
 
 // Manager/Admin: View PIs
-router.get('/', protect, authorize('STORE_MANAGER', 'ADMIN'), getPIs);
+router.get('/', protect, authorize('STORE_MANAGER', 'ADMIN', 'MANAGER'), getPIs);
 
-// Admin: Approve/Reject
-router.put('/:id/status', protect, authorize('ADMIN'), logAudit('PI_STATUS_UPDATED'), updatePIStatus);
+// Manager: Approve/Reject (transferred from ADMIN)
+router.put('/:id/status', protect, authorize('MANAGER'), logAudit('PI_STATUS_UPDATED'), updatePIStatus);
 
 // Store Manager: Process Inward (Stock Update)
 router.post('/:id/inward', protect, authorize('STORE_MANAGER'), logAudit('INWARD_PROCESSED'), processInward);

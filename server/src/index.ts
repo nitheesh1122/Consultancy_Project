@@ -18,6 +18,12 @@ import productionBatchRoutes from './routes/productionBatchRoutes';
 import productionAnalyticsRoutes from './routes/productionAnalyticsRoutes';
 import fabricLotRoutes from './routes/fabricLotRoutes';
 import reportRoutes from './routes/reportRoutes';
+import customerOrderRoutes from './routes/customerOrderRoutes';
+import supplierPortalRoutes from './routes/supplierPortalRoutes';
+import dispatchRoutes from './routes/dispatchRoutes';
+import attendanceRoutes from './routes/attendanceRoutes';
+import leaveRoutes from './routes/leaveRoutes';
+import shiftRoutes from './routes/shiftRoutes';
 
 
 import { createServer } from 'http';
@@ -53,6 +59,12 @@ app.use('/api/production-batches', productionBatchRoutes);
 app.use('/api/production-analytics', productionAnalyticsRoutes);
 app.use('/api/fabric-lots', fabricLotRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/customer', customerOrderRoutes);
+app.use('/api/supplier', supplierPortalRoutes);
+app.use('/api/dispatch', dispatchRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/leaves', leaveRoutes);
+app.use('/api/shifts', shiftRoutes);
 
 
 app.get('/', (req, res) => {

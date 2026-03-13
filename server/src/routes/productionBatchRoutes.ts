@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/', protect, getBatches);
 
 // Monitor strictly for Managers and Admins
-router.get('/monitor', protect, authorize('STORE_MANAGER', 'ADMIN'), getMonitorView);
+router.get('/monitor', protect, authorize('STORE_MANAGER', 'ADMIN', 'MANAGER'), getMonitorView);
 
 // Core workflow limited to Supervisors
 router.post('/', protect, authorize('SUPERVISOR'), logAudit('BATCH_CREATED'), createBatch);

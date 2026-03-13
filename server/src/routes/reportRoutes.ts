@@ -13,9 +13,9 @@ import { protect, authorize } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
-// Apply ADMIN protection to all routes in this module
+// Apply ADMIN/MANAGER protection to all routes in this module
 router.use(protect);
-router.use(authorize('ADMIN'));
+router.use(authorize('ADMIN', 'MANAGER'));
 
 // Recipients
 router.get('/recipients', getRecipients);
