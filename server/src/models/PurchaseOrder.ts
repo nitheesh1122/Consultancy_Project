@@ -16,12 +16,14 @@ const purchaseOrderSchema = new mongoose.Schema({
     status: {
         type: String,
         default: 'ISSUED',
-        enum: ['ISSUED', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED']
+        enum: ['ISSUED', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REJECTED_BY_SUPPLIER']
     },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     confirmedAt: { type: Date },
     expectedDelivery: { type: Date },
     remarks: { type: String },
+    supplierRejectionReason: { type: String },
+    supplierRespondedAt: { type: Date },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

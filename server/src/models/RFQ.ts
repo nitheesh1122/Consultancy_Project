@@ -14,10 +14,18 @@ const rfqSchema = new mongoose.Schema({
     status: {
         type: String,
         default: 'OPEN',
-        enum: ['OPEN', 'QUOTATIONS_RECEIVED', 'CLOSED', 'PO_CREATED']
+        enum: ['OPEN', 'QUOTATIONS_RECEIVED', 'PENDING_MANAGER_APPROVAL', 'MANAGER_APPROVED', 'PO_ISSUED', 'SUPPLIER_REJECTED', 'CLOSED', 'PO_CREATED']
     },
     dueDate: { type: Date },
     remarks: { type: String },
+    submittedQuotationIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Quotation' }],
+    approvedSupplierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier' },
+    approvedQuotationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quotation' },
+    managerRemarks: { type: String },
+    managerApprovedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    isReRequest: { type: Boolean, default: false },
+    originalRfqId: { type: mongoose.Schema.Types.ObjectId, ref: 'RFQ' },
+    reRequestCount: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

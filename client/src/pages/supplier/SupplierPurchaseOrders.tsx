@@ -3,7 +3,7 @@ import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { Button } from '../../components/ui/Button';
 import StatusBadge from '../../components/ui/StatusBadge';
-import { CheckCircle, Truck } from 'lucide-react';
+import { CheckCircle, Truck, XCircle } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 
@@ -13,6 +13,9 @@ const SupplierPurchaseOrders = () => {
     const [showShipModal, setShowShipModal] = useState(false);
     const [selectedPO, setSelectedPO] = useState<any>(null);
     const [actionLoading, setActionLoading] = useState(false);
+    const [rejectModalOpen, setRejectModalOpen] = useState(false);
+    const [rejectingPO, setRejectingPO] = useState<any>(null);
+    const [rejectionReason, setRejectionReason] = useState('');
     const [shipForm, setShipForm] = useState({
         dispatchDate: '',
         vehicleNumber: '',
@@ -68,6 +71,31 @@ const SupplierPurchaseOrders = () => {
         }
     };
 
+    const handleRejectClick = (po: any) => {
+        setRejectingPO(po);
+        setRejectionReason('');
+        setRejectModalOpen(true);
+    };
+
+    const handleConfirmReject = async () => {
+        if (!rejectingPO) return;
+        setActionLoading(true);
+        try {
+            await api.put(`/supplier/purchase-orders/${rejectingPO._id}/respond`, {
+                response: 'REJECTED',
+                rejectionReason
+            });
+            toast.success('PO rejected');
+            setRejectModalOpen(false);
+            setRejectingPO(null);
+            fetchPOs();
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Failed to reject PO');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     if (loading) return null;
 
     return (
@@ -104,21 +132,28 @@ const SupplierPurchaseOrders = () => {
                                     <td className="px-6 py-4 text-right font-mono font-semibold">₹{po.totalAmount?.toLocaleString()}</td>
                                     <td className="px-6 py-4 text-secondary">{po.expectedDelivery ? new Date(po.expectedDelivery).toLocaleDateString() : '-'}</td>
                                     <td className="px-6 py-4 text-center">
-                                        <StatusBadge status={
-                                            po.status === 'ISSUED' ? 'warning' :
-                                            po.status === 'CONFIRMED' ? 'info' :
-                                            po.status === 'SHIPPED' ? 'info' :
-                                            po.status === 'DELIVERED' ? 'success' : 'neutral'
-                                        }>{po.status}</StatusBadge>
+                                            <StatusBadge status={
+                                                po.status === 'ISSUED' ? 'warning' :
+                                                po.status === 'CONFIRMED' ? 'info' :
+                                                po.status === 'SHIPPED' ? 'info' :
+                                                po.status === 'DELIVERED' ? 'success' :
+                                                po.status === 'REJECTED_BY_SUPPLIER' ? 'critical' : 'neutral'
+                                            }>{po.status?.replace(/_/g, ' ')}</StatusBadge>
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex gap-2">
-                                            {po.status === 'ISSUED' && (
-                                                <button disabled={actionLoading} onClick={() => handleConfirm(po._id)}
-                                                    className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 disabled:opacity-50">
-                                                    <CheckCircle className="h-3 w-3 inline mr-1" />Confirm
-                                                </button>
-                                            )}
+                                                {po.status === 'ISSUED' && (
+                                                    <>
+                                                        <button disabled={actionLoading} onClick={() => handleConfirm(po._id)}
+                                                            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 disabled:opacity-50">
+                                                            <CheckCircle className="h-3 w-3 inline mr-1" />Accept
+                                                        </button>
+                                                        <button disabled={actionLoading} onClick={() => handleRejectClick(po)}
+                                                            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 disabled:opacity-50">
+                                                            <XCircle className="h-3 w-3 inline mr-1" />Reject
+                                                        </button>
+                                                    </>
+                                                )}
                                             {po.status === 'CONFIRMED' && (
                                                 <button onClick={() => { setSelectedPO(po); setShowShipModal(true); }}
                                                     className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200">
@@ -133,6 +168,33 @@ const SupplierPurchaseOrders = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Reject PO Modal */}
+            <Modal isOpen={rejectModalOpen} onClose={() => setRejectModalOpen(false)} title={`Reject PO — ${rejectingPO?.poNumber}`}>
+                <div className="space-y-4">
+                    <p className="text-sm text-secondary">Please provide a reason for rejecting this purchase order. The Store Manager will be notified and can re-initiate the process.</p>
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-primary">Rejection Reason</label>
+                        <textarea
+                            value={rejectionReason}
+                            onChange={(e) => setRejectionReason(e.target.value)}
+                            placeholder="e.g. Unable to fulfill order quantity within the required timeframe..."
+                            rows={3}
+                            className="w-full rounded-lg border border-subtle bg-canvas px-3 py-2 text-sm text-primary placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary resize-none"
+                        />
+                    </div>
+                    <div className="flex justify-end gap-3 pt-1">
+                        <Button type="button" variant="outline" onClick={() => setRejectModalOpen(false)}>Cancel</Button>
+                        <button
+                            onClick={handleConfirmReject}
+                            disabled={actionLoading || !rejectionReason.trim()}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <XCircle className="h-4 w-4" />Confirm Rejection
+                        </button>
+                    </div>
+                </div>
+            </Modal>
 
             {/* Shipment Modal */}
             <Modal isOpen={showShipModal && !!selectedPO} onClose={() => setShowShipModal(false)} title={`Create Shipment — ${selectedPO?.poNumber}`}>

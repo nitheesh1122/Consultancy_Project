@@ -54,9 +54,10 @@ export const createSupplierAccount = async (req: AuthRequest, res: Response) => 
 // ===== MANAGER/STORE_MANAGER: Create RFQ =====
 export const createRFQ = async (req: AuthRequest, res: Response) => {
     try {
-        const { items, supplierIds, dueDate, remarks } = req.body;
+        const { items, supplierIds, sentToSuppliers, dueDate, remarks } = req.body;
+        const finalSupplierIds = supplierIds || sentToSuppliers || [];
 
-        if (!items?.length || !supplierIds?.length) {
+        if (!items?.length || !finalSupplierIds.length) {
             return res.status(400).json({ message: 'items and supplierIds are required' });
         }
 
@@ -66,16 +67,16 @@ export const createRFQ = async (req: AuthRequest, res: Response) => {
         const rfq = await RFQ.create({
             rfqNumber,
             items,
-            sentToSuppliers: supplierIds,
+            sentToSuppliers: finalSupplierIds,
             createdBy: req.user.id,
             dueDate,
             remarks
         });
 
-        await manualLog('RFQ_CREATED', req.user.id, { rfqId: rfq._id, rfqNumber, supplierCount: supplierIds.length });
+        await manualLog('RFQ_CREATED', req.user.id, { rfqId: rfq._id, rfqNumber, supplierCount: finalSupplierIds.length });
 
         // Notify supplier users
-        for (const sId of supplierIds) {
+        for (const sId of finalSupplierIds) {
             const supplierUsers = await User.find({ role: 'SUPPLIER', profileId: sId });
             for (const su of supplierUsers) {
                 await Notification.create({
@@ -104,6 +105,7 @@ export const getRFQs = async (req: AuthRequest, res: Response) => {
             .populate('items.materialId', 'name code unit')
             .populate('sentToSuppliers', 'name contactPerson')
             .populate('createdBy', 'username')
+                .populate('approvedSupplierId', 'name')
             .sort({ createdAt: -1 });
         res.json(rfqs);
     } catch (error: any) {
@@ -418,3 +420,181 @@ export const getSupplierShipments = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+    // ===== STORE_MANAGER: Submit selected quotations for manager approval =====
+    export const submitQuotationsForApproval = async (req: AuthRequest, res: Response) => {
+        try {
+            const { rfqId } = req.params;
+            const { quotationIds } = req.body;
+            if (!quotationIds?.length) return res.status(400).json({ message: 'Select at least one quotation' });
+            const rfq = await RFQ.findById(rfqId);
+            if (!rfq) return res.status(404).json({ message: 'RFQ not found' });
+            if (!['QUOTATIONS_RECEIVED', 'SUPPLIER_REJECTED'].includes(rfq.status)) {
+                return res.status(400).json({ message: 'RFQ must have received quotations' });
+            }
+            (rfq as any).submittedQuotationIds = quotationIds;
+            rfq.status = 'PENDING_MANAGER_APPROVAL';
+            if ((rfq as any).isReRequest) {
+                (rfq as any).reRequestCount = ((rfq as any).reRequestCount || 0) + 1;
+            }
+            await rfq.save();
+            await manualLog('RFQ_SUBMITTED_FOR_APPROVAL', req.user.id, { rfqId, quotationCount: quotationIds.length });
+            const managers = await User.find({ role: 'MANAGER' });
+            for (const mgr of managers) {
+                await Notification.create({
+                    recipient: mgr._id,
+                    message: `RFQ ${rfq.rfqNumber} ${(rfq as any).isReRequest ? '[RE-REQUEST] ' : ''}submitted for approval — ${quotationIds.length} quotation(s) selected.`,
+                    type: 'INFO',
+                    link: '/pi-approvals'
+                });
+            }
+            try { getIO().to('MANAGER').emit('notification', { type: 'RFQ_PENDING_APPROVAL', rfqNumber: rfq.rfqNumber }); } catch (e) { /* socket optional */ }
+            res.json(rfq);
+        } catch (error: any) { res.status(500).json({ message: error.message }); }
+    };
+
+    // ===== MANAGER: Get RFQs pending approval =====
+    export const getManagerPendingRFQs = async (req: AuthRequest, res: Response) => {
+        try {
+            const rfqs = await RFQ.find({ status: 'PENDING_MANAGER_APPROVAL' })
+                .populate('items.materialId', 'name code unit')
+                .populate('sentToSuppliers', 'name contactPerson')
+                .populate('createdBy', 'username')
+                .sort({ updatedAt: -1 })
+                .lean();
+            const rfqsWithQuotations = await Promise.all(rfqs.map(async (rfq: any) => {
+                const submittedQuotations = await Quotation.find({ _id: { $in: rfq.submittedQuotationIds || [] } })
+                    .populate('supplierId', 'name contactPerson rating')
+                    .populate('items.materialId', 'name code unit')
+                    .lean();
+                return { ...rfq, submittedQuotations };
+            }));
+            res.json(rfqsWithQuotations);
+        } catch (error: any) { res.status(500).json({ message: error.message }); }
+    };
+
+    // ===== MANAGER: Approve RFQ — select one supplier =====
+    export const managerApproveRFQ = async (req: AuthRequest, res: Response) => {
+        try {
+            const { rfqId } = req.params;
+            const { quotationId, remarks } = req.body;
+            if (!quotationId) return res.status(400).json({ message: 'Select a quotation to approve' });
+            const rfq = await RFQ.findById(rfqId);
+            if (!rfq) return res.status(404).json({ message: 'RFQ not found' });
+            if (rfq.status !== 'PENDING_MANAGER_APPROVAL') return res.status(400).json({ message: 'RFQ is not pending approval' });
+            const quotation = await Quotation.findById(quotationId);
+            if (!quotation) return res.status(404).json({ message: 'Quotation not found' });
+            (rfq as any).approvedSupplierId = quotation.supplierId;
+            (rfq as any).approvedQuotationId = quotation._id;
+            (rfq as any).managerRemarks = remarks;
+            (rfq as any).managerApprovedBy = req.user.id;
+            rfq.status = 'MANAGER_APPROVED';
+            await rfq.save();
+            quotation.status = 'ACCEPTED';
+            quotation.respondedAt = new Date();
+            await quotation.save();
+            await manualLog('RFQ_MANAGER_APPROVED', req.user.id, { rfqId, quotationId });
+            const storeManagers = await User.find({ role: 'STORE_MANAGER' });
+            for (const sm of storeManagers) {
+                await Notification.create({ recipient: sm._id, message: `RFQ ${rfq.rfqNumber} approved. Please generate the Purchase Order.`, type: 'SUCCESS', link: '/procurement' });
+            }
+            try { getIO().to('STORE_MANAGER').emit('notification', { type: 'RFQ_APPROVED', rfqNumber: rfq.rfqNumber }); } catch (e) { /* socket optional */ }
+            res.json(rfq);
+        } catch (error: any) { res.status(500).json({ message: error.message }); }
+    };
+
+    // ===== MANAGER: Send back / reject RFQ =====
+    export const managerRejectRFQ = async (req: AuthRequest, res: Response) => {
+        try {
+            const { rfqId } = req.params;
+            const { remarks } = req.body;
+            const rfq = await RFQ.findById(rfqId);
+            if (!rfq) return res.status(404).json({ message: 'RFQ not found' });
+            rfq.status = 'QUOTATIONS_RECEIVED';
+            (rfq as any).managerRemarks = remarks;
+            (rfq as any).submittedQuotationIds = [];
+            await rfq.save();
+            const storeManagers = await User.find({ role: 'STORE_MANAGER' });
+            for (const sm of storeManagers) {
+                await Notification.create({ recipient: sm._id, message: `RFQ ${rfq.rfqNumber} sent back.${remarks ? ` Remarks: ${remarks}` : ''} Please re-select quotations.`, type: 'WARNING', link: '/procurement' });
+            }
+            res.json(rfq);
+        } catch (error: any) { res.status(500).json({ message: error.message }); }
+    };
+
+    // ===== STORE_MANAGER: Generate PO from manager-approved RFQ =====
+    export const generatePOFromRFQ = async (req: AuthRequest, res: Response) => {
+        try {
+            const { rfqId } = req.params;
+            const rfq = await RFQ.findById(rfqId);
+            if (!rfq) return res.status(404).json({ message: 'RFQ not found' });
+            if (rfq.status !== 'MANAGER_APPROVED') return res.status(400).json({ message: 'RFQ must be manager-approved before generating PO' });
+            const quotation = await Quotation.findById((rfq as any).approvedQuotationId);
+            if (!quotation) return res.status(404).json({ message: 'Approved quotation not found' });
+            const count = await PurchaseOrder.countDocuments();
+            const poNumber = `PO-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${String(count + 1).padStart(4, '0')}`;
+            const po = await PurchaseOrder.create({
+                poNumber, rfqId: rfq._id, quotationId: quotation._id, supplierId: quotation.supplierId,
+                items: quotation.items, totalAmount: quotation.totalPrice, createdBy: req.user.id,
+                expectedDelivery: new Date(Date.now() + quotation.deliveryDays * 24 * 60 * 60 * 1000)
+            });
+            rfq.status = 'PO_ISSUED';
+            await rfq.save();
+            await manualLog('PO_GENERATED', req.user.id, { poId: po._id, poNumber, rfqId });
+            const supplierUsers = await User.find({ role: 'SUPPLIER', profileId: quotation.supplierId });
+            for (const su of supplierUsers) {
+                await Notification.create({ recipient: su._id, message: `Purchase Order ${poNumber} issued to you. Please accept or reject.`, type: 'SUCCESS', link: `/supplier/purchase-orders` });
+            }
+            try { getIO().to('SUPPLIER').emit('notification', { type: 'PO_ISSUED', poNumber }); } catch (e) { /* socket optional */ }
+            res.json({ purchaseOrder: po });
+        } catch (error: any) { res.status(500).json({ message: error.message }); }
+    };
+
+    // ===== SUPPLIER: Accept or reject a Purchase Order =====
+    export const supplierRespondToPO = async (req: AuthRequest, res: Response) => {
+        try {
+            const user = await User.findById(req.user.id);
+            if (!user?.profileId) return res.status(400).json({ message: 'Supplier profile not linked' });
+            const po = await PurchaseOrder.findById(req.params.id);
+            if (!po) return res.status(404).json({ message: 'Purchase order not found' });
+            if (po.supplierId.toString() !== user.profileId.toString()) return res.status(403).json({ message: 'Not your purchase order' });
+            if (po.status !== 'ISSUED') return res.status(400).json({ message: `Cannot respond to PO in ${po.status} status` });
+            const { response, rejectionReason } = req.body;
+            if (response === 'ACCEPTED') {
+                po.status = 'CONFIRMED';
+                po.confirmedAt = new Date();
+                (po as any).supplierRespondedAt = new Date();
+                await po.save();
+                await manualLog('PO_ACCEPTED_BY_SUPPLIER', req.user.id, { poId: po._id, poNumber: po.poNumber });
+                const staff = await User.find({ role: { $in: ['MANAGER', 'STORE_MANAGER'] } });
+                for (const s of staff) {
+                    await Notification.create({ recipient: s._id, message: `PO ${po.poNumber} accepted by supplier.`, type: 'SUCCESS', link: '/procurement' });
+                }
+            } else if (response === 'REJECTED') {
+                (po as any).status = 'REJECTED_BY_SUPPLIER';
+                (po as any).supplierRejectionReason = rejectionReason || 'No reason provided';
+                (po as any).supplierRespondedAt = new Date();
+                await po.save();
+                if (po.rfqId) {
+                    const rfq = await RFQ.findById(po.rfqId);
+                    if (rfq) { rfq.status = 'SUPPLIER_REJECTED'; (rfq as any).isReRequest = true; await rfq.save(); }
+                }
+                await manualLog('PO_REJECTED_BY_SUPPLIER', req.user.id, { poId: po._id, poNumber: po.poNumber });
+                const remainingCount = po.rfqId
+                    ? await Quotation.countDocuments({ rfqId: po.rfqId, supplierId: { $ne: user.profileId }, status: 'SUBMITTED' })
+                    : 0;
+                const storeManagers = await User.find({ role: 'STORE_MANAGER' });
+                for (const sm of storeManagers) {
+                    await Notification.create({
+                        recipient: sm._id,
+                        message: `PO ${po.poNumber} rejected by supplier.${rejectionReason ? ` Reason: ${rejectionReason}.` : ''} ${remainingCount > 0 ? `${remainingCount} other quotation(s) available.` : 'No other quotations available.'}`,
+                        type: 'ERROR', link: '/procurement'
+                    });
+                }
+            } else {
+                return res.status(400).json({ message: 'Response must be ACCEPTED or REJECTED' });
+            }
+            try { getIO().to('STORE_MANAGER').emit('notification', { type: `PO_${response}`, poNumber: po.poNumber }); } catch (e) { /* socket optional */ }
+            res.json(po);
+        } catch (error: any) { res.status(500).json({ message: error.message }); }
+    };

@@ -19,7 +19,9 @@ import {
     trackDecisionActionOutcome,
     getDecisionDrilldownData,
     getDecisionSnapshotsData,
-    createKpiFormulaVersionData
+    createKpiFormulaVersionData,
+    getShiftAnalysis,
+    getOEEMetrics
 } from '../controllers/analyticsController';
 import { protect, authorize } from '../middleware/authMiddleware';
 
@@ -56,5 +58,9 @@ router.get('/suppliers/quality', protect, authorize('ADMIN', 'MANAGER', 'STORE_M
 
 // HR Dashboard
 router.get('/hr-dashboard', protect, authorize('ADMIN', 'MANAGER', 'HR_MANAGER'), getHRDashboardStats);
+
+// Production deep-dive: shift analysis + OEE
+router.get('/shift-analysis', protect, authorize('ADMIN', 'MANAGER', 'SUPERVISOR', 'STORE_MANAGER'), getShiftAnalysis);
+router.get('/oee-metrics', protect, authorize('ADMIN', 'MANAGER', 'STORE_MANAGER'), getOEEMetrics);
 
 export default router;

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import StatusBadge from '../components/ui/StatusBadge';
-import { Plus, FileText, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { Plus, FileText, CheckCircle, XCircle, Eye, ClipboardList, Send, RotateCcw, Loader2, AlertCircle } from 'lucide-react';
 
 const Procurement = () => {
+    const [searchParams] = useSearchParams();
     const [rfqs, setRFQs] = useState<any[]>([]);
     const [pos, setPOs] = useState<any[]>([]);
     const [materials, setMaterials] = useState<any[]>([]);
@@ -21,6 +23,16 @@ const Procurement = () => {
     const [rfqDueDate, setRfqDueDate] = useState('');
     const [rfqSuppliers, setRfqSuppliers] = useState<string[]>([]);
     const [submitting, setSubmitting] = useState(false);
+    const [piSourceLabel, setPiSourceLabel] = useState('');
+
+    // Approved PIs picker
+    const [approvedPIs, setApprovedPIs] = useState<any[]>([]);
+    const [showPIPicker, setShowPIPicker] = useState(false);
+
+        // Quotation selection & approval flow
+        const [selectedQuotationIds, setSelectedQuotationIds] = useState<string[]>([]);
+        const [submittingApproval, setSubmittingApproval] = useState(false);
+        const [poGeneratingId, setPoGeneratingId] = useState('');
 
     // Quotations modal
     const [showQuotations, setShowQuotations] = useState(false);
@@ -30,6 +42,36 @@ const Procurement = () => {
     useEffect(() => {
         fetchData();
     }, []);
+
+    // Auto-load PI if navigated from InwardEntry
+    useEffect(() => {
+        const piId = searchParams.get('fromPiId');
+        if (piId && materials.length > 0 && !loading) {
+            loadFromPiId(piId);
+        }
+    }, [searchParams, materials, loading]);
+
+    const loadFromPiId = async (piId: string) => {
+        try {
+            const { data } = await api.get('/pi');
+            const pi = data.find((p: any) => p._id === piId);
+            if (pi && pi.items?.length) {
+                prefillRFQFromPI(pi);
+            }
+        } catch { /* silently ignore */ }
+    };
+
+    const prefillRFQFromPI = (pi: any) => {
+        const items = (pi.items || []).map((item: any) => ({
+            materialId: item.materialId?._id || item.materialId,
+            quantity: item.quantity,
+            unit: item.materialId?.unit || 'KG'
+        })).filter((i: any) => i.materialId && i.quantity > 0);
+        if (items.length === 0) return;
+        setRfqItems(items);
+        setPiSourceLabel(`Pre-filled from PI #${pi._id?.slice(-6)}`);
+        setShowCreateRFQ(true);
+    };
 
     const fetchData = async () => {
         try {
@@ -82,6 +124,7 @@ const Procurement = () => {
 
     const viewQuotations = async (rfq: any) => {
         setSelectedRFQ(rfq);
+            setSelectedQuotationIds([]);
         try {
             const { data } = await api.get(`/supplier/rfq/${rfq._id}/quotations`);
             setQuotations(data);
@@ -91,15 +134,34 @@ const Procurement = () => {
         }
     };
 
-    const handleAcceptQuotation = async (quotationId: string) => {
+    const handleSubmitForApproval = async () => {
+        if (!selectedRFQ || selectedQuotationIds.length === 0) {
+            toast.error('Select at least one quotation to submit');
+            return;
+        }
+        setSubmittingApproval(true);
         try {
-            await api.put(`/supplier/quotations/${quotationId}/accept`);
-            toast.success('Quotation accepted — PO created');
+            await api.put(`/supplier/rfq/${selectedRFQ._id}/submit-for-approval`, { quotationIds: selectedQuotationIds });
+            toast.success(selectedRFQ.isReRequest
+                ? `Re-request submitted — awaiting manager approval`
+                : `${selectedQuotationIds.length} quotation(s) submitted for manager approval`);
             setShowQuotations(false);
+            setSelectedQuotationIds([]);
             fetchData();
         } catch (err: any) {
-            toast.error(err.response?.data?.message || 'Failed to accept quotation');
-        }
+            toast.error(err.response?.data?.message || 'Failed to submit for approval');
+        } finally { setSubmittingApproval(false); }
+    };
+
+    const handleGeneratePO = async (rfq: any) => {
+        setPoGeneratingId(rfq._id);
+        try {
+            const { data } = await api.post(`/supplier/rfq/${rfq._id}/generate-po`);
+            toast.success(`PO ${data.purchaseOrder.poNumber} generated and sent to supplier!`);
+            fetchData();
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Failed to generate PO');
+        } finally { setPoGeneratingId(''); }
     };
 
     const addItem = () => setRfqItems([...rfqItems, { materialId: '', quantity: 0, unit: 'KG' }]);
@@ -112,6 +174,17 @@ const Procurement = () => {
 
     const toggleSupplier = (id: string) => {
         setRfqSuppliers(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
+    };
+
+    const fetchApprovedPIs = async () => {
+        try {
+            const { data } = await api.get('/pi');
+            const approved = (data as any[]).filter((p: any) => p.status === 'APPROVED' && p.items?.length > 0);
+            setApprovedPIs(approved);
+            setShowPIPicker(true);
+        } catch {
+            toast.error('Failed to load approved PIs');
+        }
     };
 
     if (loading) return null;
@@ -164,16 +237,33 @@ const Procurement = () => {
                                         <td className="px-6 py-4 text-secondary">{rfq.dueDate ? new Date(rfq.dueDate).toLocaleDateString() : '-'}</td>
                                         <td className="px-6 py-4 text-center">
                                             <StatusBadge status={
-                                                rfq.status === 'OPEN' ? 'warning' :
-                                                rfq.status === 'PO_CREATED' ? 'success' :
-                                                rfq.status === 'CLOSED' ? 'neutral' : 'info'
+                                                   rfq.status === 'OPEN' ? 'warning' :
+                                                   rfq.status === 'QUOTATIONS_RECEIVED' ? 'info' :
+                                                   rfq.status === 'PENDING_MANAGER_APPROVAL' ? 'warning' :
+                                                   rfq.status === 'MANAGER_APPROVED' ? 'success' :
+                                                   rfq.status === 'PO_ISSUED' ? 'success' :
+                                                   rfq.status === 'SUPPLIER_REJECTED' ? 'critical' :
+                                                   rfq.status === 'CLOSED' ? 'neutral' :
+                                                   rfq.status === 'PO_CREATED' ? 'success' : 'info'
                                             }>{rfq.status?.replace(/_/g, ' ')}</StatusBadge>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <button onClick={() => viewQuotations(rfq)}
-                                                className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 border border-brand-primary/20">
-                                                <Eye className="h-3 w-3 inline mr-1" />Quotations
-                                            </button>
+                                            {['OPEN', 'QUOTATIONS_RECEIVED', 'SUPPLIER_REJECTED'].includes(rfq.status) && (
+                                                <button onClick={() => viewQuotations(rfq)} className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${rfq.status === 'SUPPLIER_REJECTED' ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border-amber-200' : 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 border-brand-primary/20'}`}>
+                                                    {rfq.status === 'SUPPLIER_REJECTED' ? <><RotateCcw className="h-3 w-3" />Re-request</> : <><Eye className="h-3 w-3" />Quotations</>}
+                                                </button>
+                                            )}
+                                            {rfq.status === 'PENDING_MANAGER_APPROVAL' && (
+                                                <span className="text-xs font-medium text-amber-600 flex items-center gap-1.5"><Loader2 className="h-3 w-3 animate-spin" />Awaiting Manager</span>
+                                            )}
+                                            {rfq.status === 'MANAGER_APPROVED' && (
+                                                <button onClick={() => handleGeneratePO(rfq)} disabled={!!poGeneratingId} className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 disabled:opacity-50">
+                                                    {poGeneratingId === rfq._id ? <><Loader2 className="h-3 w-3 animate-spin" />Generating...</> : <><Send className="h-3 w-3" />Generate PO</>}
+                                                </button>
+                                            )}
+                                            {['PO_ISSUED', 'PO_CREATED', 'CLOSED'].includes(rfq.status) && (
+                                                <span className="text-xs font-medium text-green-600 flex items-center gap-1"><CheckCircle className="h-3 w-3" />PO Issued</span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
@@ -225,6 +315,20 @@ const Procurement = () => {
             {/* Create RFQ Modal */}
             <Modal isOpen={showCreateRFQ} onClose={() => setShowCreateRFQ(false)} title="Create Request for Quotation" className="!max-w-2xl">
                 <form onSubmit={handleCreateRFQ} className="space-y-5">
+                    {piSourceLabel && (
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm font-semibold">
+                            <ClipboardList className="h-4 w-4 shrink-0" />
+                            {piSourceLabel}
+                            <button type="button" onClick={() => { setPiSourceLabel(''); setRfqItems([{ materialId: '', quantity: 0, unit: 'KG' }]); }} className="ml-auto text-green-500 hover:text-green-700 text-xs underline">Clear</button>
+                        </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                        <div className="flex-1 h-px bg-subtle" />
+                        <button type="button" onClick={fetchApprovedPIs} className="flex items-center gap-1.5 text-xs font-semibold text-brand-primary hover:underline px-2 py-1 rounded hover:bg-brand-primary/5 transition-colors">
+                            <ClipboardList className="h-3.5 w-3.5" />Load from Approved PI
+                        </button>
+                        <div className="flex-1 h-px bg-subtle" />
+                    </div>
                     {/* Materials */}
                     <div className="space-y-3">
                         <div className="flex justify-between items-center">
@@ -289,35 +393,100 @@ const Procurement = () => {
             </Modal>
 
             {/* Quotations Modal */}
-            <Modal isOpen={showQuotations} onClose={() => setShowQuotations(false)} title={`Quotations — ${selectedRFQ?.rfqNumber}`} className="!max-w-3xl">
+            {/* Quotations Modal */}
+            <Modal isOpen={showQuotations} onClose={() => { setShowQuotations(false); setSelectedQuotationIds([]); }} title={`Quotations — ${selectedRFQ?.rfqNumber}`} className="!max-w-3xl">
                 <div className="space-y-3">
+                    {selectedRFQ?.status === 'SUPPLIER_REJECTED' && (
+                        <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800">
+                            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                            <p className="text-xs"><span className="font-semibold">{selectedRFQ?.approvedSupplierId?.name || 'The selected supplier'}</span> rejected the PO. Select alternative quotation(s) and re-submit for manager approval.</p>
+                        </div>
+                    )}
                     {quotations.length === 0 ? (
                         <p className="text-center text-secondary py-8 italic text-sm">No quotations received yet</p>
-                    ) : quotations.map((q: any) => (
-                        <div key={q._id} className="p-4 rounded-lg border border-subtle bg-canvas hover:bg-elevated transition-colors">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="font-semibold text-primary">{q.supplierId?.name || 'Supplier'}</p>
-                                    <p className="text-xs text-muted mt-1">Delivery: {q.deliveryDays} days • Terms: {q.paymentTerms || 'N/A'}</p>
-                                    <div className="mt-2 space-y-1">
-                                        {q.items?.map((item: any, idx: number) => (
-                                            <p key={idx} className="text-xs text-secondary">{item.materialId?.name || 'Material'} — ₹{item.unitPrice}/unit × {item.quantity}</p>
-                                        ))}
+                    ) : (() => {
+                        const canSelect = ['QUOTATIONS_RECEIVED', 'SUPPLIER_REJECTED'].includes(selectedRFQ?.status);
+                        return quotations.map((q: any) => {
+                            const isPrevRejected = selectedRFQ?.status === 'SUPPLIER_REJECTED' && q._id === selectedRFQ?.approvedQuotationId;
+                            const isSelected = selectedQuotationIds.includes(q._id);
+                            return (
+                                <div key={q._id}
+                                    onClick={() => {
+                                        if (!canSelect || isPrevRejected) return;
+                                        setSelectedQuotationIds(prev =>
+                                            prev.includes(q._id) ? prev.filter(id => id !== q._id) : [...prev, q._id]
+                                        );
+                                    }}
+                                    className={`p-4 rounded-lg border transition-colors ${isPrevRejected ? 'opacity-50 cursor-not-allowed bg-canvas border-subtle' : canSelect ? 'cursor-pointer ' + (isSelected ? 'border-brand-primary bg-brand-primary/5' : 'border-subtle bg-canvas hover:bg-elevated') : 'bg-canvas border-subtle'}`}
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex items-start gap-3">
+                                            {canSelect && !isPrevRejected && (
+                                                <input type="checkbox" checked={isSelected} readOnly className="mt-1 accent-brand-primary h-4 w-4 flex-shrink-0" />
+                                            )}
+                                            <div>
+                                                <p className="font-semibold text-primary">{q.supplierId?.name || 'Supplier'}</p>
+                                                {isPrevRejected && (
+                                                    <p className="text-xs text-red-500 flex items-center gap-1 mt-0.5"><XCircle className="h-3 w-3" />Supplier rejected previous PO</p>
+                                                )}
+                                                <p className="text-xs text-muted mt-1">Delivery: {q.deliveryDays} days • Terms: {q.paymentTerms || 'N/A'}</p>
+                                                <div className="mt-2 space-y-1">
+                                                    {q.items?.map((item: any, idx: number) => (
+                                                        <p key={idx} className="text-xs text-secondary">{item.materialId?.name || 'Material'} — ₹{item.unitPrice}/unit × {item.quantity}</p>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="text-right flex-shrink-0">
+                                            <p className="text-lg font-bold text-brand-primary">₹{q.totalPrice?.toLocaleString()}</p>
+                                            <StatusBadge status={q.status === 'SUBMITTED' ? 'warning' : q.status === 'ACCEPTED' ? 'success' : 'critical'} className="mt-1">{q.status}</StatusBadge>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-lg font-bold text-brand-primary">₹{q.totalPrice?.toLocaleString()}</p>
-                                    <StatusBadge status={q.status === 'SUBMITTED' ? 'warning' : q.status === 'ACCEPTED' ? 'success' : 'critical'} className="mt-1">{q.status}</StatusBadge>
+                            );
+                        });
+                    })()}
+                    {['QUOTATIONS_RECEIVED', 'SUPPLIER_REJECTED'].includes(selectedRFQ?.status) && (
+                        <div className="border-t border-subtle pt-3 flex items-center justify-between">
+                            <p className="text-sm text-secondary">{selectedQuotationIds.length} quotation(s) selected</p>
+                            <button
+                                onClick={handleSubmitForApproval}
+                                disabled={selectedQuotationIds.length === 0 || submittingApproval}
+                                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-primary text-white text-sm font-semibold hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {submittingApproval ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                                {selectedRFQ?.status === 'SUPPLIER_REJECTED' ? `Re-submit (${selectedQuotationIds.length}) for Approval` : `Submit (${selectedQuotationIds.length}) for Manager Approval`}
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </Modal>
+
+            {/* PI Picker Modal */}
+            <Modal isOpen={showPIPicker} onClose={() => setShowPIPicker(false)} title="Load from Approved PI" className="!max-w-lg">
+                <div className="space-y-3">
+                    {approvedPIs.length === 0 ? (
+                        <p className="text-center text-secondary py-6 text-sm italic">No approved Purchase Indents found</p>
+                    ) : approvedPIs.map((pi: any) => (
+                        <div key={pi._id} className="p-3 rounded-lg border border-subtle hover:border-brand-primary/40 transition-colors bg-canvas">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <p className="font-bold text-primary font-mono text-sm">PI #{pi._id.slice(-6).toUpperCase()}</p>
+                                    <p className="text-xs text-secondary mt-0.5">{pi.items?.length} item(s) · {new Date(pi.createdAt).toLocaleDateString()}</p>
+                                    <div className="mt-1.5 space-y-0.5">
+                                        {pi.items?.slice(0, 3).map((item: any, idx: number) => (
+                                            <p key={idx} className="text-xs text-muted">• {item.materialId?.name || 'Material'} — {item.quantity} {item.materialId?.unit || 'KG'}</p>
+                                        ))}
+                                        {pi.items?.length > 3 && <p className="text-xs text-muted">+{pi.items.length - 3} more</p>}
+                                    </div>
                                 </div>
+                                <button
+                                    onClick={() => { prefillRFQFromPI(pi); setShowPIPicker(false); }}
+                                    className="ml-4 text-xs font-semibold px-3 py-1.5 rounded-lg bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors shrink-0"
+                                >
+                                    Use this PI
+                                </button>
                             </div>
-                            {q.status === 'SUBMITTED' && (
-                                <div className="mt-3 flex justify-end">
-                                    <button onClick={() => handleAcceptQuotation(q._id)}
-                                        className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 border border-green-200">
-                                        <CheckCircle className="h-3 w-3 inline mr-1" />Accept & Create PO
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     ))}
                 </div>

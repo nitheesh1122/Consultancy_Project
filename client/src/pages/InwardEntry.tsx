@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { Truck, CheckCircle, Package, History, FileText, Calendar } from 'lucide-react';
 import PDFDownloadButton from '../components/PDFDownloadButton';
@@ -21,6 +22,7 @@ interface PI {
 }
 
 const InwardEntry = () => {
+    const navigate = useNavigate();
     const [pis, setPis] = useState<PI[]>([]);
     const [activeTab, setActiveTab] = useState<'PENDING' | 'COMPLETED'>('PENDING');
     const [loading, setLoading] = useState(true);
@@ -144,13 +146,22 @@ const InwardEntry = () => {
                                         />
 
                                         {activeTab === 'PENDING' && (
-                                            <button
-                                                onClick={() => initiateInward(pi._id)}
-                                                className="flex items-center px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-bold shadow-md transition-colors"
-                                            >
-                                                <CheckCircle className="w-4 h-4 mr-2" />
-                                                Receive & Rate
-                                            </button>
+                                            <>
+                                                <button
+                                                    onClick={() => navigate(`/procurement?fromPiId=${pi._id}`)}
+                                                    className="flex items-center px-4 py-2 bg-canvas text-brand-primary border border-brand-primary/30 rounded-lg hover:bg-brand-primary/10 text-sm font-bold shadow-sm transition-colors"
+                                                >
+                                                    <FileText className="w-4 h-4 mr-2" />
+                                                    Send RFQ
+                                                </button>
+                                                <button
+                                                    onClick={() => initiateInward(pi._id)}
+                                                    className="flex items-center px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 text-sm font-bold shadow-md transition-colors"
+                                                >
+                                                    <CheckCircle className="w-4 h-4 mr-2" />
+                                                    Receive & Rate
+                                                </button>
+                                            </>
                                         )}
                                     </div>
                                 </div>

@@ -438,7 +438,7 @@ export const getWorkerEfficiency = async (req: AuthRequest, res: Response) => {
     try {
         const stats = await mongoose.model('ProductionBatch').aggregate([
             { $match: { status: 'COMPLETED' } },
-            { $unwind: "$assignedWorkers" },
+            { $unwind: { path: '$assignedWorkers', preserveNullAndEmptyArrays: false } },
             {
                 $group: {
                     _id: "$assignedWorkers",
@@ -515,9 +515,17 @@ export const getHRDashboardStats = async (req: AuthRequest, res: Response) => {
         // Workers on Leave
         const workersOnLeave = await Worker.countDocuments({ status: 'ON_LEAVE' });
 
-        // Placeholder for Leaves/Shifts since models might not be fully fleshed out
-        const pendingLeaves = 3; // Placeholder until Leave model exists
-        const activeShifts = 2; // Placeholder until Shift model exists
+        // Try to get real leave/shift counts
+        let pendingLeaves = 0;
+        let activeShifts = 0;
+        try {
+            const LeaveModel = mongoose.model('Leave');
+            pendingLeaves = await LeaveModel.countDocuments({ status: 'PENDING' });
+        } catch (_) { /* Leave model may not exist */ }
+        try {
+            const ShiftModel = mongoose.model('Shift');
+            activeShifts = await ShiftModel.countDocuments({ isActive: true });
+        } catch (_) { /* Shift model may not exist */ }
 
         res.json({
             totalWorkers,
@@ -535,6 +543,117 @@ export const getHRDashboardStats = async (req: AuthRequest, res: Response) => {
 // ============================================================
 // ROLE-SPECIFIC DASHBOARDS
 // ============================================================
+
+// ----------------------------------------------------
+// SHIFT ANALYSIS
+// ----------------------------------------------------
+export const getShiftAnalysis = async (req: AuthRequest, res: Response) => {
+    try {
+        const ProductionBatch = mongoose.model('ProductionBatch');
+        const stats = await ProductionBatch.aggregate([
+            { $match: { status: 'COMPLETED' } },
+            {
+                $group: {
+                    _id: '$shift',
+                    totalBatches: { $sum: 1 },
+                    avgYield: { $avg: '$qualityYieldPercentage' },
+                    avgWastage: { $avg: '$wastagePercentage' },
+                    totalInputKg: { $sum: '$inputKg' },
+                    totalFirstGradeKg: { $sum: '$outputFirstGradeKg' },
+                    totalRejectionKg: { $sum: '$rejectionKg' },
+                    avgShadeMatch: { $avg: '$quality.shadeMatchRating' },
+                    avgFastness: { $avg: '$quality.fastnessRating' }
+                }
+            },
+            {
+                $project: {
+                    shift: '$_id',
+                    totalBatches: 1,
+                    avgYield: { $round: ['$avgYield', 2] },
+                    avgWastage: { $round: ['$avgWastage', 2] },
+                    totalInputKg: 1,
+                    rejectionRate: {
+                        $cond: [
+                            { $gt: ['$totalInputKg', 0] },
+                            { $round: [{ $multiply: [{ $divide: ['$totalRejectionKg', '$totalInputKg'] }, 100] }, 2] },
+                            0
+                        ]
+                    },
+                    firstPassYield: {
+                        $cond: [
+                            { $gt: ['$totalInputKg', 0] },
+                            { $round: [{ $multiply: [{ $divide: ['$totalFirstGradeKg', '$totalInputKg'] }, 100] }, 2] },
+                            0
+                        ]
+                    },
+                    avgShadeMatch: { $round: ['$avgShadeMatch', 1] },
+                    avgFastness: { $round: ['$avgFastness', 1] }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+        res.json(stats);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// ----------------------------------------------------
+// OEE METRICS (per machine)
+// ----------------------------------------------------
+export const getOEEMetrics = async (req: AuthRequest, res: Response) => {
+    try {
+        const ProductionBatch = mongoose.model('ProductionBatch');
+        const machineStats = await ProductionBatch.aggregate([
+            { $match: { status: { $in: ['COMPLETED', 'CANCELLED'] } } },
+            {
+                $group: {
+                    _id: '$machineId',
+                    totalScheduled: { $sum: 1 },
+                    totalCompleted: { $sum: { $cond: [{ $eq: ['$status', 'COMPLETED'] }, 1, 0] } },
+                    totalInputKg: { $sum: '$inputKg' },
+                    totalFirstGradeKg: { $sum: '$outputFirstGradeKg' },
+                    totalRejectionKg: { $sum: '$rejectionKg' },
+                    avgYield: { $avg: '$qualityYieldPercentage' }
+                }
+            },
+            {
+                $lookup: { from: 'machines', localField: '_id', foreignField: '_id', as: 'machine' }
+            },
+            { $unwind: { path: '$machine', preserveNullAndEmptyArrays: true } },
+            {
+                $project: {
+                    machineName: { $ifNull: ['$machine.name', 'Unknown'] },
+                    machineCode: { $ifNull: ['$machine.code', 'N/A'] },
+                    totalScheduled: 1,
+                    totalCompleted: 1,
+                    availability: {
+                        $cond: [
+                            { $gt: ['$totalScheduled', 0] },
+                            { $round: [{ $multiply: [{ $divide: ['$totalCompleted', '$totalScheduled'] }, 100] }, 1] },
+                            0
+                        ]
+                    },
+                    qualityRate: {
+                        $cond: [
+                            { $gt: ['$totalInputKg', 0] },
+                            { $round: [{ $multiply: [{ $divide: ['$totalFirstGradeKg', '$totalInputKg'] }, 100] }, 1] },
+                            0
+                        ]
+                    },
+                    avgYield: { $round: ['$avgYield', 1] }
+                }
+            }
+        ]);
+        const withOEE = machineStats.map((m: any) => ({
+            ...m,
+            oee: parseFloat(((m.availability / 100) * (m.qualityRate / 100) * 100).toFixed(1))
+        }));
+        res.json(withOEE);
+    } catch (error: any) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 // MANAGER DASHBOARD — Business oversight: orders, approvals, suppliers, production
 export const getManagerDashboard = async (req: AuthRequest, res: Response) => {

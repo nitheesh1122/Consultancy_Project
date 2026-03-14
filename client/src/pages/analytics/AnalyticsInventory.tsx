@@ -4,7 +4,7 @@ import { Package, ShieldAlert, BadgeCheck, Loader2, Layers, AlertTriangle, Trend
 import api from '../../lib/api';
 import MetricCard from '../../components/ui/MetricCard';
 import DecisionExplanation from '../../components/ui/DecisionExplanation';
-import { SimpleBarChart } from '../../components/Charts';
+import { SimpleBarChart, CategoryBarChart } from '../../components/Charts';
 import { Button } from '../../components/ui/Button';
 import { generatePDF, buildFileName } from '../../lib/pdfGenerator';
 
@@ -60,7 +60,7 @@ const AnalyticsInventory = () => {
             {/* Inventory Health Section */}
             <div className="space-y-6">
                 <div>
-                    <h3 className="text-xl font-bold font-heading text-primary border-b pb-2">Inventory Health & Distribution</h3>
+                    <h3 className="text-xl font-bold font-heading text-primary border-b pb-2">Inventory Health &amp; Distribution</h3>
                 </div>
 
                 {lowStock.length > 0 && (
@@ -74,28 +74,41 @@ const AnalyticsInventory = () => {
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <MetricCard
-                        title="Low Stock Items"
-                        value={lowStock.length}
-                        icon={AlertTriangle}
-                        status={lowStock.length > 0 ? "critical" : "good"}
-                    />
-                    <MetricCard
-                        title="Dead Stock"
-                        value={deadStock.length}
-                        icon={Layers}
-                        status={deadStock.length > 0 ? "warning" : "default"}
-                    />
-                    <MetricCard
-                        title="Total SKU Count"
-                        value={allMaterials.length}
-                        icon={Package}
-                    />
+                    <MetricCard title="Low Stock Items" value={lowStock.length} icon={AlertTriangle} status={lowStock.length > 0 ? "critical" : "good"} />
+                    <MetricCard title="Dead Stock" value={deadStock.length} icon={Layers} status={deadStock.length > 0 ? "warning" : "default"} />
+                    <MetricCard title="Total SKU Count" value={allMaterials.length} icon={Package} />
                 </div>
+
+                {/* ── Category breakdown ──────────────────────────────── */}
+                {(() => {
+                    const dyeItems = allMaterials.filter((m: any) => m.status !== 'DEAD_STOCK' || true).reduce((acc: any, m: any) => {
+                        const cat = (m.category || 'OTHER').toUpperCase();
+                        if (!acc[cat]) acc[cat] = { healthy: 0, low: 0, dead: 0 };
+                        if (m.status === 'DEAD_STOCK') acc[cat].dead++;
+                        else if (m.status === 'LOW_STOCK') acc[cat].low++;
+                        else acc[cat].healthy++;
+                        return acc;
+                    }, {});
+                    const catData = Object.entries(dyeItems).map(([name, vals]: any) => ({
+                        name,
+                        DYE: name === 'DYE' ? (vals.healthy + vals.low + vals.dead) : undefined,
+                        CHEMICAL: name === 'CHEMICAL' ? (vals.healthy + vals.low + vals.dead) : undefined,
+                        OTHER: !['DYE', 'CHEMICAL'].includes(name) ? (vals.healthy + vals.low + vals.dead) : undefined,
+                    }));
+                    if (catData.length < 2) return null;
+                    return (
+                        <div className="bg-card rounded-xl shadow-lg border border-subtle p-6">
+                            <h3 className="text-base font-bold text-primary font-heading uppercase tracking-wide mb-4">SKU Count by Category</h3>
+                            <CategoryBarChart data={[
+                                { name: 'Stock Status', DYE: allMaterials.filter((m: any) => m.category === 'DYE').length, CHEMICAL: allMaterials.filter((m: any) => m.category === 'CHEMICAL').length }
+                            ]} />
+                        </div>
+                    );
+                })()}
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="industrial-card p-6 h-96 bg-card rounded-xl shadow-lg border border-subtle">
-                        <h3 className="text-xl font-bold text-primary mb-6 font-heading">Stock Distribution</h3>
+                        <h3 className="text-xl font-bold text-primary mb-6 font-heading">Stock Health Distribution</h3>
                         <SimpleBarChart
                             data={[
                                 { name: 'Healthy', value: allMaterials.length - lowStock.length - deadStock.length },
@@ -214,6 +227,23 @@ const AnalyticsInventory = () => {
                             </table>
                         </div>
                     </div>
+
+                    {/* Forecast Gap Bar Chart: Current vs Required Stock */}
+                    {forecast.filter((i: any) => i.status === 'REORDER_NOW').length > 0 && (
+                        <div className="bg-card rounded-xl shadow-lg border border-subtle p-6">
+                            <h3 className="text-base font-bold text-primary font-heading uppercase tracking-wide mb-4 flex items-center gap-2">
+                                <TrendingUp className="h-5 w-5 text-brand-primary" /> Reorder Gap — Materials Needing Action
+                            </h3>
+                            <p className="text-[10px] text-muted font-mono uppercase tracking-widest mb-4 border-l-2 border-brand-primary/30 pl-2">Bar shows how much extra stock is needed (suggested reorder quantity) per material</p>
+                            <SimpleBarChart
+                                data={forecast.filter((i: any) => i.status === 'REORDER_NOW').slice(0, 10).map((i: any) => ({ name: i.name.length > 12 ? i.name.slice(0, 12) + '…' : i.name, value: i.suggestedReorder }))}
+                                xKey="name"
+                                yKey="value"
+                                color="#ef4444"
+                                name="Reorder Qty"
+                            />
+                        </div>
+                    )}
                 </div>
             )}
         </div>
