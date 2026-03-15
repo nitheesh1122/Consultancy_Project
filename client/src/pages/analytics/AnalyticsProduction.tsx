@@ -40,6 +40,11 @@ const AnalyticsProduction = () => {
         queryFn: async () => (await api.get('/analytics/oee-metrics')).data
     });
 
+    const { data: productionDashboard } = useQuery({
+        queryKey: ['production-analytics-dashboard'],
+        queryFn: async () => (await api.get('/production-analytics/dashboard')).data,
+    });
+
     if (isBatchesLoading) {
         return <div className="flex justify-center p-12"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
     }
@@ -49,7 +54,10 @@ const AnalyticsProduction = () => {
     const totalInput = batches.reduce((s: number, b: any) => s + (b.inputKg || 0), 0);
     const totalQualityOutput = batches.reduce((s: number, b: any) => s + (b.outputFirstGradeKg || 0) + (b.outputSecondGradeKg || 0), 0);
     const totalRejection = batches.reduce((s: number, b: any) => s + (b.rejectionKg || 0), 0);
-    const totalUtilityCost = batches.reduce((s: number, b: any) => s + (b.utilities?.calculatedCost || 0), 0);
+    const totalUtilityCost = batches.reduce((s: number, b: any) => {
+        const utilityCost = b?.calculatedCosts?.utilityCost ?? b?.utilities?.calculatedCost ?? 0;
+        return s + utilityCost;
+    }, 0);
     const avgYield = totalInput > 0 ? ((totalQualityOutput / totalInput) * 100).toFixed(2) : '0.00';
     const avgWastage = totalInput > 0 ? (((totalInput - totalQualityOutput - totalRejection) / totalInput) * 100).toFixed(2) : '0.00';
 
@@ -92,6 +100,23 @@ const AnalyticsProduction = () => {
                 </div>
             ) : (<>
                 {/* â”€â”€ KPI Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+                {productionDashboard?.metrics && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-card p-4 rounded-xl border border-subtle">
+                            <div className="text-xs uppercase tracking-wider text-secondary">30D Avg Yield</div>
+                            <div className="text-2xl font-bold text-primary mt-1">{productionDashboard.metrics.averageYield}%</div>
+                        </div>
+                        <div className="bg-card p-4 rounded-xl border border-subtle">
+                            <div className="text-xs uppercase tracking-wider text-secondary">30D Rejection</div>
+                            <div className="text-2xl font-bold text-primary mt-1">{productionDashboard.metrics.overallRejectionPercent}%</div>
+                        </div>
+                        <div className="bg-card p-4 rounded-xl border border-subtle">
+                            <div className="text-xs uppercase tracking-wider text-secondary">Completed Batches (30D)</div>
+                            <div className="text-2xl font-bold text-primary mt-1">{productionDashboard.metrics.totalBatchesRunning}</div>
+                        </div>
+                    </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div className="bg-card p-5 rounded-xl shadow-md border border-subtle">
                         <div className="text-xs uppercase tracking-wider font-bold text-secondary mb-1">Total Processed</div>

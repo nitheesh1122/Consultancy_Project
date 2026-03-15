@@ -10,7 +10,7 @@ const ReportConfig = () => {
  const [formData, setFormData] = useState({
  targetYieldPercentage: 90,
  utilityRates: {
- powerPerKwh: 0,
+ electricityPerKwh: 0,
  waterPerLiter: 0,
  steamPerKg: 0
  },
@@ -30,7 +30,11 @@ const ReportConfig = () => {
  if (settings) {
  setFormData({
  targetYieldPercentage: settings.targetYieldPercentage || 90,
- utilityRates: settings.utilityRates || { powerPerKwh: 0, waterPerLiter: 0, steamPerKg: 0 },
+ utilityRates: {
+ electricityPerKwh: settings.utilityRates?.electricityPerKwh ?? settings.utilityRates?.powerPerKwh ?? 0,
+ waterPerLiter: settings.utilityRates?.waterPerLiter ?? 0,
+ steamPerKg: settings.utilityRates?.steamPerKg ?? 0
+ },
  dailyReportEmails: settings.dailyReportEmails || [],
  emailInput: ''
  });
@@ -38,7 +42,7 @@ const ReportConfig = () => {
  }, [settings]);
 
  const updateMutation = useMutation({
- mutationFn: (payload: any) => api.put('/settings', payload),
+ mutationFn: (payload: any) => api.put('/settings/utilities', payload),
  onSuccess: () => {
  queryClient.invalidateQueries({ queryKey: ['settings'] });
  setMsg({ type: 'success', text: 'Settings updated successfully!' });
@@ -71,7 +75,7 @@ const ReportConfig = () => {
  updateMutation.mutate({
  targetYieldPercentage: Number(formData.targetYieldPercentage),
  utilityRates: {
- powerPerKwh: Number(formData.utilityRates.powerPerKwh),
+ electricityPerKwh: Number(formData.utilityRates.electricityPerKwh),
  waterPerLiter: Number(formData.utilityRates.waterPerLiter),
  steamPerKg: Number(formData.utilityRates.steamPerKg)
  },
@@ -140,10 +144,10 @@ const ReportConfig = () => {
  <input
  id="power-per-kwh"
  type="number" step="0.1" min="0"
- value={formData.utilityRates.powerPerKwh}
+ value={formData.utilityRates.electricityPerKwh}
  onChange={e => setFormData({
  ...formData,
- utilityRates: { ...formData.utilityRates, powerPerKwh: Number(e.target.value) }
+ utilityRates: { ...formData.utilityRates, electricityPerKwh: Number(e.target.value) }
  })}
  className="w-full border-border rounded-lg focus:ring-primary focus:border-primary shadow-sm"
  aria-label="Power cost per kWh"

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AlertTriangle, Loader2, ListTree, Radar } from 'lucide-react';
 import api from '../../lib/api';
+import { useAuth } from '../../hooks/useAuth';
 
 type DecisionItem = {
     id: string;
@@ -30,8 +31,17 @@ const signalClassMap: Record<DecisionItem['signal'], string> = {
 };
 
 const DecisionBoard = () => {
+    const { user } = useAuth();
     const [searchParams, setSearchParams] = useSearchParams();
     const [window, setWindow] = useState(searchParams.get('window') || '30d');
+    const [newFormula, setNewFormula] = useState({
+        metricId: '',
+        formula: '',
+        desiredDirection: 'UP',
+        roles: 'ADMIN,MANAGER',
+        changeNote: ''
+    });
+    const [savingFormula, setSavingFormula] = useState(false);
 
     const { data: decisionFeed, isLoading: loadingFeed } = useQuery({
         queryKey: ['decision-feed-board', window],
@@ -39,6 +49,26 @@ const DecisionBoard = () => {
             const res = await api.get(`/analytics/decision-feed?window=${window}`);
             return res.data as { decisions: DecisionItem[] };
         },
+    });
+
+    const { data: dashboardSummary } = useQuery({
+        queryKey: ['analytics-dashboard-summary'],
+        queryFn: async () => (await api.get('/analytics/dashboard')).data,
+    });
+
+    const { data: kpiDictionary } = useQuery({
+        queryKey: ['kpi-dictionary'],
+        queryFn: async () => (await api.get('/analytics/kpi-dictionary')).data,
+    });
+
+    const { data: dataQuality } = useQuery({
+        queryKey: ['analytics-data-quality'],
+        queryFn: async () => (await api.get('/analytics/data-quality')).data,
+    });
+
+    const { data: snapshots } = useQuery({
+        queryKey: ['decision-snapshots', window],
+        queryFn: async () => (await api.get(`/analytics/decision-snapshots?window=${window}`)).data,
     });
 
     const selectedDecisionId = searchParams.get('decisionId') || decisionFeed?.decisions?.[0]?.id || '';
@@ -71,6 +101,28 @@ const DecisionBoard = () => {
 
     const decisions = decisionFeed?.decisions || [];
 
+    const createKpiFormulaVersion = async () => {
+        setSavingFormula(true);
+        try {
+            await api.post('/analytics/kpi-formula-versions', {
+                metricId: newFormula.metricId,
+                formula: newFormula.formula,
+                desiredDirection: newFormula.desiredDirection,
+                roles: newFormula.roles.split(',').map((r) => r.trim()).filter(Boolean),
+                changeNote: newFormula.changeNote || undefined,
+            });
+            setNewFormula({
+                metricId: '',
+                formula: '',
+                desiredDirection: 'UP',
+                roles: 'ADMIN,MANAGER',
+                changeNote: ''
+            });
+        } finally {
+            setSavingFormula(false);
+        }
+    };
+
     const selectedDecision = useMemo(
         () => decisions.find((item) => item.id === selectedDecisionId) || decisions[0],
         [decisions, selectedDecisionId]
@@ -82,6 +134,25 @@ const DecisionBoard = () => {
 
     return (
         <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div className="bg-card border border-subtle rounded-xl p-4">
+                    <p className="text-xs uppercase tracking-wider text-secondary">Dashboard Signals</p>
+                    <p className="text-2xl font-bold text-primary mt-1">{dashboardSummary?.decisionFeed?.length || decisions.length || 0}</p>
+                </div>
+                <div className="bg-card border border-subtle rounded-xl p-4">
+                    <p className="text-xs uppercase tracking-wider text-secondary">KPI Definitions</p>
+                    <p className="text-2xl font-bold text-primary mt-1">{kpiDictionary?.kpis?.length || 0}</p>
+                </div>
+                <div className="bg-card border border-subtle rounded-xl p-4">
+                    <p className="text-xs uppercase tracking-wider text-secondary">Data Quality Score</p>
+                    <p className="text-2xl font-bold text-primary mt-1">{dataQuality?.score ?? dataQuality?.completenessScore ?? '-'}</p>
+                </div>
+                <div className="bg-card border border-subtle rounded-xl p-4">
+                    <p className="text-xs uppercase tracking-wider text-secondary">Decision Snapshots</p>
+                    <p className="text-2xl font-bold text-primary mt-1">{snapshots?.snapshots?.length || 0}</p>
+                </div>
+            </div>
+
             <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
                     <h3 className="text-xl font-bold text-primary font-heading flex items-center gap-2">
@@ -103,6 +174,56 @@ const DecisionBoard = () => {
                     ))}
                 </div>
             </div>
+
+            {user?.role === 'MANAGER' && (
+                <div className="bg-card border border-subtle rounded-xl p-4 space-y-3">
+                    <p className="text-sm font-semibold text-primary">Create KPI Formula Version</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input
+                            value={newFormula.metricId}
+                            onChange={(e) => setNewFormula((f) => ({ ...f, metricId: e.target.value }))}
+                            placeholder="metricId"
+                            className="h-10 px-3 rounded-lg border border-subtle bg-canvas text-sm"
+                        />
+                        <select
+                            value={newFormula.desiredDirection}
+                            onChange={(e) => setNewFormula((f) => ({ ...f, desiredDirection: e.target.value }))}
+                            className="h-10 px-3 rounded-lg border border-subtle bg-canvas text-sm"
+                        >
+                            <option value="UP">UP</option>
+                            <option value="DOWN">DOWN</option>
+                        </select>
+                        <input
+                            value={newFormula.formula}
+                            onChange={(e) => setNewFormula((f) => ({ ...f, formula: e.target.value }))}
+                            placeholder="formula"
+                            className="h-10 px-3 rounded-lg border border-subtle bg-canvas text-sm"
+                        />
+                        <input
+                            value={newFormula.roles}
+                            onChange={(e) => setNewFormula((f) => ({ ...f, roles: e.target.value }))}
+                            placeholder="roles comma separated"
+                            className="h-10 px-3 rounded-lg border border-subtle bg-canvas text-sm"
+                        />
+                    </div>
+                    <input
+                        value={newFormula.changeNote}
+                        onChange={(e) => setNewFormula((f) => ({ ...f, changeNote: e.target.value }))}
+                        placeholder="change note"
+                        className="h-10 w-full px-3 rounded-lg border border-subtle bg-canvas text-sm"
+                    />
+                    <div className="flex justify-end">
+                        <button
+                            type="button"
+                            disabled={savingFormula || !newFormula.metricId || !newFormula.formula}
+                            onClick={createKpiFormulaVersion}
+                            className="px-4 py-2 rounded-lg text-sm font-semibold bg-brand-primary text-white disabled:opacity-50"
+                        >
+                            {savingFormula ? 'Saving...' : 'Save Formula Version'}
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 <div className="xl:col-span-1 bg-card border border-subtle rounded-xl p-4 space-y-3 max-h-[70vh] overflow-auto">

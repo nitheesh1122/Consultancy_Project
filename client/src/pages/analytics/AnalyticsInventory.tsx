@@ -81,7 +81,7 @@ const AnalyticsInventory = () => {
 
                 {/* ── Category breakdown ──────────────────────────────── */}
                 {(() => {
-                    const dyeItems = allMaterials.filter((m: any) => m.status !== 'DEAD_STOCK' || true).reduce((acc: any, m: any) => {
+                    const dyeItems = allMaterials.reduce((acc: any, m: any) => {
                         const cat = (m.category || 'OTHER').toUpperCase();
                         if (!acc[cat]) acc[cat] = { healthy: 0, low: 0, dead: 0 };
                         if (m.status === 'DEAD_STOCK') acc[cat].dead++;
