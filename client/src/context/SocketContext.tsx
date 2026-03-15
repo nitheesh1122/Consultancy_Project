@@ -21,7 +21,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         // Connect to the server. Adjust URL for production if needed.
         // In Vite dev, proxy usually handles /api, but socket.io needs dedicated port or proxy config.
         // Assuming server allows CORS from * as set in socket.ts
-        const newSocket = io('http://localhost:3000'); // TODO: Make env variable
+        const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000';
+        const newSocket = io(socketUrl);
 
         newSocket.on('connect', () => {
             console.log('Socket connected');
@@ -45,8 +46,11 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             // Join a room based on role (e.g., 'ADMIN', 'STORE_MANAGER')
             socket.emit('join_role', user.role);
 
-            // Also join user specific room if needed
-            socket.emit('join_role', (user as any)._id || (user as any).id);
+            // Join user-specific room for direct notifications
+            const userId = (user as any)._id || (user as any).id;
+            if (userId) {
+                socket.emit('join_user', userId);
+            }
         }
     }, [socket, user]);
 

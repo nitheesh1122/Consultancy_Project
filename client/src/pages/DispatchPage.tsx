@@ -6,8 +6,10 @@ import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import StatusBadge from '../components/ui/StatusBadge';
 import { Plus, Truck, Package, ArrowRight } from 'lucide-react';
+import { useSocket } from '../context/SocketContext';
 
 const DispatchPage = () => {
+    const { socket } = useSocket();
     const [dispatches, setDispatches] = useState<any[]>([]);
     const [completedOrders, setCompletedOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -29,6 +31,22 @@ const DispatchPage = () => {
     useEffect(() => {
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const refresh = () => {
+            fetchData();
+        };
+
+        socket.on('dispatch:created', refresh);
+        socket.on('dispatch:updated', refresh);
+
+        return () => {
+            socket.off('dispatch:created', refresh);
+            socket.off('dispatch:updated', refresh);
+        };
+    }, [socket]);
 
     const fetchData = async () => {
         try {

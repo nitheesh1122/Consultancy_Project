@@ -13,6 +13,10 @@ const Suppliers = () => {
  const [showModal, setShowModal] = useState(false);
  const [creating, setCreating] = useState(false);
  const [form, setForm] = useState({ name: '', contactPerson: '', phone: '', materialCategories: '' });
+ const [showAccountModal, setShowAccountModal] = useState(false);
+ const [accountCreating, setAccountCreating] = useState(false);
+ const [selectedSupplierId, setSelectedSupplierId] = useState('');
+ const [accountForm, setAccountForm] = useState({ username: '', password: '' });
 
  useEffect(() => {
  fetchSuppliers();
@@ -43,9 +47,9 @@ const Suppliers = () => {
  <h2 className="text-2xl font-bold text-primary">Supplier Management</h2>
  <p className="text-secondary">Monitor supplier performance and reliability</p>
  </div>
- <button className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover" onClick={() => setShowModal(true)}>
+ {canCreate && <button className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover" onClick={() => setShowModal(true)}>
  Add Supplier
- </button>
+ </button>}
  </div>
 
  <div className="bg-surface rounded-xl shadow-sm overflow-hidden border border-border">
@@ -94,7 +98,22 @@ const Suppliers = () => {
  </span>
  </td>
  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+ <div className="flex items-center justify-end gap-2">
  <span className="text-primary hover:text-primary">View Analytics</span>
+ {user?.role === 'MANAGER' && (
+ <button
+ onClick={(e) => {
+ e.stopPropagation();
+ setSelectedSupplierId(supplier._id);
+ setAccountForm({ username: '', password: '' });
+ setShowAccountModal(true);
+ }}
+ className="px-2.5 py-1 text-xs rounded-md border border-subtle bg-background text-primary hover:bg-canvas"
+ >
+ Create Portal Account
+ </button>
+ )}
+ </div>
  </td>
  </tr>
  ))}
@@ -144,6 +163,49 @@ const Suppliers = () => {
  <div className="flex justify-end gap-3 pt-2">
  <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 text-sm rounded-lg border border-border text-secondary hover:bg-background">Cancel</button>
  <button type="submit" disabled={creating} className="px-4 py-2 text-sm rounded-lg bg-primary text-white hover:bg-primary-hover disabled:opacity-50">{creating ? 'Creating...' : 'Create Supplier'}</button>
+ </div>
+ </form>
+ </div>
+ </div>
+ )}
+
+ {showAccountModal && (
+ <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+ <div className="bg-surface rounded-xl p-6 w-full max-w-md shadow-xl border border-border">
+ <div className="flex justify-between items-center mb-4">
+ <h3 className="text-lg font-bold text-primary">Create Supplier Portal Account</h3>
+ <button onClick={() => setShowAccountModal(false)} className="text-secondary hover:text-primary"><X className="h-5 w-5" /></button>
+ </div>
+ <form onSubmit={async (e) => {
+ e.preventDefault();
+ setAccountCreating(true);
+ try {
+ await api.post('/supplier/accounts', {
+ supplierId: selectedSupplierId,
+ username: accountForm.username,
+ password: accountForm.password,
+ });
+ setShowAccountModal(false);
+ setSelectedSupplierId('');
+ setAccountForm({ username: '', password: '' });
+ alert('Supplier portal account created');
+ } catch (err: any) {
+ alert(err?.response?.data?.message || 'Failed to create account');
+ } finally {
+ setAccountCreating(false);
+ }
+ }} className="space-y-4">
+ <div>
+ <label className="block text-sm font-medium text-secondary mb-1">Username *</label>
+ <input className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-primary" required value={accountForm.username} onChange={e => setAccountForm(f => ({ ...f, username: e.target.value }))} />
+ </div>
+ <div>
+ <label className="block text-sm font-medium text-secondary mb-1">Password *</label>
+ <input type="password" className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background text-primary" required value={accountForm.password} onChange={e => setAccountForm(f => ({ ...f, password: e.target.value }))} />
+ </div>
+ <div className="flex justify-end gap-3 pt-2">
+ <button type="button" onClick={() => setShowAccountModal(false)} className="px-4 py-2 text-sm rounded-lg border border-border text-secondary hover:bg-background">Cancel</button>
+ <button type="submit" disabled={accountCreating} className="px-4 py-2 text-sm rounded-lg bg-primary text-white hover:bg-primary-hover disabled:opacity-50">{accountCreating ? 'Creating...' : 'Create Account'}</button>
  </div>
  </form>
  </div>

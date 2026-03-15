@@ -26,6 +26,7 @@ const CustomerOrders = () => {
     const [statusFilter, setStatusFilter] = useState('');
     const [actionLoading, setActionLoading] = useState(false);
     const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+    const [dispatchByOrder, setDispatchByOrder] = useState<Record<string, any>>({});
 
     useEffect(() => {
         fetchOrders();
@@ -82,6 +83,16 @@ const CustomerOrders = () => {
         return flow[current] || null;
     };
 
+    const fetchDispatchForOrder = async (orderId: string) => {
+        if (dispatchByOrder[orderId]) return;
+        try {
+            const { data } = await api.get(`/dispatch/order/${orderId}`);
+            setDispatchByOrder((prev) => ({ ...prev, [orderId]: data }));
+        } catch {
+            // Dispatch may not exist yet; keep silent for UX.
+        }
+    };
+
     if (loading) return null;
 
     return (
@@ -123,7 +134,13 @@ const CustomerOrders = () => {
                             ) : (
                                 orders.map((order: any) => (
                                     <React.Fragment key={order._id}>
-                                    <tr className="hover:bg-canvas transition-colors cursor-pointer" onClick={() => setExpandedOrder(expandedOrder === order._id ? null : order._id)}>
+                                    <tr className="hover:bg-canvas transition-colors cursor-pointer" onClick={() => {
+                                        const nextExpanded = expandedOrder === order._id ? null : order._id;
+                                        setExpandedOrder(nextExpanded);
+                                        if (nextExpanded && ['DISPATCHED', 'DELIVERED'].includes(order.status)) {
+                                            fetchDispatchForOrder(order._id);
+                                        }
+                                    }}>
                                         <td className="px-6 py-4 font-semibold text-primary font-mono">
                                             <div className="flex items-center gap-2">
                                                 {expandedOrder === order._id ? <ChevronUp className="h-4 w-4 text-muted" /> : <ChevronDown className="h-4 w-4 text-muted" />}
@@ -168,6 +185,16 @@ const CustomerOrders = () => {
                                                 <div className="max-w-3xl mx-auto">
                                                     <p className="text-xs font-semibold text-secondary uppercase tracking-wide mb-3">Order Pipeline</p>
                                                     <OrderPipeline stages={ORDER_STAGES} currentStatus={order.status} compact />
+                                                    {dispatchByOrder[order._id] && (
+                                                        <div className="mt-4 p-3 rounded-lg border border-subtle bg-card text-sm">
+                                                            <p className="font-semibold text-primary mb-2">Dispatch Details</p>
+                                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-secondary">
+                                                                <p><span className="text-muted">Dispatch #:</span> {dispatchByOrder[order._id].dispatchNumber || '-'}</p>
+                                                                <p><span className="text-muted">Vehicle:</span> {dispatchByOrder[order._id].vehicleNumber || '-'}</p>
+                                                                <p><span className="text-muted">Status:</span> {dispatchByOrder[order._id].status || '-'}</p>
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

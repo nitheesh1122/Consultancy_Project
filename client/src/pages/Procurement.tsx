@@ -164,6 +164,17 @@ const Procurement = () => {
         } finally { setPoGeneratingId(''); }
     };
 
+    const handleQuickAcceptQuotation = async (quotationId: string) => {
+        try {
+            await api.put(`/supplier/quotations/${quotationId}/accept`);
+            toast.success('Quotation accepted and PO created');
+            setShowQuotations(false);
+            fetchData();
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Failed to accept quotation');
+        }
+    };
+
     const addItem = () => setRfqItems([...rfqItems, { materialId: '', quantity: 0, unit: 'KG' }]);
     const removeItem = (idx: number) => setRfqItems(rfqItems.filter((_, i) => i !== idx));
     const updateItem = (idx: number, field: string, value: any) => {
@@ -440,6 +451,18 @@ const Procurement = () => {
                                         <div className="text-right flex-shrink-0">
                                             <p className="text-lg font-bold text-brand-primary">₹{q.totalPrice?.toLocaleString()}</p>
                                             <StatusBadge status={q.status === 'SUBMITTED' ? 'warning' : q.status === 'ACCEPTED' ? 'success' : 'critical'} className="mt-1">{q.status}</StatusBadge>
+                                            {(selectedRFQ?.status === 'QUOTATIONS_RECEIVED' || selectedRFQ?.status === 'OPEN') && q.status === 'SUBMITTED' && (
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleQuickAcceptQuotation(q._id);
+                                                    }}
+                                                    className="mt-2 text-xs font-semibold px-2.5 py-1 rounded-md bg-green-50 text-green-700 border border-green-200 hover:bg-green-100"
+                                                >
+                                                    Quick Accept
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
