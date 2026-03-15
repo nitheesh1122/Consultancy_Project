@@ -15,7 +15,7 @@ import { logAudit } from '../middleware/auditMiddleware';
 const router = express.Router();
 
 // ===== Customer management (ADMIN/MANAGER creates customers) =====
-router.post('/customers', protect, authorize('ADMIN', 'MANAGER'), logAudit('CUSTOMER_CREATED'), createCustomer);
+router.post('/customers', protect, authorize('MANAGER'), logAudit('CUSTOMER_CREATED'), createCustomer);
 router.get('/customers', protect, authorize('ADMIN', 'MANAGER'), getCustomers);
 
 // ===== Customer self-service (CUSTOMER role) =====

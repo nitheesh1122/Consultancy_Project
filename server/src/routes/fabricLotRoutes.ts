@@ -6,10 +6,10 @@ const router = express.Router();
 
 router.route('/')
     .get(protect, getLots)
-    .post(protect, authorize('ADMIN', 'SUPERVISOR', 'STORE_MANAGER'), createLot);
+    .post(protect, authorize('SUPERVISOR', 'STORE_MANAGER'), createLot);
 
 router.route('/:id')
-    .put(protect, authorize('ADMIN', 'SUPERVISOR', 'STORE_MANAGER'), updateLot)
-    .delete(protect, authorize('ADMIN', 'SUPERVISOR', 'STORE_MANAGER'), deleteLot);
+    .put(protect, authorize('SUPERVISOR', 'STORE_MANAGER'), updateLot)
+    .delete(protect, authorize('SUPERVISOR', 'STORE_MANAGER'), deleteLot);
 
 export default router;

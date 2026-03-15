@@ -122,20 +122,10 @@ export const issueMRS = async (req: AuthRequest, res: Response) => {
             const mrsItem = mrs.items.find((i: any) => i.materialId._id.toString() === issueItem.materialId);
 
             if (mrsItem) {
-                // Update stock using Model
                 await Material.findByIdAndUpdate(
                     issueItem.materialId,
                     { $inc: { quantity: -issueItem.quantityIssued } }
                 );
-
-                // Create Transaction using Model - Assuming Transaction model is imported in other task context or raw for now if not imported. 
-                // Let's use raw here to match context or add import if needed. Since I added Material import, I should check if Transaction is imported.
-                // It is NOT imported in the file view provided earlier. I will use raw collection for Transaction OR add import.
-                // Safest to keep raw for Transaction unless I add import, BUT I previously refactored piController to use Model.
-                // Let's stick to raw for Transaction to minimize diff, but use Material model for critical stock update.
-
-                // Wait, user complained "backend is sucking". I should make it robust.
-                // I'll stick to raw for transaction to avoid breaking, but Material update MUST be correct.
 
                 await mongoose.connection.collection('transactions').insertOne({
                     id: new mongoose.Types.ObjectId().toString(),

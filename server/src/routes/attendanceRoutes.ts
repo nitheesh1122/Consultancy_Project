@@ -8,10 +8,10 @@ const router = Router();
 router.use(protect);
 
 // Mark single attendance
-router.post('/', authorize('HR_MANAGER', 'MANAGER', 'ADMIN'), logAudit('MARK_ATTENDANCE'), markAttendance);
+router.post('/', authorize('HR_MANAGER', 'MANAGER'), logAudit('MARK_ATTENDANCE'), markAttendance);
 
 // Bulk mark
-router.post('/bulk', authorize('HR_MANAGER', 'MANAGER', 'ADMIN'), logAudit('BULK_MARK_ATTENDANCE'), bulkMarkAttendance);
+router.post('/bulk', authorize('HR_MANAGER', 'MANAGER'), logAudit('BULK_MARK_ATTENDANCE'), bulkMarkAttendance);
 
 // Get by date
 router.get('/date', authorize('HR_MANAGER', 'MANAGER', 'ADMIN'), getAttendanceByDate);

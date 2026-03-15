@@ -8,7 +8,7 @@ const router = Router();
 router.use(protect);
 
 // Create leave request
-router.post('/', authorize('HR_MANAGER', 'MANAGER', 'SUPERVISOR', 'ADMIN'), logAudit('CREATE_LEAVE'), createLeaveRequest);
+router.post('/', authorize('HR_MANAGER', 'MANAGER', 'SUPERVISOR'), logAudit('CREATE_LEAVE'), createLeaveRequest);
 
 // Get all leave requests (with optional filters: ?status=PENDING&workerId=xxx)
 router.get('/', authorize('HR_MANAGER', 'MANAGER', 'ADMIN'), getLeaveRequests);

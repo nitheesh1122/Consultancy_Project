@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { Dispatch } from '../models/Dispatch';
 import { CustomerOrder } from '../models/CustomerOrder';
 import { Customer } from '../models/Customer';
@@ -25,6 +26,30 @@ export const createDispatch = async (req: AuthRequest, res: Response) => {
 
         if (!customerOrderId || !vehicleNumber || !dispatchDate) {
             return res.status(400).json({ message: 'customerOrderId, vehicleNumber, and dispatchDate are required' });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(String(customerOrderId))) {
+            return res.status(400).json({ message: 'Invalid ID' });
+        }
+
+        const dispatchDateObj = new Date(dispatchDate);
+        if (Number.isNaN(dispatchDateObj.getTime())) {
+            return res.status(400).json({ message: 'dispatchDate must be a valid date' });
+        }
+
+        if (expectedDelivery) {
+            const expectedDeliveryObj = new Date(expectedDelivery);
+            if (Number.isNaN(expectedDeliveryObj.getTime())) {
+                return res.status(400).json({ message: 'expectedDelivery must be a valid date' });
+            }
+            if (expectedDeliveryObj < dispatchDateObj) {
+                return res.status(400).json({ message: 'expectedDelivery cannot be before dispatchDate' });
+            }
+        }
+
+        const vehiclePattern = /^[A-Z0-9-]{6,15}$/i;
+        if (!vehiclePattern.test(String(vehicleNumber).trim())) {
+            return res.status(400).json({ message: 'vehicleNumber format is invalid' });
         }
 
         const order = await CustomerOrder.findById(customerOrderId).populate('customerId');
@@ -79,6 +104,7 @@ export const createDispatch = async (req: AuthRequest, res: Response) => {
             link: `/dispatch`
         });
         getIO().to('MANAGER').emit('dispatch:created', { dispatchId: dispatch._id, orderId: order._id });
+        getIO().to('STORE_MANAGER').emit('dispatch:created', { dispatchId: dispatch._id, orderId: order._id });
 
         await manualLog('DISPATCH_CREATED', req.user.id, { dispatchId: dispatch._id, dispatchNumber, orderId: order._id });
 
@@ -105,7 +131,12 @@ export const getAllDispatches = async (req: AuthRequest, res: Response) => {
 // ===== Get Dispatch by Order =====
 export const getDispatchByOrder = async (req: AuthRequest, res: Response) => {
     try {
-        const dispatch = await Dispatch.findOne({ customerOrderId: req.params.orderId })
+        const orderId = String(req.params.orderId);
+        if (!mongoose.Types.ObjectId.isValid(orderId)) {
+            return res.status(400).json({ message: 'Invalid ID' });
+        }
+
+        const dispatch = await Dispatch.findOne({ customerOrderId: orderId })
             .populate('customerOrderId', 'orderNumber fabricType color quantity status')
             .populate('customerId', 'name companyName')
             .populate('dispatchedBy', 'username');
@@ -120,7 +151,12 @@ export const getDispatchByOrder = async (req: AuthRequest, res: Response) => {
 export const updateDispatchStatus = async (req: AuthRequest, res: Response) => {
     try {
         const { status } = req.body;
-        const dispatch = await Dispatch.findById(req.params.id);
+        const dispatchId = String(req.params.id);
+        if (!mongoose.Types.ObjectId.isValid(dispatchId)) {
+            return res.status(400).json({ message: 'Invalid ID' });
+        }
+
+        const dispatch = await Dispatch.findById(dispatchId);
         if (!dispatch) return res.status(404).json({ message: 'Dispatch not found' });
 
         const validTransitions: Record<string, string[]> = {
@@ -155,6 +191,7 @@ export const updateDispatchStatus = async (req: AuthRequest, res: Response) => {
         }
 
         getIO().to('MANAGER').emit('dispatch:updated', { dispatchId: dispatch._id, status });
+        getIO().to('STORE_MANAGER').emit('dispatch:updated', { dispatchId: dispatch._id, status });
         await manualLog('DISPATCH_STATUS_UPDATED', req.user.id, { dispatchId: dispatch._id, status });
 
         res.json(dispatch);

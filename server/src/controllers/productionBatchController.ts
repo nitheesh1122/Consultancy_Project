@@ -3,6 +3,8 @@ import ProductionBatch from '../models/ProductionBatch';
 import Machine from '../models/Machine';
 import Worker from '../models/Worker';
 import Settings from '../models/Settings';
+import { MRS } from '../models/MRS';
+import { Material } from '../models/Material';
 import mongoose from 'mongoose';
 import { getIO } from '../socket';
 
@@ -245,11 +247,43 @@ export const completeBatch = async (req: AuthRequest, res: Response): Promise<vo
         batch.qualityYieldPercentage = Number(qualityYieldPercentage.toFixed(2));
         batch.wastagePercentage = Number(wastagePercentage.toFixed(2));
 
-        // Cost snapshot (Material cost would be fetched from transaction ledger optionally, setting to 0 for now as placeholder or could be updated asynchronously)
+        // Resolve material cost from issued MRS items linked to this batch.
+        let materialCost = 0;
+        try {
+            let mrs: any = null;
+
+            if (batch.mrsId) {
+                mrs = await MRS.findById(batch.mrsId);
+            }
+
+            if (!mrs) {
+                // Fallback by batch number when explicit mrsId is not attached yet.
+                mrs = await MRS.findOne({ batchId: batch.batchNumber }).sort({ createdAt: -1 });
+            }
+
+            if (mrs?.items?.length) {
+                const issuedItems = mrs.items.filter((item: any) => (item.quantityIssued || 0) > 0);
+                const materialIds = issuedItems.map((item: any) => item.materialId);
+                const materials = await Material.find({ _id: { $in: materialIds } }, 'unitCost');
+                const materialCostMap = new Map(materials.map((m: any) => [m._id.toString(), Number(m.unitCost || 0)]));
+
+                materialCost = issuedItems.reduce((sum: number, item: any) => {
+                    const unitCost = materialCostMap.get(item.materialId.toString()) || 0;
+                    return sum + (Number(item.quantityIssued || 0) * unitCost);
+                }, 0);
+            }
+        } catch (costErr) {
+            console.error('Failed calculating material cost', costErr);
+        }
+
+        const effectiveOutputKg = Math.max(outputFirstGradeKg + outputSecondGradeKg, 0);
+        const totalCost = materialCost + calculatedUtilityCost;
+        const totalCostPerKg = effectiveOutputKg > 0 ? totalCost / effectiveOutputKg : 0;
+
         batch.calculatedCosts = {
-            materialCost: 0,
+            materialCost: Number(materialCost.toFixed(2)),
             utilityCost: Number(calculatedUtilityCost.toFixed(2)),
-            totalCostPerKg: 0 // Will require combining MRS cost + Utility cost divided by output
+            totalCostPerKg: Number(totalCostPerKg.toFixed(2))
         };
 
         batch.endTime = new Date();

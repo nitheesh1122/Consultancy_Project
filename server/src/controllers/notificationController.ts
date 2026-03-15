@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { Notification } from '../models/Notification';
 
 interface AuthRequest extends Request {
@@ -29,8 +30,21 @@ export const getNotifications = async (req: AuthRequest, res: Response) => {
 
 export const markAsRead = async (req: AuthRequest, res: Response) => {
     try {
-        const { id } = req.params;
-        await Notification.findByIdAndUpdate(id, { read: true });
+        const id = String(req.params.id);
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: 'Invalid ID' });
+        }
+
+        const updated = await Notification.findOneAndUpdate(
+            { _id: id, recipient: req.user.id },
+            { read: true },
+            { new: true }
+        );
+
+        if (!updated) {
+            return res.status(404).json({ message: 'Notification not found' });
+        }
+
         res.json({ success: true });
     } catch (error: any) {
         res.status(500).json({ message: error.message });

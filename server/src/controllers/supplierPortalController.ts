@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { RFQ } from '../models/RFQ';
 import { Quotation } from '../models/Quotation';
 import { PurchaseOrder } from '../models/PurchaseOrder';
@@ -14,6 +15,8 @@ interface AuthRequest extends Request {
     user?: any;
 }
 
+const isValidObjectId = (value: any): boolean => mongoose.Types.ObjectId.isValid(String(value));
+
 // ===== MANAGER: Create Supplier account =====
 export const createSupplierAccount = async (req: AuthRequest, res: Response) => {
     try {
@@ -21,6 +24,10 @@ export const createSupplierAccount = async (req: AuthRequest, res: Response) => 
 
         if (!username || !password || !supplierId) {
             return res.status(400).json({ message: 'username, password, and supplierId are required' });
+        }
+
+        if (!isValidObjectId(supplierId)) {
+            return res.status(400).json({ message: 'Invalid ID' });
         }
 
         const supplier = await Supplier.findById(supplierId);
@@ -140,6 +147,10 @@ export const submitQuotation = async (req: AuthRequest, res: Response) => {
             return res.status(400).json({ message: 'rfqId, items, and deliveryDays are required' });
         }
 
+        if (!isValidObjectId(rfqId)) {
+            return res.status(400).json({ message: 'Invalid ID' });
+        }
+
         const user = await User.findById(req.user.id);
         if (!user?.profileId) {
             return res.status(400).json({ message: 'Supplier profile not linked' });
@@ -199,6 +210,10 @@ export const submitQuotation = async (req: AuthRequest, res: Response) => {
 // ===== MANAGER: Get quotations for an RFQ =====
 export const getQuotationsForRFQ = async (req: AuthRequest, res: Response) => {
     try {
+        if (!isValidObjectId(req.params.rfqId)) {
+            return res.status(400).json({ message: 'Invalid ID' });
+        }
+
         const quotations = await Quotation.find({ rfqId: req.params.rfqId })
             .populate('supplierId', 'name contactPerson rating')
             .sort({ totalPrice: 1 });
@@ -211,6 +226,10 @@ export const getQuotationsForRFQ = async (req: AuthRequest, res: Response) => {
 // ===== MANAGER: Accept quotation & create PO =====
 export const acceptQuotation = async (req: AuthRequest, res: Response) => {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid ID' });
+        }
+
         const quotation = await Quotation.findById(req.params.id);
         if (!quotation) {
             return res.status(404).json({ message: 'Quotation not found' });
@@ -301,6 +320,10 @@ export const getAllPOs = async (req: AuthRequest, res: Response) => {
 // ===== SUPPLIER: Confirm PO =====
 export const confirmPO = async (req: AuthRequest, res: Response) => {
     try {
+        if (!isValidObjectId(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid ID' });
+        }
+
         const user = await User.findById(req.user.id);
         if (!user?.profileId) {
             return res.status(400).json({ message: 'Supplier profile not linked' });
@@ -351,6 +374,26 @@ export const createShipment = async (req: AuthRequest, res: Response) => {
 
         if (!purchaseOrderId || !dispatchDate || !vehicleNumber || !expectedDelivery) {
             return res.status(400).json({ message: 'purchaseOrderId, dispatchDate, vehicleNumber, expectedDelivery are required' });
+        }
+
+        if (!isValidObjectId(purchaseOrderId)) {
+            return res.status(400).json({ message: 'Invalid ID' });
+        }
+
+        const dispatchDateObj = new Date(dispatchDate);
+        const expectedDeliveryObj = new Date(expectedDelivery);
+
+        if (Number.isNaN(dispatchDateObj.getTime()) || Number.isNaN(expectedDeliveryObj.getTime())) {
+            return res.status(400).json({ message: 'dispatchDate and expectedDelivery must be valid dates' });
+        }
+
+        if (expectedDeliveryObj < dispatchDateObj) {
+            return res.status(400).json({ message: 'expectedDelivery cannot be before dispatchDate' });
+        }
+
+        const vehiclePattern = /^[A-Z0-9-]{6,15}$/i;
+        if (!vehiclePattern.test(String(vehicleNumber).trim())) {
+            return res.status(400).json({ message: 'vehicleNumber format is invalid' });
         }
 
         const user = await User.findById(req.user.id);
@@ -427,6 +470,9 @@ export const getSupplierShipments = async (req: AuthRequest, res: Response) => {
             const { rfqId } = req.params;
             const { quotationIds } = req.body;
             if (!quotationIds?.length) return res.status(400).json({ message: 'Select at least one quotation' });
+            if (!isValidObjectId(rfqId) || !quotationIds.every((id: string) => isValidObjectId(id))) {
+                return res.status(400).json({ message: 'Invalid ID' });
+            }
             const rfq = await RFQ.findById(rfqId);
             if (!rfq) return res.status(404).json({ message: 'RFQ not found' });
             if (!['QUOTATIONS_RECEIVED', 'SUPPLIER_REJECTED'].includes(rfq.status)) {
@@ -479,6 +525,9 @@ export const getSupplierShipments = async (req: AuthRequest, res: Response) => {
             const { rfqId } = req.params;
             const { quotationId, remarks } = req.body;
             if (!quotationId) return res.status(400).json({ message: 'Select a quotation to approve' });
+            if (!isValidObjectId(rfqId) || !isValidObjectId(quotationId)) {
+                return res.status(400).json({ message: 'Invalid ID' });
+            }
             const rfq = await RFQ.findById(rfqId);
             if (!rfq) return res.status(404).json({ message: 'RFQ not found' });
             if (rfq.status !== 'PENDING_MANAGER_APPROVAL') return res.status(400).json({ message: 'RFQ is not pending approval' });
@@ -508,6 +557,9 @@ export const getSupplierShipments = async (req: AuthRequest, res: Response) => {
         try {
             const { rfqId } = req.params;
             const { remarks } = req.body;
+            if (!isValidObjectId(rfqId)) {
+                return res.status(400).json({ message: 'Invalid ID' });
+            }
             const rfq = await RFQ.findById(rfqId);
             if (!rfq) return res.status(404).json({ message: 'RFQ not found' });
             rfq.status = 'QUOTATIONS_RECEIVED';
@@ -526,6 +578,9 @@ export const getSupplierShipments = async (req: AuthRequest, res: Response) => {
     export const generatePOFromRFQ = async (req: AuthRequest, res: Response) => {
         try {
             const { rfqId } = req.params;
+            if (!isValidObjectId(rfqId)) {
+                return res.status(400).json({ message: 'Invalid ID' });
+            }
             const rfq = await RFQ.findById(rfqId);
             if (!rfq) return res.status(404).json({ message: 'RFQ not found' });
             if (rfq.status !== 'MANAGER_APPROVED') return res.status(400).json({ message: 'RFQ must be manager-approved before generating PO' });
@@ -553,6 +608,9 @@ export const getSupplierShipments = async (req: AuthRequest, res: Response) => {
     // ===== SUPPLIER: Accept or reject a Purchase Order =====
     export const supplierRespondToPO = async (req: AuthRequest, res: Response) => {
         try {
+            if (!isValidObjectId(req.params.id)) {
+                return res.status(400).json({ message: 'Invalid ID' });
+            }
             const user = await User.findById(req.user.id);
             if (!user?.profileId) return res.status(400).json({ message: 'Supplier profile not linked' });
             const po = await PurchaseOrder.findById(req.params.id);

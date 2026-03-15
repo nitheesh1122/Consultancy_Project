@@ -117,11 +117,7 @@ export const updatePIStatus = async (req: AuthRequest, res: Response) => {
 
         await pi.save();
 
-        // Notify Store Manager
         const io = getIO();
-        // Assuming we join rooms by userId too? Or just generic role room?
-        // Ideally: io.to(pi.storeManagerId.toString()).emit... 
-        // For now, simpler:
         io.to('STORE_MANAGER').emit('notification', {
             title: `PI ${status}`,
             message: `Purchase Indent ${pi._id.toString().slice(-6)} was ${status}.`,

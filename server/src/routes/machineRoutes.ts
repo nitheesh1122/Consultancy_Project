@@ -8,8 +8,8 @@ const router = express.Router();
 router.get('/', protect, getMachines);
 
 // Only MANAGER can modify machines (ADMIN is restricted to read-only)
-router.post('/', protect, authorize('MANAGER', 'ADMIN'), requireManager, createMachine);
-router.put('/:id', protect, authorize('MANAGER', 'ADMIN'), requireManager, updateMachine);
-router.delete('/:id', protect, authorize('MANAGER', 'ADMIN'), requireManager, deleteMachine);
+router.post('/', protect, authorize('MANAGER'), requireManager, createMachine);
+router.put('/:id', protect, authorize('MANAGER'), requireManager, updateMachine);
+router.delete('/:id', protect, authorize('MANAGER'), requireManager, deleteMachine);
 
 export default router;

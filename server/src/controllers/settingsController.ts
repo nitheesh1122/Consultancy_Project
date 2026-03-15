@@ -23,7 +23,9 @@ export const getSettings = async (req: Request, res: Response) => {
                     waterPerLiter: 0,
                     steamPerKg: 0,
                     electricityPerKwh: 0
-                }
+                },
+                targetYieldPercentage: 90,
+                dailyReportEmails: []
             });
         }
 
@@ -39,18 +41,45 @@ export const getSettings = async (req: Request, res: Response) => {
 // @access  Private (Store Manager or Admin)
 export const updateUtilityRates = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const { utilityRates } = req.body;
+        const { utilityRates, targetYieldPercentage, dailyReportEmails } = req.body;
 
-        if (!utilityRates || typeof utilityRates.waterPerLiter === 'undefined'
-            || typeof utilityRates.steamPerKg === 'undefined'
-            || typeof utilityRates.electricityPerKwh === 'undefined') {
+        const normalizedRates = utilityRates
+            ? {
+                waterPerLiter: Number(utilityRates.waterPerLiter),
+                steamPerKg: Number(utilityRates.steamPerKg),
+                // Backward-compatible alias: frontend previously used powerPerKwh
+                electricityPerKwh: Number(
+                    typeof utilityRates.electricityPerKwh !== 'undefined'
+                        ? utilityRates.electricityPerKwh
+                        : utilityRates.powerPerKwh
+                )
+            }
+            : null;
+
+        if (!normalizedRates
+            || Number.isNaN(normalizedRates.waterPerLiter)
+            || Number.isNaN(normalizedRates.steamPerKg)
+            || Number.isNaN(normalizedRates.electricityPerKwh)) {
             res.status(400).json({ message: 'Please provide all utility rates' });
             return;
         }
 
         // Ensure they are positive
-        if (utilityRates.waterPerLiter < 0 || utilityRates.steamPerKg < 0 || utilityRates.electricityPerKwh < 0) {
+        if (normalizedRates.waterPerLiter < 0 || normalizedRates.steamPerKg < 0 || normalizedRates.electricityPerKwh < 0) {
             res.status(400).json({ message: 'Rates cannot be negative' });
+            return;
+        }
+
+        if (typeof targetYieldPercentage !== 'undefined') {
+            const numericTargetYield = Number(targetYieldPercentage);
+            if (Number.isNaN(numericTargetYield) || numericTargetYield < 0 || numericTargetYield > 100) {
+                res.status(400).json({ message: 'targetYieldPercentage must be between 0 and 100' });
+                return;
+            }
+        }
+
+        if (typeof dailyReportEmails !== 'undefined' && !Array.isArray(dailyReportEmails)) {
+            res.status(400).json({ message: 'dailyReportEmails must be an array of email addresses' });
             return;
         }
 
@@ -60,7 +89,15 @@ export const updateUtilityRates = async (req: AuthRequest, res: Response): Promi
             settings = new Settings();
         }
 
-        settings.utilityRates = utilityRates;
+        settings.utilityRates = normalizedRates;
+        if (typeof targetYieldPercentage !== 'undefined') {
+            settings.targetYieldPercentage = Number(targetYieldPercentage);
+        }
+        if (Array.isArray(dailyReportEmails)) {
+            settings.dailyReportEmails = dailyReportEmails
+                .map((email) => String(email).trim().toLowerCase())
+                .filter((email) => email.length > 0);
+        }
         if (req.user) {
             settings.updatedBy = req.user.id as any;
         }

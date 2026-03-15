@@ -23,6 +23,12 @@ export const initSocket = (httpServer: HttpServer) => {
             socket.join(role);
             console.log(`Socket ${socket.id} joined ${role}`);
         });
+
+        socket.on('join_user', (userId) => {
+            if (!userId) return;
+            socket.join(String(userId));
+            console.log(`Socket ${socket.id} joined user room ${userId}`);
+        });
     });
 
     return io;

@@ -39,10 +39,10 @@ router.get('/dashboard/admin', protect, authorize('ADMIN'), getAdminDashboard);
 router.get('/decision-feed', protect, authorize('ADMIN', 'MANAGER', 'STORE_MANAGER', 'SUPERVISOR'), getDecisionFeedData);
 router.get('/kpi-dictionary', protect, authorize('ADMIN', 'MANAGER', 'STORE_MANAGER', 'SUPERVISOR'), getKpiDictionaryData);
 router.get('/data-quality', protect, authorize('ADMIN', 'MANAGER'), getAnalyticsDataQuality);
-router.post('/decision-actions', protect, authorize('ADMIN', 'MANAGER', 'STORE_MANAGER', 'SUPERVISOR'), trackDecisionActionOutcome);
+router.post('/decision-actions', protect, authorize('MANAGER', 'STORE_MANAGER', 'SUPERVISOR'), trackDecisionActionOutcome);
 router.get('/decision-drilldown/:decisionId', protect, authorize('ADMIN', 'MANAGER', 'STORE_MANAGER', 'SUPERVISOR'), getDecisionDrilldownData);
 router.get('/decision-snapshots', protect, authorize('ADMIN', 'MANAGER'), getDecisionSnapshotsData);
-router.post('/kpi-formula-versions', protect, authorize('ADMIN'), createKpiFormulaVersionData);
+router.post('/kpi-formula-versions', protect, authorize('MANAGER'), createKpiFormulaVersionData);
 
 // Detailed Analytics Modules
 router.get('/inventory-health', protect, authorize('ADMIN', 'MANAGER', 'STORE_MANAGER'), getInventoryHealth);

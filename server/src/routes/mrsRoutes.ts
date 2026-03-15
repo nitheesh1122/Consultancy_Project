@@ -11,7 +11,7 @@ router.get('/my', protect, authorize('SUPERVISOR'), getMyMRS);
 // Store Manager Routes
 router.get('/pending', protect, authorize('STORE_MANAGER', 'ADMIN'), getPendingMRS);
 router.get('/history', protect, authorize('STORE_MANAGER', 'ADMIN'), getMRSHistory);
-router.put('/:id/issue', protect, authorize('STORE_MANAGER', 'ADMIN'), logAudit('MRS_ISSUED'), issueMRS);
+router.put('/:id/issue', protect, authorize('STORE_MANAGER'), logAudit('MRS_ISSUED'), issueMRS);
 router.post('/return', protect, authorize('SUPERVISOR'), logAudit('MATERIAL_RETURNED'), returnMaterial);
 
 export default router;
