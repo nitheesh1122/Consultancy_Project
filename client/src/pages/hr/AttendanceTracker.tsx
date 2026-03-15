@@ -5,8 +5,10 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import StatusBadge from '../../components/ui/StatusBadge';
 import { CalendarDays, Check, Users, Clock } from 'lucide-react';
+import { useSocket } from '../../context/SocketContext';
 
 const AttendanceTracker = () => {
+    const { socket } = useSocket();
     const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
     const [workers, setWorkers] = useState<any[]>([]);
     const [records, setRecords] = useState<any[]>([]);
@@ -18,6 +20,22 @@ const AttendanceTracker = () => {
     useEffect(() => {
         fetchData();
     }, [date]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const refresh = () => {
+            fetchData();
+        };
+
+        socket.on('attendance:marked', refresh);
+        socket.on('attendance:bulk_marked', refresh);
+
+        return () => {
+            socket.off('attendance:marked', refresh);
+            socket.off('attendance:bulk_marked', refresh);
+        };
+    }, [socket, date]);
 
     const fetchData = async () => {
         setLoading(true);

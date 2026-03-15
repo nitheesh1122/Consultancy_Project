@@ -6,8 +6,10 @@ import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import StatusBadge from '../../components/ui/StatusBadge';
 import { Plus, CheckCircle, XCircle } from 'lucide-react';
+import { useSocket } from '../../context/SocketContext';
 
 const LeaveRequests = () => {
+    const { socket } = useSocket();
     const [leaves, setLeaves] = useState<any[]>([]);
     const [workers, setWorkers] = useState<any[]>([]);
     const [summary, setSummary] = useState<any>({});
@@ -25,6 +27,22 @@ const LeaveRequests = () => {
     useEffect(() => {
         fetchData();
     }, [statusFilter]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const refresh = () => {
+            fetchData();
+        };
+
+        socket.on('leave:requested', refresh);
+        socket.on('leave:updated', refresh);
+
+        return () => {
+            socket.off('leave:requested', refresh);
+            socket.off('leave:updated', refresh);
+        };
+    }, [socket, statusFilter]);
 
     const fetchData = async () => {
         try {

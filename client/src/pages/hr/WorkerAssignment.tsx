@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../lib/api';
-import toast from 'react-hot-toast';
 import StatusBadge from '../../components/ui/StatusBadge';
-import { Users, Factory, ArrowRight } from 'lucide-react';
+import { Users, Factory } from 'lucide-react';
 
 const WorkerAssignment = () => {
     const [workers, setWorkers] = useState<any[]>([]);
     const [batches, setBatches] = useState<any[]>([]);
-    const [machines, setMachines] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -16,14 +14,12 @@ const WorkerAssignment = () => {
 
     const fetchData = async () => {
         try {
-            const [wRes, bRes, mRes] = await Promise.all([
+            const [wRes, bRes] = await Promise.all([
                 api.get('/workers'),
-                api.get('/production-batches'),
-                api.get('/machines')
+                api.get('/production-batches')
             ]);
             setWorkers((wRes.data?.workers || wRes.data || []).filter((w: any) => w.status !== 'INACTIVE'));
             setBatches((bRes.data || []).filter((b: any) => ['SCHEDULED', 'IN_PROGRESS'].includes(b.status)));
-            setMachines(mRes.data || []);
         } catch (error) {
             console.error('Error loading data', error);
         } finally {
@@ -34,13 +30,6 @@ const WorkerAssignment = () => {
     const availableWorkers = workers.filter(w => w.status === 'ACTIVE');
     const busyWorkers = workers.filter(w => w.status === 'BUSY');
     const onLeaveWorkers = workers.filter(w => w.status === 'ON_LEAVE');
-
-    // Build batch-worker map
-    const batchWorkerMap = new Map<string, any[]>();
-    for (const batch of batches) {
-        const assigned = batch.workers || [];
-        batchWorkerMap.set(batch._id, assigned);
-    }
 
     if (loading) return null;
 
@@ -83,15 +72,15 @@ const WorkerAssignment = () => {
                                 <div className="flex justify-between items-start mb-3">
                                     <div>
                                         <p className="font-bold text-primary">{batch.batchNumber || batch._id.slice(-6)}</p>
-                                        <p className="text-xs text-muted">{batch.fabricLotId?.lotNumber || 'Lot N/A'} • {batch.machineId?.name || 'Machine N/A'}</p>
+                                        <p className="text-xs text-muted">{batch.lotNumber || 'Lot N/A'} • {batch.machineId?.name || 'Machine N/A'}</p>
                                     </div>
                                     <StatusBadge status={batch.status === 'IN_PROGRESS' ? 'warning' : 'info'}>{batch.status}</StatusBadge>
                                 </div>
                                 <div className="border-t border-subtle pt-3">
-                                    <p className="text-xs font-semibold text-secondary mb-2">Assigned Workers ({batch.workers?.length || 0})</p>
-                                    {batch.workers?.length > 0 ? (
+                                    <p className="text-xs font-semibold text-secondary mb-2">Assigned Workers ({(batch.assignedWorkers || batch.workers || []).length || 0})</p>
+                                    {(batch.assignedWorkers || batch.workers || []).length > 0 ? (
                                         <div className="flex flex-wrap gap-1.5">
-                                            {batch.workers.map((w: any) => (
+                                            {(batch.assignedWorkers || batch.workers || []).map((w: any) => (
                                                 <span key={w._id || w} className="text-xs px-2 py-0.5 bg-elevated rounded-md border border-subtle font-medium text-primary">
                                                     {w.name || w}
                                                 </span>

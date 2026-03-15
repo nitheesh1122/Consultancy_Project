@@ -9,6 +9,7 @@ import { Input } from '../../components/ui/Input';
 
 const SupplierPurchaseOrders = () => {
     const [pos, setPOs] = useState<any[]>([]);
+    const [shipments, setShipments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [showShipModal, setShowShipModal] = useState(false);
     const [selectedPO, setSelectedPO] = useState<any>(null);
@@ -30,8 +31,12 @@ const SupplierPurchaseOrders = () => {
 
     const fetchPOs = async () => {
         try {
-            const { data } = await api.get('/supplier/my-purchase-orders');
-            setPOs(data);
+            const [poRes, shipRes] = await Promise.all([
+                api.get('/supplier/my-purchase-orders'),
+                api.get('/supplier/my-shipments')
+            ]);
+            setPOs(poRes.data);
+            setShipments(shipRes.data || []);
         } catch (error) {
             console.error('Error fetching POs', error);
         } finally {
@@ -162,6 +167,36 @@ const SupplierPurchaseOrders = () => {
                                             )}
                                         </div>
                                     </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div className="bg-card rounded-xl shadow-sm border border-subtle overflow-hidden">
+                <div className="px-6 py-4 border-b border-subtle bg-canvas/50">
+                    <h3 className="text-sm font-bold text-primary uppercase tracking-wider">Recent Shipments</h3>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                        <thead className="text-xs text-secondary bg-canvas uppercase tracking-wider">
+                            <tr>
+                                <th className="px-6 py-3">PO Number</th>
+                                <th className="px-6 py-3">Dispatch Date</th>
+                                <th className="px-6 py-3">Expected Delivery</th>
+                                <th className="px-6 py-3">Vehicle</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                            {shipments.length === 0 ? (
+                                <tr><td colSpan={4} className="px-6 py-8 text-center text-secondary italic">No shipments created yet</td></tr>
+                            ) : shipments.map((s: any) => (
+                                <tr key={s._id} className="hover:bg-canvas transition-colors">
+                                    <td className="px-6 py-4 font-semibold text-primary font-mono">{s.purchaseOrderId?.poNumber || '-'}</td>
+                                    <td className="px-6 py-4 text-secondary">{s.dispatchDate ? new Date(s.dispatchDate).toLocaleDateString() : '-'}</td>
+                                    <td className="px-6 py-4 text-secondary">{s.expectedDelivery ? new Date(s.expectedDelivery).toLocaleDateString() : '-'}</td>
+                                    <td className="px-6 py-4 font-mono text-primary">{s.vehicleNumber || '-'}</td>
                                 </tr>
                             ))}
                         </tbody>

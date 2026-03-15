@@ -5,8 +5,10 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { Plus, Users, Trash2, CalendarClock } from 'lucide-react';
+import { useSocket } from '../../context/SocketContext';
 
 const ShiftManagement = () => {
+    const { socket } = useSocket();
     const [shifts, setShifts] = useState<any[]>([]);
     const [workers, setWorkers] = useState<any[]>([]);
     const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
@@ -34,6 +36,22 @@ const ShiftManagement = () => {
     useEffect(() => {
         fetchData();
     }, [date]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const refresh = () => {
+            fetchData();
+        };
+
+        socket.on('shift:created', refresh);
+        socket.on('shift:updated', refresh);
+
+        return () => {
+            socket.off('shift:created', refresh);
+            socket.off('shift:updated', refresh);
+        };
+    }, [socket, date]);
 
     const fetchData = async () => {
         setLoading(true);
